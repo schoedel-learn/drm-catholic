@@ -7,15 +7,36 @@ Diocesan Relationship Manager (DRM) for Catholic Dioceses and Archdioceses in th
 DRM Catholic is a comprehensive relationship management system designed specifically for Catholic dioceses and archdioceses in the United States. It provides tools to manage:
 
 - **Dioceses & Archdioceses**: Track all diocesan information including location, leadership, and statistics
+- **Deaneries**: Manage groups of parishes for coordination and support
 - **Parishes**: Manage parish data within each diocese
-- **Contacts**: Maintain contact information for clergy and staff
+- **Schools**: Track Catholic schools (elementary, middle, high school) with principals and enrollment
+- **Organizations**: Manage Catholic organizations including:
+  - Catholic Charities
+  - Catholic hospitals and healthcare systems
+  - St. Vincent de Paul (SVDP) conferences
+  - Retreat centers, foundations, and other entities
+- **Apostolates**: Track all ministry groups and lay apostolates doing ministry in the name of the Church
+  - Youth ministry, campus ministry, pro-life
+  - Evangelization, catechesis, liturgical ministries
+  - Hispanic, African-American, Asian ministries
+  - Knights of Columbus, ladies auxiliaries, and more
+- **Diocesan Offices**: Manage administrative departments (chancery, tribunal, education, vocations, etc.)
+- **Contacts**: Maintain comprehensive contact information for:
+  - Clergy (bishops, priests, deacons)
+  - Religious (members of religious orders)
+  - Lay leaders (principals, directors, coordinators)
+  - Organization leadership (executives, board members)
 
 ## Features
 
 - RESTful API for diocesan data management
 - Support for all 195+ dioceses and archdioceses in the US
-- Parish management within dioceses
-- Contact management for clergy and staff
+- Complete organizational hierarchy tracking
+- Parish and deanery management
+- School management with superintendent and principal tracking
+- Organization management for hospitals, Catholic Charities, SVDP, etc.
+- Apostolate tracking for all Church ministries
+- Comprehensive contact management for anyone doing ministry in the name of the Church
 - Extensible architecture for future features
 
 ## Getting Started
@@ -65,6 +86,15 @@ npm start
 - `GET /api/v1/dioceses/:id/parishes` - Get parishes in diocese
 - `GET /api/v1/dioceses/:id/contacts` - Get contacts in diocese
 
+### Deaneries
+- `GET /api/v1/deaneries` - List all deaneries
+- `GET /api/v1/deaneries?dioceseId=xxx` - Filter by diocese
+- `GET /api/v1/deaneries/:id` - Get deanery by ID
+- `POST /api/v1/deaneries` - Create new deanery
+- `PUT /api/v1/deaneries/:id` - Update deanery
+- `DELETE /api/v1/deaneries/:id` - Delete deanery
+- `GET /api/v1/deaneries/:id/parishes` - Get parishes in deanery
+
 ### Parishes
 - `GET /api/v1/parishes` - List all parishes
 - `GET /api/v1/parishes?dioceseId=xxx` - Filter by diocese
@@ -74,15 +104,83 @@ npm start
 - `DELETE /api/v1/parishes/:id` - Delete parish
 - `GET /api/v1/parishes/:id/contacts` - Get contacts in parish
 
+### Schools
+- `GET /api/v1/schools` - List all schools
+- `GET /api/v1/schools?dioceseId=xxx` - Filter by diocese
+- `GET /api/v1/schools?parishId=xxx` - Filter by sponsoring parish
+- `GET /api/v1/schools?type=high_school` - Filter by type (elementary, middle, high_school, k8, k12, preschool)
+- `GET /api/v1/schools/:id` - Get school by ID
+- `POST /api/v1/schools` - Create new school
+- `PUT /api/v1/schools/:id` - Update school
+- `DELETE /api/v1/schools/:id` - Delete school
+- `GET /api/v1/schools/:id/contacts` - Get contacts at school
+
+### Organizations
+- `GET /api/v1/organizations` - List all organizations
+- `GET /api/v1/organizations?dioceseId=xxx` - Filter by diocese
+- `GET /api/v1/organizations?type=hospital` - Filter by type (catholic_charities, hospital, healthcare_system, svdp, etc.)
+- `GET /api/v1/organizations/:id` - Get organization by ID
+- `POST /api/v1/organizations` - Create new organization
+- `PUT /api/v1/organizations/:id` - Update organization
+- `DELETE /api/v1/organizations/:id` - Delete organization
+- `GET /api/v1/organizations/:id/contacts` - Get leadership/contacts at organization
+
+### Apostolates
+- `GET /api/v1/apostolates` - List all apostolates
+- `GET /api/v1/apostolates?dioceseId=xxx` - Filter by diocese
+- `GET /api/v1/apostolates?parishId=xxx` - Filter by parish
+- `GET /api/v1/apostolates?type=youth_ministry` - Filter by type
+- `GET /api/v1/apostolates/:id` - Get apostolate by ID
+- `POST /api/v1/apostolates` - Create new apostolate
+- `PUT /api/v1/apostolates/:id` - Update apostolate
+- `DELETE /api/v1/apostolates/:id` - Delete apostolate
+- `GET /api/v1/apostolates/:id/contacts` - Get contacts involved in apostolate
+
+### Diocesan Offices
+- `GET /api/v1/offices` - List all diocesan offices
+- `GET /api/v1/offices?dioceseId=xxx` - Filter by diocese
+- `GET /api/v1/offices?type=chancery` - Filter by type (chancery, tribunal, education, vocations, etc.)
+- `GET /api/v1/offices/:id` - Get office by ID
+- `POST /api/v1/offices` - Create new office
+- `PUT /api/v1/offices/:id` - Update office
+- `DELETE /api/v1/offices/:id` - Delete office
+- `GET /api/v1/offices/:id/contacts` - Get staff at office
+
 ### Contacts
 - `GET /api/v1/contacts` - List all contacts
 - `GET /api/v1/contacts?dioceseId=xxx` - Filter by diocese
 - `GET /api/v1/contacts?parishId=xxx` - Filter by parish
+- `GET /api/v1/contacts?schoolId=xxx` - Filter by school
+- `GET /api/v1/contacts?organizationId=xxx` - Filter by organization
 - `GET /api/v1/contacts?role=bishop` - Filter by role
 - `GET /api/v1/contacts/:id` - Get contact by ID
 - `POST /api/v1/contacts` - Create new contact
 - `PUT /api/v1/contacts/:id` - Update contact
 - `DELETE /api/v1/contacts/:id` - Delete contact
+
+## Data Model
+
+### Entity Types
+
+| Entity | Description |
+|--------|-------------|
+| Diocese | Diocese or archdiocese with bishop, location, statistics |
+| Deanery | Group of parishes for coordination |
+| Parish | Local church community with pastor and mass schedules |
+| School | Catholic school (preschool through high school) |
+| Organization | Catholic Charities, hospitals, SVDP, etc. |
+| Apostolate | Ministry group (youth, pro-life, evangelization, etc.) |
+| DiocesanOffice | Administrative department (chancery, tribunal, etc.) |
+| Contact | Person associated with any entity |
+
+### Contact Roles
+
+Contacts can have various roles including:
+- **Diocesan**: bishop, archbishop, auxiliary_bishop, vicar_general, chancellor, episcopal_vicar
+- **Parish**: pastor, parochial_vicar, deacon, pastoral_associate, director_religious_education
+- **School**: superintendent, principal, assistant_principal, teacher
+- **Organization**: executive_director, president, ceo, administrator
+- **General**: director, coordinator, staff, volunteer, board_member
 
 ## Development
 
@@ -105,7 +203,12 @@ drm-catholic/
 ├── src/
 │   ├── api/           # API route handlers
 │   │   ├── dioceses.ts
+│   │   ├── deaneries.ts
 │   │   ├── parishes.ts
+│   │   ├── schools.ts
+│   │   ├── organizations.ts
+│   │   ├── apostolates.ts
+│   │   ├── offices.ts
 │   │   └── contacts.ts
 │   ├── config/        # Application configuration
 │   ├── models/        # Data models and interfaces
@@ -155,3 +258,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [ ] Integration with USCCB data sources
 - [ ] Reporting and analytics
 - [ ] Multi-tenant support for individual dioceses
+- [ ] Ministry certification tracking
+- [ ] Safe environment training compliance
+- [ ] Event and calendar management

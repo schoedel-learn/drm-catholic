@@ -1,6 +1,15 @@
 import express, { Application, Request, Response } from 'express';
 import { getConfig } from './config';
-import { diocesesRouter, parishesRouter, contactsRouter } from './api';
+import {
+  diocesesRouter,
+  deaneriesRouter,
+  parishesRouter,
+  schoolsRouter,
+  organizationsRouter,
+  apostolatesRouter,
+  officesRouter,
+  contactsRouter,
+} from './api';
 
 const app: Application = express();
 const config = getConfig();
@@ -20,7 +29,12 @@ app.get('/health', (_req: Request, res: Response) => {
 
 // API Routes
 app.use(`${config.api.basePath}/dioceses`, diocesesRouter);
+app.use(`${config.api.basePath}/deaneries`, deaneriesRouter);
 app.use(`${config.api.basePath}/parishes`, parishesRouter);
+app.use(`${config.api.basePath}/schools`, schoolsRouter);
+app.use(`${config.api.basePath}/organizations`, organizationsRouter);
+app.use(`${config.api.basePath}/apostolates`, apostolatesRouter);
+app.use(`${config.api.basePath}/offices`, officesRouter);
 app.use(`${config.api.basePath}/contacts`, contactsRouter);
 
 // Root endpoint
@@ -32,7 +46,12 @@ app.get('/', (_req: Request, res: Response) => {
     endpoints: {
       health: '/health',
       dioceses: `${config.api.basePath}/dioceses`,
+      deaneries: `${config.api.basePath}/deaneries`,
       parishes: `${config.api.basePath}/parishes`,
+      schools: `${config.api.basePath}/schools`,
+      organizations: `${config.api.basePath}/organizations`,
+      apostolates: `${config.api.basePath}/apostolates`,
+      offices: `${config.api.basePath}/offices`,
       contacts: `${config.api.basePath}/contacts`,
     },
   });

@@ -1,5 +1,5 @@
 import { dataStore } from '../services';
-import { Diocese, Parish, Contact } from '../models';
+import { Diocese, Parish, Contact, School, Organization, Apostolate, DiocesanOffice, Deanery } from '../models';
 import { generateId } from '../utils';
 
 describe('DataStore', () => {
@@ -66,6 +66,27 @@ describe('DataStore', () => {
     });
   });
 
+  describe('Deanery Operations', () => {
+    const testDeanery: Deanery = {
+      id: 'deanery-1',
+      name: 'North Deanery',
+      dioceseId: 'diocese-1',
+      description: 'Northern parishes',
+    };
+
+    it('should create a deanery', () => {
+      const created = dataStore.createDeanery(testDeanery);
+      expect(created).toEqual(testDeanery);
+    });
+
+    it('should get deaneries by diocese', () => {
+      dataStore.createDeanery(testDeanery);
+      dataStore.createDeanery({ ...testDeanery, id: 'deanery-2', dioceseId: 'diocese-2' });
+      const diocese1Deaneries = dataStore.getDeaneriesByDiocese('diocese-1');
+      expect(diocese1Deaneries).toHaveLength(1);
+    });
+  });
+
   describe('Parish Operations', () => {
     const testParish: Parish = {
       id: 'parish-1',
@@ -90,6 +111,125 @@ describe('DataStore', () => {
       dataStore.createParish({ ...testParish, id: 'parish-2', dioceseId: 'diocese-2' });
       const diocese1Parishes = dataStore.getParishesByDiocese('diocese-1');
       expect(diocese1Parishes).toHaveLength(1);
+    });
+  });
+
+  describe('School Operations', () => {
+    const testSchool: School = {
+      id: 'school-1',
+      name: 'St. Test Catholic School',
+      dioceseId: 'diocese-1',
+      type: 'elementary',
+      address: {
+        street: '456 School Rd',
+        city: 'Test City',
+        state: 'TX',
+        zipCode: '12345',
+        country: 'USA',
+      },
+    };
+
+    it('should create a school', () => {
+      const created = dataStore.createSchool(testSchool);
+      expect(created).toEqual(testSchool);
+    });
+
+    it('should get schools by diocese', () => {
+      dataStore.createSchool(testSchool);
+      dataStore.createSchool({ ...testSchool, id: 'school-2', dioceseId: 'diocese-2' });
+      const diocese1Schools = dataStore.getSchoolsByDiocese('diocese-1');
+      expect(diocese1Schools).toHaveLength(1);
+    });
+
+    it('should get schools by parish', () => {
+      dataStore.createSchool({ ...testSchool, parishId: 'parish-1' });
+      dataStore.createSchool({ ...testSchool, id: 'school-2', parishId: 'parish-2' });
+      const parish1Schools = dataStore.getSchoolsByParish('parish-1');
+      expect(parish1Schools).toHaveLength(1);
+    });
+  });
+
+  describe('Organization Operations', () => {
+    const testOrganization: Organization = {
+      id: 'org-1',
+      name: 'Catholic Charities of Test City',
+      dioceseId: 'diocese-1',
+      type: 'catholic_charities',
+    };
+
+    it('should create an organization', () => {
+      const created = dataStore.createOrganization(testOrganization);
+      expect(created).toEqual(testOrganization);
+    });
+
+    it('should get organizations by diocese', () => {
+      dataStore.createOrganization(testOrganization);
+      dataStore.createOrganization({ ...testOrganization, id: 'org-2', dioceseId: 'diocese-2' });
+      const diocese1Orgs = dataStore.getOrganizationsByDiocese('diocese-1');
+      expect(diocese1Orgs).toHaveLength(1);
+    });
+
+    it('should get organizations by type', () => {
+      dataStore.createOrganization(testOrganization);
+      dataStore.createOrganization({ ...testOrganization, id: 'org-2', type: 'hospital' });
+      const charities = dataStore.getOrganizationsByType('catholic_charities');
+      expect(charities).toHaveLength(1);
+    });
+  });
+
+  describe('Apostolate Operations', () => {
+    const testApostolate: Apostolate = {
+      id: 'apostolate-1',
+      name: 'Youth Ministry',
+      dioceseId: 'diocese-1',
+      type: 'youth_ministry',
+    };
+
+    it('should create an apostolate', () => {
+      const created = dataStore.createApostolate(testApostolate);
+      expect(created).toEqual(testApostolate);
+    });
+
+    it('should get apostolates by diocese', () => {
+      dataStore.createApostolate(testApostolate);
+      dataStore.createApostolate({ ...testApostolate, id: 'apostolate-2', dioceseId: 'diocese-2' });
+      const diocese1Apostolates = dataStore.getApostolatesByDiocese('diocese-1');
+      expect(diocese1Apostolates).toHaveLength(1);
+    });
+
+    it('should get apostolates by type', () => {
+      dataStore.createApostolate(testApostolate);
+      dataStore.createApostolate({ ...testApostolate, id: 'apostolate-2', type: 'pro_life' });
+      const youthMinistry = dataStore.getApostolatesByType('youth_ministry');
+      expect(youthMinistry).toHaveLength(1);
+    });
+  });
+
+  describe('Diocesan Office Operations', () => {
+    const testOffice: DiocesanOffice = {
+      id: 'office-1',
+      name: 'Office of Vocations',
+      dioceseId: 'diocese-1',
+      type: 'vocations',
+    };
+
+    it('should create an office', () => {
+      const created = dataStore.createOffice(testOffice);
+      expect(created).toEqual(testOffice);
+    });
+
+    it('should get offices by diocese', () => {
+      dataStore.createOffice(testOffice);
+      dataStore.createOffice({ ...testOffice, id: 'office-2', dioceseId: 'diocese-2' });
+      const diocese1Offices = dataStore.getOfficesByDiocese('diocese-1');
+      expect(diocese1Offices).toHaveLength(1);
+    });
+
+    it('should get offices by type', () => {
+      dataStore.createOffice(testOffice);
+      dataStore.createOffice({ ...testOffice, id: 'office-2', type: 'chancery' });
+      const vocationsOffices = dataStore.getOfficesByType('vocations');
+      expect(vocationsOffices).toHaveLength(1);
     });
   });
 
@@ -119,6 +259,34 @@ describe('DataStore', () => {
       dataStore.createContact({ ...testContact, id: 'contact-2', parishId: 'parish-2' });
       const parish1Contacts = dataStore.getContactsByParish('parish-1');
       expect(parish1Contacts).toHaveLength(1);
+    });
+
+    it('should get contacts by school', () => {
+      dataStore.createContact({ ...testContact, schoolId: 'school-1', role: 'principal' });
+      dataStore.createContact({ ...testContact, id: 'contact-2', schoolId: 'school-2', role: 'principal' });
+      const school1Contacts = dataStore.getContactsBySchool('school-1');
+      expect(school1Contacts).toHaveLength(1);
+    });
+
+    it('should get contacts by organization', () => {
+      dataStore.createContact({ ...testContact, organizationId: 'org-1', role: 'executive_director' });
+      dataStore.createContact({ ...testContact, id: 'contact-2', organizationId: 'org-2', role: 'executive_director' });
+      const org1Contacts = dataStore.getContactsByOrganization('org-1');
+      expect(org1Contacts).toHaveLength(1);
+    });
+
+    it('should get contacts by apostolate', () => {
+      dataStore.createContact({ ...testContact, apostolateId: 'apostolate-1', role: 'director' });
+      dataStore.createContact({ ...testContact, id: 'contact-2', apostolateId: 'apostolate-2', role: 'director' });
+      const apostolate1Contacts = dataStore.getContactsByApostolate('apostolate-1');
+      expect(apostolate1Contacts).toHaveLength(1);
+    });
+
+    it('should get contacts by office', () => {
+      dataStore.createContact({ ...testContact, officeId: 'office-1', role: 'director' });
+      dataStore.createContact({ ...testContact, id: 'contact-2', officeId: 'office-2', role: 'director' });
+      const office1Contacts = dataStore.getContactsByOffice('office-1');
+      expect(office1Contacts).toHaveLength(1);
     });
   });
 });
