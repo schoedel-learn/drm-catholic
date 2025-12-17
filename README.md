@@ -7,14 +7,16 @@ Diocesan Relationship Manager (DRM) for Catholic Dioceses and Archdioceses in th
 DRM Catholic is a comprehensive relationship management system designed specifically for Catholic dioceses and archdioceses in the United States. It provides tools to manage:
 
 - **Dioceses & Archdioceses**: Track all diocesan information including location, leadership, and statistics
+  - Support for tracking external dioceses (contacts from other dioceses)
+  - Ecclesiastical province tracking
 - **Deaneries**: Manage groups of parishes for coordination and support
 - **Parishes**: Manage parish data within each diocese
 - **Schools**: Track Catholic schools (elementary, middle, high school) with principals and enrollment
-- **Organizations**: Manage Catholic organizations including:
-  - Catholic Charities
-  - Catholic hospitals and healthcare systems
-  - St. Vincent de Paul (SVDP) conferences
-  - Retreat centers, foundations, and other entities
+- **Organizations**: Manage Catholic organizations at all levels:
+  - **Diocesan**: Catholic Charities, hospitals, healthcare systems, SVDP, retreat centers
+  - **National**: USCCB (United States Conference of Catholic Bishops) and committees
+  - **International**: Roman Curia, Pontifical councils, Vatican dicasteries
+  - Religious congregations, seminaries, Catholic universities
 - **Apostolates**: Track all ministry groups and lay apostolates doing ministry in the name of the Church
   - Youth ministry, campus ministry, pro-life
   - Evangelization, catechesis, liturgical ministries
@@ -22,19 +24,28 @@ DRM Catholic is a comprehensive relationship management system designed specific
   - Knights of Columbus, ladies auxiliaries, and more
 - **Diocesan Offices**: Manage administrative departments (chancery, tribunal, education, vocations, etc.)
 - **Contacts**: Maintain comprehensive contact information for:
-  - Clergy (bishops, priests, deacons)
+  - Clergy (bishops, auxiliary bishops, priests, deacons)
   - Religious (members of religious orders)
-  - Lay leaders (principals, directors, coordinators)
+  - Lay leaders (principals, directors, associate directors, coordinators)
   - Organization leadership (executives, board members)
+  - External contacts from other dioceses
+- **Positions**: Track multiple roles held by contacts across organizations:
+  - USCCB committee positions
+  - Roman Curia appointments
+  - Positions in other dioceses
+  - Leadership roles across multiple entities
 
 ## Features
 
 - RESTful API for diocesan data management
 - Support for all 195+ dioceses and archdioceses in the US
+- **Cross-diocesan contact tracking** - Track contacts from other dioceses
+- **Multiple position support** - A contact can hold positions in USCCB, Roman Curia, and other organizations
+- **Organization scope levels** - Parish, diocesan, provincial, national, and international organizations
 - Complete organizational hierarchy tracking
 - Parish and deanery management
 - School management with superintendent and principal tracking
-- Organization management for hospitals, Catholic Charities, SVDP, etc.
+- Organization management for hospitals, Catholic Charities, SVDP, USCCB, Roman Curia, etc.
 - Apostolate tracking for all Church ministries
 - Comprehensive contact management for anyone doing ministry in the name of the Church
 - Extensible architecture for future features
@@ -118,12 +129,16 @@ npm start
 ### Organizations
 - `GET /api/v1/organizations` - List all organizations
 - `GET /api/v1/organizations?dioceseId=xxx` - Filter by diocese
-- `GET /api/v1/organizations?type=hospital` - Filter by type (catholic_charities, hospital, healthcare_system, svdp, etc.)
+- `GET /api/v1/organizations?type=hospital` - Filter by type (catholic_charities, hospital, usccb, roman_curia, etc.)
+- `GET /api/v1/organizations?scope=national` - Filter by scope (parish, diocesan, provincial, national, international)
+- `GET /api/v1/organizations/national` - Get all national organizations (e.g., USCCB)
+- `GET /api/v1/organizations/international` - Get all international organizations (e.g., Roman Curia)
 - `GET /api/v1/organizations/:id` - Get organization by ID
 - `POST /api/v1/organizations` - Create new organization
 - `PUT /api/v1/organizations/:id` - Update organization
 - `DELETE /api/v1/organizations/:id` - Delete organization
 - `GET /api/v1/organizations/:id/contacts` - Get leadership/contacts at organization
+- `GET /api/v1/organizations/:id/positions` - Get all positions held within organization
 
 ### Apostolates
 - `GET /api/v1/apostolates` - List all apostolates
@@ -158,29 +173,71 @@ npm start
 - `PUT /api/v1/contacts/:id` - Update contact
 - `DELETE /api/v1/contacts/:id` - Delete contact
 
+### Positions (Multiple Roles per Contact)
+- `GET /api/v1/positions` - List all contact positions
+- `GET /api/v1/positions?contactId=xxx` - Get all positions for a contact
+- `GET /api/v1/positions?dioceseId=xxx` - Get positions in a diocese
+- `GET /api/v1/positions?organizationId=xxx` - Get positions in an organization (e.g., USCCB)
+- `GET /api/v1/positions/:id` - Get position by ID
+- `POST /api/v1/positions` - Create new position (e.g., add USCCB committee role)
+- `PUT /api/v1/positions/:id` - Update position
+- `DELETE /api/v1/positions/:id` - Delete position
+
 ## Data Model
 
 ### Entity Types
 
 | Entity | Description |
 |--------|-------------|
-| Diocese | Diocese or archdiocese with bishop, location, statistics |
+| Diocese | Diocese or archdiocese with bishop, location, statistics (supports external dioceses) |
+| Province | Ecclesiastical province grouping dioceses under a metropolitan |
 | Deanery | Group of parishes for coordination |
 | Parish | Local church community with pastor and mass schedules |
 | School | Catholic school (preschool through high school) |
-| Organization | Catholic Charities, hospitals, SVDP, etc. |
+| Organization | Catholic organizations with scope (diocesan, national, international) |
 | Apostolate | Ministry group (youth, pro-life, evangelization, etc.) |
 | DiocesanOffice | Administrative department (chancery, tribunal, etc.) |
-| Contact | Person associated with any entity |
+| Contact | Person associated with any entity (supports external contacts) |
+| ContactPosition | Additional roles held by a contact (USCCB, Roman Curia positions) |
+
+### Organization Types
+
+| Type | Description |
+|------|-------------|
+| catholic_charities | Catholic Charities organizations |
+| hospital | Catholic hospitals |
+| healthcare_system | Healthcare networks |
+| svdp | St. Vincent de Paul conferences |
+| usccb | USCCB (United States Conference of Catholic Bishops) |
+| usccb_committee | USCCB committees and subcommittees |
+| roman_curia | Roman Curia dicasteries |
+| pontifical_council | Pontifical councils |
+| religious_congregation | Religious orders/congregations |
+| seminary | Seminaries |
+| catholic_university | Catholic universities |
+
+### Organization Scopes
+
+| Scope | Description |
+|-------|-------------|
+| parish | Parish-level organization |
+| diocesan | Diocese-level organization |
+| provincial | Province-level organization |
+| national | National organization (e.g., USCCB) |
+| international | International organization (e.g., Roman Curia) |
 
 ### Contact Roles
 
 Contacts can have various roles including:
-- **Diocesan**: bishop, archbishop, auxiliary_bishop, vicar_general, chancellor, episcopal_vicar
-- **Parish**: pastor, parochial_vicar, deacon, pastoral_associate, director_religious_education
-- **School**: superintendent, principal, assistant_principal, teacher
-- **Organization**: executive_director, president, ceo, administrator
-- **General**: director, coordinator, staff, volunteer, board_member
+- **Church Leadership**: pope, cardinal, archbishop, bishop, auxiliary_bishop, coadjutor_bishop, bishop_emeritus
+- **Diocesan**: vicar_general, chancellor, vice_chancellor, episcopal_vicar, judicial_vicar
+- **Parish**: pastor, parochial_vicar, parochial_administrator, deacon, pastoral_associate
+- **School**: superintendent, associate_superintendent, principal, assistant_principal
+- **Organization**: executive_director, president, vice_president, ceo, cfo, coo, administrator
+- **Ministry**: director, associate_director, assistant_director, coordinator, associate_coordinator
+- **USCCB**: usccb_president, usccb_vice_president, usccb_committee_chair, usccb_committee_member
+- **Roman Curia**: prefect, secretary, undersecretary, nuncio, apostolic_nuncio
+- **General**: staff, volunteer, board_member, board_chair, trustee, consultant
 
 ## Development
 

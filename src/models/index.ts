@@ -12,6 +12,7 @@ export interface Address {
 /**
  * Diocese Model
  * Represents a Catholic diocese or archdiocese in the United States
+ * Also used to track external dioceses for cross-diocesan contact management
  */
 export interface Diocese {
   id: string;
@@ -28,6 +29,18 @@ export interface Diocese {
   address?: Address;
   parishes?: number;
   catholics?: number;
+  isExternal?: boolean; // True if this is an external diocese being tracked
+}
+
+/**
+ * Province Model
+ * Represents an ecclesiastical province (grouping of dioceses under a metropolitan)
+ */
+export interface Province {
+  id: string;
+  name: string;
+  metropolitanDioceseId: string; // The archdiocese that leads the province
+  sufFraganDioceseIds: string[]; // List of diocese IDs in the province
 }
 
 /**
@@ -97,20 +110,29 @@ export type SchoolType =
 
 /**
  * Organization Model
- * Represents Catholic organizations (Catholic Charities, hospitals, SVDP, etc.)
+ * Represents Catholic organizations (Catholic Charities, hospitals, SVDP, USCCB, Roman Curia, etc.)
  */
 export interface Organization {
   id: string;
   name: string;
-  dioceseId: string;
+  dioceseId?: string; // Optional - null for national/international organizations like USCCB
   type: OrganizationType;
+  scope: OrganizationScope;
   address?: Address;
   phone?: string;
   email?: string;
   website?: string;
   description?: string;
   established?: Date;
+  parentOrganizationId?: string; // For hierarchical organizations
 }
+
+export type OrganizationScope =
+  | 'parish' // Parish-level organization
+  | 'diocesan' // Diocese-level organization
+  | 'provincial' // Province-level organization
+  | 'national' // National organization (e.g., USCCB)
+  | 'international'; // International organization (e.g., Roman Curia, Vatican)
 
 export type OrganizationType =
   | 'catholic_charities'
@@ -122,6 +144,13 @@ export type OrganizationType =
   | 'cemetery'
   | 'foundation'
   | 'media'
+  | 'usccb' // United States Conference of Catholic Bishops
+  | 'usccb_committee' // USCCB Committees and Subcommittees
+  | 'roman_curia' // Roman Curia (Vatican dicasteries)
+  | 'pontifical_council' // Pontifical councils
+  | 'religious_congregation' // Religious orders/congregations
+  | 'catholic_university'
+  | 'seminary'
   | 'other';
 
 /**
@@ -201,6 +230,7 @@ export type OfficeType =
 /**
  * Contact Model
  * Represents a contact person within any diocesan entity
+ * Supports tracking contacts from external dioceses and their positions in various organizations
  */
 export interface Contact {
   id: string;
@@ -208,13 +238,16 @@ export interface Contact {
   lastName: string;
   title?: string;
   role: ContactRole;
-  // Entity associations - contact can be linked to multiple entities
+  // Primary entity associations - contact's main position
   dioceseId?: string;
   parishId?: string;
   schoolId?: string;
   organizationId?: string;
   apostolateId?: string;
   officeId?: string;
+  // External diocese tracking - for contacts from other dioceses
+  homeDioceseId?: string; // The diocese where this contact is incardinated/belongs
+  isExternalContact?: boolean; // True if contact is from another diocese
   // Contact info
   email?: string;
   phone?: string;
@@ -223,39 +256,103 @@ export interface Contact {
   isClergy?: boolean;
   isReligious?: boolean; // Member of religious order
   clergyType?: ClergyType;
+  religiousOrder?: string; // Name of religious order if applicable
+  // Multiple positions - a contact can hold multiple roles
+  additionalPositions?: ContactPosition[];
+}
+
+/**
+ * ContactPosition Model
+ * Represents an additional position/role held by a contact
+ * Allows tracking of positions in USCCB, Roman Curia, other dioceses, etc.
+ */
+export interface ContactPosition {
+  id: string;
+  contactId: string;
+  role: ContactRole;
+  title?: string;
+  // The entity where this position is held
+  dioceseId?: string;
+  organizationId?: string;
+  officeId?: string;
+  apostolateId?: string;
+  parishId?: string;
+  schoolId?: string;
+  // Position details
+  startDate?: Date;
+  endDate?: Date;
+  isPrimary?: boolean;
+  notes?: string;
 }
 
 export type ContactRole =
-  // Diocesan leadership
-  | 'bishop'
+  // Diocesan/Church leadership
+  | 'pope'
+  | 'cardinal'
   | 'archbishop'
+  | 'bishop'
   | 'auxiliary_bishop'
+  | 'bishop_emeritus'
+  | 'coadjutor_bishop'
   | 'vicar_general'
   | 'chancellor'
+  | 'vice_chancellor'
   | 'episcopal_vicar'
   | 'judicial_vicar'
+  | 'adjutant_judicial_vicar'
+  | 'promoter_of_justice'
+  | 'defender_of_the_bond'
   // Parish roles
   | 'pastor'
   | 'parochial_vicar'
+  | 'parochial_administrator'
   | 'deacon'
   | 'pastoral_associate'
   | 'director_religious_education'
+  | 'music_director'
+  | 'business_manager'
   // School roles
   | 'superintendent'
+  | 'associate_superintendent'
   | 'principal'
   | 'assistant_principal'
   | 'teacher'
-  // Organization roles
+  // Organization/Office roles
   | 'executive_director'
   | 'president'
+  | 'vice_president'
   | 'ceo'
+  | 'cfo'
+  | 'coo'
   | 'administrator'
-  // General roles
   | 'director'
+  | 'associate_director'
+  | 'assistant_director'
   | 'coordinator'
+  | 'associate_coordinator'
+  | 'manager'
+  | 'secretary'
+  | 'moderator'
+  // USCCB specific roles
+  | 'usccb_president'
+  | 'usccb_vice_president'
+  | 'usccb_treasurer'
+  | 'usccb_secretary'
+  | 'usccb_committee_chair'
+  | 'usccb_committee_member'
+  // Roman Curia roles
+  | 'prefect'
+  | 'secretary'
+  | 'undersecretary'
+  | 'nuncio'
+  | 'apostolic_nuncio'
+  // General roles
   | 'staff'
   | 'volunteer'
   | 'board_member'
+  | 'board_chair'
+  | 'trustee'
+  | 'consultant'
   | 'other';
 
 export type ClergyType =

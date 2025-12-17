@@ -9,6 +9,7 @@ import {
   apostolatesRouter,
   officesRouter,
   contactsRouter,
+  positionsRouter,
 } from './api';
 
 const app: Application = express();
@@ -36,6 +37,7 @@ app.use(`${config.api.basePath}/organizations`, organizationsRouter);
 app.use(`${config.api.basePath}/apostolates`, apostolatesRouter);
 app.use(`${config.api.basePath}/offices`, officesRouter);
 app.use(`${config.api.basePath}/contacts`, contactsRouter);
+app.use(`${config.api.basePath}/positions`, positionsRouter);
 
 // Root endpoint
 app.get('/', (_req: Request, res: Response) => {
@@ -53,6 +55,7 @@ app.get('/', (_req: Request, res: Response) => {
       apostolates: `${config.api.basePath}/apostolates`,
       offices: `${config.api.basePath}/offices`,
       contacts: `${config.api.basePath}/contacts`,
+      positions: `${config.api.basePath}/positions`,
     },
   });
 });

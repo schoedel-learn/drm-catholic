@@ -6,3 +6,4 @@ export { default as organizationsRouter } from './organizations';
 export { default as apostolatesRouter } from './apostolates';
 export { default as officesRouter } from './offices';
 export { default as contactsRouter } from './contacts';
+export { default as positionsRouter } from './positions';

@@ -2,11 +2,13 @@ import {
   Diocese,
   Parish,
   Contact,
+  ContactPosition,
   School,
   Organization,
   Apostolate,
   DiocesanOffice,
   Deanery,
+  Province,
 } from '../models';
 
 /**
@@ -15,6 +17,7 @@ import {
  */
 class DataStore {
   private dioceses: Map<string, Diocese> = new Map();
+  private provinces: Map<string, Province> = new Map();
   private deaneries: Map<string, Deanery> = new Map();
   private parishes: Map<string, Parish> = new Map();
   private schools: Map<string, School> = new Map();
@@ -22,10 +25,19 @@ class DataStore {
   private apostolates: Map<string, Apostolate> = new Map();
   private offices: Map<string, DiocesanOffice> = new Map();
   private contacts: Map<string, Contact> = new Map();
+  private contactPositions: Map<string, ContactPosition> = new Map();
 
   // Diocese operations
   getAllDioceses(): Diocese[] {
     return Array.from(this.dioceses.values());
+  }
+
+  getLocalDioceses(): Diocese[] {
+    return this.getAllDioceses().filter((d) => !d.isExternal);
+  }
+
+  getExternalDioceses(): Diocese[] {
+    return this.getAllDioceses().filter((d) => d.isExternal === true);
   }
 
   getDioceseById(id: string): Diocese | undefined {
@@ -309,9 +321,104 @@ class DataStore {
     return this.offices.delete(id);
   }
 
+  // Province operations
+  getAllProvinces(): Province[] {
+    return Array.from(this.provinces.values());
+  }
+
+  getProvinceById(id: string): Province | undefined {
+    return this.provinces.get(id);
+  }
+
+  createProvince(province: Province): Province {
+    this.provinces.set(province.id, province);
+    return province;
+  }
+
+  updateProvince(id: string, updates: Partial<Province>): Province | undefined {
+    const existing = this.provinces.get(id);
+    if (!existing) return undefined;
+    const updated = { ...existing, ...updates };
+    this.provinces.set(id, updated);
+    return updated;
+  }
+
+  deleteProvince(id: string): boolean {
+    return this.provinces.delete(id);
+  }
+
+  // Contact Position operations (for tracking multiple roles)
+  getAllContactPositions(): ContactPosition[] {
+    return Array.from(this.contactPositions.values());
+  }
+
+  getContactPositionById(id: string): ContactPosition | undefined {
+    return this.contactPositions.get(id);
+  }
+
+  getPositionsByContact(contactId: string): ContactPosition[] {
+    return this.getAllContactPositions().filter((p) => p.contactId === contactId);
+  }
+
+  getPositionsByOrganization(organizationId: string): ContactPosition[] {
+    return this.getAllContactPositions().filter((p) => p.organizationId === organizationId);
+  }
+
+  getPositionsByDiocese(dioceseId: string): ContactPosition[] {
+    return this.getAllContactPositions().filter((p) => p.dioceseId === dioceseId);
+  }
+
+  createContactPosition(position: ContactPosition): ContactPosition {
+    this.contactPositions.set(position.id, position);
+    return position;
+  }
+
+  updateContactPosition(id: string, updates: Partial<ContactPosition>): ContactPosition | undefined {
+    const existing = this.contactPositions.get(id);
+    if (!existing) return undefined;
+    const updated = { ...existing, ...updates };
+    this.contactPositions.set(id, updated);
+    return updated;
+  }
+
+  deleteContactPosition(id: string): boolean {
+    return this.contactPositions.delete(id);
+  }
+
+  // Extended organization queries
+  getOrganizationsByScope(scope: string): Organization[] {
+    return this.getAllOrganizations().filter((o) => o.scope === scope);
+  }
+
+  getNationalOrganizations(): Organization[] {
+    return this.getOrganizationsByScope('national');
+  }
+
+  getInternationalOrganizations(): Organization[] {
+    return this.getOrganizationsByScope('international');
+  }
+
+  // Extended contact queries
+  getExternalContacts(): Contact[] {
+    return this.getAllContacts().filter((c) => c.isExternalContact === true);
+  }
+
+  getContactsByHomeDiocese(homeDioceseId: string): Contact[] {
+    return this.getAllContacts().filter((c) => c.homeDioceseId === homeDioceseId);
+  }
+
+  getClergyContacts(): Contact[] {
+    return this.getAllContacts().filter((c) => c.isClergy === true);
+  }
+
+  getReligiousContacts(): Contact[] {
+    return this.getAllContacts().filter((c) => c.isReligious === true);
+  }
+
   // Utility methods
   clear(): void {
     this.dioceses.clear();
+    this.provinces.clear();
     this.deaneries.clear();
     this.parishes.clear();
     this.schools.clear();
@@ -319,6 +426,7 @@ class DataStore {
     this.apostolates.clear();
     this.offices.clear();
     this.contacts.clear();
+    this.contactPositions.clear();
   }
 }
 

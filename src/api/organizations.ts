@@ -7,10 +7,10 @@ const router = Router();
 
 /**
  * GET /api/v1/organizations
- * Get all organizations (Catholic Charities, hospitals, SVDP, etc.)
+ * Get all organizations (Catholic Charities, hospitals, SVDP, USCCB, Roman Curia, etc.)
  */
 router.get('/', (req: Request, res: Response) => {
-  const { dioceseId, type } = req.query;
+  const { dioceseId, type, scope } = req.query;
 
   let organizations = dataStore.getAllOrganizations();
 
@@ -21,6 +21,38 @@ router.get('/', (req: Request, res: Response) => {
   if (type && typeof type === 'string') {
     organizations = organizations.filter((o) => o.type === type);
   }
+
+  if (scope && typeof scope === 'string') {
+    organizations = organizations.filter((o) => o.scope === scope);
+  }
+
+  res.json({
+    success: true,
+    data: organizations,
+    count: organizations.length,
+  });
+});
+
+/**
+ * GET /api/v1/organizations/national
+ * Get all national organizations (e.g., USCCB)
+ */
+router.get('/national', (_req: Request, res: Response) => {
+  const organizations = dataStore.getNationalOrganizations();
+
+  res.json({
+    success: true,
+    data: organizations,
+    count: organizations.length,
+  });
+});
+
+/**
+ * GET /api/v1/organizations/international
+ * Get all international organizations (e.g., Roman Curia)
+ */
+router.get('/international', (_req: Request, res: Response) => {
+  const organizations = dataStore.getInternationalOrganizations();
 
   res.json({
     success: true,
@@ -55,24 +87,35 @@ router.get('/:id', (req: Request, res: Response) => {
  * Create a new organization
  */
 router.post('/', (req: Request, res: Response) => {
-  const { name, dioceseId, type, address, phone, email, website, description } = req.body;
+  const { name, dioceseId, type, scope, address, phone, email, website, description, parentOrganizationId } = req.body;
 
-  if (!name || !dioceseId || !type) {
+  if (!name || !type || !scope) {
     res.status(400).json({
       success: false,
-      error: 'Missing required fields: name, dioceseId, type',
+      error: 'Missing required fields: name, type, scope',
     });
     return;
   }
 
-  // Verify diocese exists
-  const diocese = dataStore.getDioceseById(dioceseId);
-  if (!diocese) {
+  // For diocesan/parish scope, require dioceseId
+  if ((scope === 'diocesan' || scope === 'parish') && !dioceseId) {
     res.status(400).json({
       success: false,
-      error: 'Diocese not found',
+      error: 'dioceseId is required for diocesan or parish scope organizations',
     });
     return;
+  }
+
+  // Verify diocese exists if provided
+  if (dioceseId) {
+    const diocese = dataStore.getDioceseById(dioceseId);
+    if (!diocese) {
+      res.status(400).json({
+        success: false,
+        error: 'Diocese not found',
+      });
+      return;
+    }
   }
 
   const organization: Organization = {
@@ -80,11 +123,13 @@ router.post('/', (req: Request, res: Response) => {
     name,
     dioceseId,
     type,
+    scope,
     address,
     phone,
     email,
     website,
     description,
+    parentOrganizationId,
   };
 
   const created = dataStore.createOrganization(organization);
@@ -158,6 +203,30 @@ router.get('/:id/contacts', (req: Request, res: Response) => {
     success: true,
     data: contacts,
     count: contacts.length,
+  });
+});
+
+/**
+ * GET /api/v1/organizations/:id/positions
+ * Get all positions held within an organization (for USCCB, Roman Curia tracking)
+ */
+router.get('/:id/positions', (req: Request, res: Response) => {
+  const organization = dataStore.getOrganizationById(req.params.id);
+
+  if (!organization) {
+    res.status(404).json({
+      success: false,
+      error: 'Organization not found',
+    });
+    return;
+  }
+
+  const positions = dataStore.getPositionsByOrganization(req.params.id);
+
+  res.json({
+    success: true,
+    data: positions,
+    count: positions.length,
   });
 });
 

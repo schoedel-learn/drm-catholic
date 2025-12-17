@@ -1,5 +1,5 @@
 import { dataStore } from '../services';
-import { Diocese, Parish, Contact, School, Organization, Apostolate, DiocesanOffice, Deanery } from '../models';
+import { Diocese, Parish, Contact, ContactPosition, School, Organization, Apostolate, DiocesanOffice, Deanery } from '../models';
 import { generateId } from '../utils';
 
 describe('DataStore', () => {
@@ -155,6 +155,7 @@ describe('DataStore', () => {
       name: 'Catholic Charities of Test City',
       dioceseId: 'diocese-1',
       type: 'catholic_charities',
+      scope: 'diocesan',
     };
 
     it('should create an organization', () => {
@@ -287,6 +288,117 @@ describe('DataStore', () => {
       dataStore.createContact({ ...testContact, id: 'contact-2', officeId: 'office-2', role: 'director' });
       const office1Contacts = dataStore.getContactsByOffice('office-1');
       expect(office1Contacts).toHaveLength(1);
+    });
+
+    it('should get external contacts', () => {
+      dataStore.createContact({ ...testContact, isExternalContact: true, homeDioceseId: 'external-diocese-1' });
+      dataStore.createContact({ ...testContact, id: 'contact-2', isExternalContact: false });
+      const externalContacts = dataStore.getExternalContacts();
+      expect(externalContacts).toHaveLength(1);
+    });
+
+    it('should get contacts by home diocese', () => {
+      dataStore.createContact({ ...testContact, homeDioceseId: 'home-diocese-1' });
+      dataStore.createContact({ ...testContact, id: 'contact-2', homeDioceseId: 'home-diocese-2' });
+      const homeDiocese1Contacts = dataStore.getContactsByHomeDiocese('home-diocese-1');
+      expect(homeDiocese1Contacts).toHaveLength(1);
+    });
+
+    it('should get clergy contacts', () => {
+      dataStore.createContact({ ...testContact, isClergy: true, clergyType: 'diocesan_priest' });
+      dataStore.createContact({ ...testContact, id: 'contact-2', isClergy: false, role: 'director' });
+      const clergyContacts = dataStore.getClergyContacts();
+      expect(clergyContacts).toHaveLength(1);
+    });
+  });
+
+  describe('Contact Position Operations', () => {
+    const testPosition: ContactPosition = {
+      id: 'position-1',
+      contactId: 'contact-1',
+      role: 'usccb_committee_chair',
+      title: 'Chair, Committee on Divine Worship',
+      organizationId: 'usccb-1',
+    };
+
+    it('should create a contact position', () => {
+      const created = dataStore.createContactPosition(testPosition);
+      expect(created).toEqual(testPosition);
+    });
+
+    it('should get positions by contact', () => {
+      dataStore.createContactPosition(testPosition);
+      dataStore.createContactPosition({ ...testPosition, id: 'position-2', contactId: 'contact-2' });
+      const contact1Positions = dataStore.getPositionsByContact('contact-1');
+      expect(contact1Positions).toHaveLength(1);
+    });
+
+    it('should get positions by organization', () => {
+      dataStore.createContactPosition(testPosition);
+      dataStore.createContactPosition({ ...testPosition, id: 'position-2', organizationId: 'org-2' });
+      const usccbPositions = dataStore.getPositionsByOrganization('usccb-1');
+      expect(usccbPositions).toHaveLength(1);
+    });
+
+    it('should get positions by diocese', () => {
+      dataStore.createContactPosition({ ...testPosition, dioceseId: 'diocese-1' });
+      dataStore.createContactPosition({ ...testPosition, id: 'position-2', dioceseId: 'diocese-2' });
+      const diocese1Positions = dataStore.getPositionsByDiocese('diocese-1');
+      expect(diocese1Positions).toHaveLength(1);
+    });
+  });
+
+  describe('Organization Scope Operations', () => {
+    const testOrg: Organization = {
+      id: 'org-1',
+      name: 'USCCB',
+      type: 'usccb',
+      scope: 'national',
+    };
+
+    it('should get national organizations', () => {
+      dataStore.createOrganization(testOrg);
+      dataStore.createOrganization({ ...testOrg, id: 'org-2', name: 'Vatican', type: 'roman_curia', scope: 'international' });
+      const nationalOrgs = dataStore.getNationalOrganizations();
+      expect(nationalOrgs).toHaveLength(1);
+      expect(nationalOrgs[0].type).toBe('usccb');
+    });
+
+    it('should get international organizations', () => {
+      dataStore.createOrganization(testOrg);
+      dataStore.createOrganization({ ...testOrg, id: 'org-2', name: 'Roman Curia', type: 'roman_curia', scope: 'international' });
+      const internationalOrgs = dataStore.getInternationalOrganizations();
+      expect(internationalOrgs).toHaveLength(1);
+      expect(internationalOrgs[0].scope).toBe('international');
+    });
+  });
+
+  describe('External Diocese Operations', () => {
+    const testDiocese: Diocese = {
+      id: 'diocese-1',
+      name: 'Diocese of Test City',
+      type: 'diocese',
+      province: 'Test Province',
+      state: 'TX',
+      city: 'Test City',
+      established: new Date('1900-01-01'),
+      isExternal: false,
+    };
+
+    it('should get local dioceses', () => {
+      dataStore.createDiocese(testDiocese);
+      dataStore.createDiocese({ ...testDiocese, id: 'diocese-2', name: 'External Diocese', isExternal: true });
+      const localDioceses = dataStore.getLocalDioceses();
+      expect(localDioceses).toHaveLength(1);
+      expect(localDioceses[0].isExternal).toBeFalsy();
+    });
+
+    it('should get external dioceses', () => {
+      dataStore.createDiocese(testDiocese);
+      dataStore.createDiocese({ ...testDiocese, id: 'diocese-2', name: 'External Diocese', isExternal: true });
+      const externalDioceses = dataStore.getExternalDioceses();
+      expect(externalDioceses).toHaveLength(1);
+      expect(externalDioceses[0].isExternal).toBe(true);
     });
   });
 });
