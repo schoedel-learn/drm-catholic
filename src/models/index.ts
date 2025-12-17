@@ -150,10 +150,20 @@ export interface School {
   phone?: string;
   email?: string;
   website?: string;
+  // Leadership and staff (Contact IDs)
   principal?: string;
+  assistantPrincipal?: string;
+  // Faculty tracking
+  teachers?: string[]; // Array of Contact IDs for teachers
+  teacherCount?: number; // Total number of teachers (for tracking even without individual contacts)
+  // Support staff
+  counselors?: string[]; // Array of Contact IDs for counselors
+  counselorCount?: number; // Total number of counselors
+  // Additional fields
   enrollment?: number;
   established?: Date;
   accreditation?: string;
+  grades?: string; // e.g., "K-8", "9-12", "PreK-8"
 }
 
 export type SchoolType =
@@ -387,6 +397,10 @@ export type ContactRole =
   | 'principal'
   | 'assistant_principal'
   | 'teacher'
+  | 'counselor'
+  | 'school_nurse'
+  | 'librarian'
+  | 'athletic_director'
   // Organization/Office roles
   | 'executive_director'
   | 'president'

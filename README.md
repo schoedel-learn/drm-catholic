@@ -19,7 +19,11 @@ DRM Catholic is a comprehensive relationship management system designed specific
   - Mission churches, chapels, oratories
   - Campus, hospital, prison, military chapels
   - Shrines and pilgrimage sites
-- **Schools**: Track Catholic schools (elementary, middle, high school) with principals and enrollment
+- **Schools**: Track Catholic schools (elementary, middle, high school)
+  - Principal and assistant principal tracking
+  - Teachers and faculty management
+  - Counselors and support staff
+  - Enrollment and accreditation
 - **Organizations**: Manage Catholic organizations at all levels:
   - **Diocesan**: Catholic Charities, hospitals, healthcare systems, SVDP, retreat centers
   - **National**: USCCB (United States Conference of Catholic Bishops) and committees
@@ -291,7 +295,7 @@ Contacts can have various roles including:
 - **Deanery/Region**: dean, vicar_forane
 - **Parish**: pastor, parochial_vicar, parochial_administrator, deacon, pastoral_associate
 - **Mission**: chaplain, mission_administrator
-- **School**: superintendent, associate_superintendent, principal, assistant_principal
+- **School**: superintendent, associate_superintendent, principal, assistant_principal, teacher, counselor, school_nurse, librarian, athletic_director
 - **Organization**: executive_director, president, vice_president, ceo, cfo, coo, administrator
 - **Ministry**: director, associate_director, assistant_director, coordinator, associate_coordinator
 - **USCCB**: usccb_president, usccb_vice_president, usccb_committee_chair, usccb_committee_member
