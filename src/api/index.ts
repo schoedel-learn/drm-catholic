@@ -5,6 +5,7 @@ export { default as parishesRouter } from './parishes';
 export { default as missionsRouter } from './missions';
 export { default as schoolsRouter } from './schools';
 export { default as organizationsRouter } from './organizations';
+export { default as religiousHousesRouter } from './religiousHouses';
 export { default as apostolatesRouter } from './apostolates';
 export { default as officesRouter } from './offices';
 export { default as contactsRouter } from './contacts';

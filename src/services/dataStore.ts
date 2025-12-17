@@ -11,6 +11,7 @@ import {
   Province,
   Region,
   Mission,
+  ReligiousHouse,
 } from '../models';
 
 /**
@@ -30,6 +31,7 @@ class DataStore {
   private offices: Map<string, DiocesanOffice> = new Map();
   private contacts: Map<string, Contact> = new Map();
   private contactPositions: Map<string, ContactPosition> = new Map();
+  private religiousHouses: Map<string, ReligiousHouse> = new Map();
 
   // Diocese operations
   getAllDioceses(): Diocese[] {
@@ -499,6 +501,50 @@ class DataStore {
     return this.missions.delete(id);
   }
 
+  // Religious House operations (monasteries, convents, friaries, etc.)
+  getAllReligiousHouses(): ReligiousHouse[] {
+    return Array.from(this.religiousHouses.values());
+  }
+
+  getReligiousHouseById(id: string): ReligiousHouse | undefined {
+    return this.religiousHouses.get(id);
+  }
+
+  getReligiousHousesByDiocese(dioceseId: string): ReligiousHouse[] {
+    return this.getAllReligiousHouses().filter((rh) => rh.dioceseId === dioceseId);
+  }
+
+  getReligiousHousesByType(type: string): ReligiousHouse[] {
+    return this.getAllReligiousHouses().filter((rh) => rh.type === type);
+  }
+
+  getReligiousHousesByOrder(religiousOrder: string): ReligiousHouse[] {
+    return this.getAllReligiousHouses().filter(
+      (rh) => rh.religiousOrder.toLowerCase().includes(religiousOrder.toLowerCase())
+    );
+  }
+
+  createReligiousHouse(religiousHouse: ReligiousHouse): ReligiousHouse {
+    this.religiousHouses.set(religiousHouse.id, religiousHouse);
+    return religiousHouse;
+  }
+
+  updateReligiousHouse(id: string, updates: Partial<ReligiousHouse>): ReligiousHouse | undefined {
+    const existing = this.religiousHouses.get(id);
+    if (!existing) return undefined;
+    const updated = { ...existing, ...updates };
+    this.religiousHouses.set(id, updated);
+    return updated;
+  }
+
+  deleteReligiousHouse(id: string): boolean {
+    return this.religiousHouses.delete(id);
+  }
+
+  getContactsByReligiousHouse(religiousHouseId: string): Contact[] {
+    return this.getAllContacts().filter((c) => c.religiousHouseId === religiousHouseId);
+  }
+
   // Utility methods
   clear(): void {
     this.dioceses.clear();
@@ -513,6 +559,7 @@ class DataStore {
     this.offices.clear();
     this.contacts.clear();
     this.contactPositions.clear();
+    this.religiousHouses.clear();
   }
 }
 

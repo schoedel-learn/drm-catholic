@@ -1,5 +1,5 @@
 import { dataStore } from '../services';
-import { Diocese, Parish, Contact, ContactPosition, School, Organization, Apostolate, DiocesanOffice, Deanery, Region, Mission } from '../models';
+import { Diocese, Parish, Contact, ContactPosition, School, Organization, Apostolate, DiocesanOffice, Deanery, Region, Mission, ReligiousHouse } from '../models';
 import { generateId } from '../utils';
 
 describe('DataStore', () => {
@@ -489,6 +489,66 @@ describe('DataStore', () => {
       const deleted = dataStore.deleteMission('mission-1');
       expect(deleted).toBe(true);
       expect(dataStore.getMissionById('mission-1')).toBeUndefined();
+    });
+  });
+
+  describe('Religious House Operations', () => {
+    const testReligiousHouse: ReligiousHouse = {
+      id: 'rh-1',
+      name: 'Our Lady of the Lake Abbey',
+      dioceseId: 'diocese-1',
+      type: 'abbey',
+      religiousOrder: 'Benedictines',
+      religiousOrderAbbreviation: 'OSB',
+      address: {
+        street: '123 Monastery Rd',
+        city: 'Test City',
+        state: 'TX',
+        zipCode: '12345',
+        country: 'USA',
+      },
+      hasChapel: true,
+      hasRetreatCenter: true,
+      acceptsVocations: true,
+    };
+
+    it('should create a religious house', () => {
+      const created = dataStore.createReligiousHouse(testReligiousHouse);
+      expect(created).toEqual(testReligiousHouse);
+    });
+
+    it('should get religious houses by diocese', () => {
+      dataStore.createReligiousHouse(testReligiousHouse);
+      dataStore.createReligiousHouse({ ...testReligiousHouse, id: 'rh-2', dioceseId: 'diocese-2' });
+      const diocese1Houses = dataStore.getReligiousHousesByDiocese('diocese-1');
+      expect(diocese1Houses).toHaveLength(1);
+    });
+
+    it('should get religious houses by type', () => {
+      dataStore.createReligiousHouse(testReligiousHouse);
+      dataStore.createReligiousHouse({ ...testReligiousHouse, id: 'rh-2', type: 'convent' });
+      const abbeys = dataStore.getReligiousHousesByType('abbey');
+      expect(abbeys).toHaveLength(1);
+    });
+
+    it('should get religious houses by order', () => {
+      dataStore.createReligiousHouse(testReligiousHouse);
+      dataStore.createReligiousHouse({ ...testReligiousHouse, id: 'rh-2', religiousOrder: 'Franciscans' });
+      const benedictines = dataStore.getReligiousHousesByOrder('Benedictines');
+      expect(benedictines).toHaveLength(1);
+    });
+
+    it('should update a religious house', () => {
+      dataStore.createReligiousHouse(testReligiousHouse);
+      const updated = dataStore.updateReligiousHouse('rh-1', { name: 'Updated Abbey' });
+      expect(updated?.name).toBe('Updated Abbey');
+    });
+
+    it('should delete a religious house', () => {
+      dataStore.createReligiousHouse(testReligiousHouse);
+      const deleted = dataStore.deleteReligiousHouse('rh-1');
+      expect(deleted).toBe(true);
+      expect(dataStore.getReligiousHouseById('rh-1')).toBeUndefined();
     });
   });
 });

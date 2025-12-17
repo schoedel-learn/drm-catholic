@@ -24,6 +24,12 @@ DRM Catholic is a comprehensive relationship management system designed specific
   - Teachers and faculty management
   - Counselors and support staff
   - Enrollment and accreditation
+- **Religious Houses**: Track monasteries, convents, and other religious communities
+  - Monasteries, abbeys, and priories
+  - Convents and motherhouses
+  - Friaries (Franciscan and mendicant communities)
+  - Hermitages and retreat houses
+  - Formation houses and provincial houses
 - **Organizations**: Manage Catholic organizations at all levels:
   - **Diocesan**: Catholic Charities, hospitals, healthcare systems, SVDP, retreat centers
   - **National**: USCCB (United States Conference of Catholic Bishops) and committees
@@ -56,6 +62,7 @@ DRM Catholic is a comprehensive relationship management system designed specific
 - **Organization scope levels** - Parish, diocesan, provincial, national, and international organizations
 - **Complete territorial hierarchy** - Province → Diocese → Region → Deanery → Parish → Mission
 - **Metropolitan structure** - Track ecclesiastical provinces and metropolitan archbishops
+- **Religious houses management** - Track monasteries, convents, friaries, hermitages
 - Parish and deanery management
 - School management with superintendent and principal tracking
 - Organization management for hospitals, Catholic Charities, SVDP, USCCB, Roman Curia, etc.
@@ -160,6 +167,17 @@ npm start
 - `DELETE /api/v1/schools/:id` - Delete school
 - `GET /api/v1/schools/:id/contacts` - Get contacts at school
 
+### Religious Houses
+- `GET /api/v1/religious-houses` - List all religious houses (monasteries, convents, friaries, etc.)
+- `GET /api/v1/religious-houses?dioceseId=xxx` - Filter by diocese
+- `GET /api/v1/religious-houses?type=monastery` - Filter by type (monastery, abbey, priory, convent, friary, hermitage, etc.)
+- `GET /api/v1/religious-houses?religiousOrder=Benedictines` - Filter by religious order
+- `GET /api/v1/religious-houses/:id` - Get religious house by ID
+- `POST /api/v1/religious-houses` - Create new religious house
+- `PUT /api/v1/religious-houses/:id` - Update religious house
+- `DELETE /api/v1/religious-houses/:id` - Delete religious house
+- `GET /api/v1/religious-houses/:id/contacts` - Get community members/contacts at religious house
+
 ### Organizations
 - `GET /api/v1/organizations` - List all organizations
 - `GET /api/v1/organizations?dioceseId=xxx` - Filter by diocese
@@ -230,6 +248,7 @@ npm start
 | Parish | Local church community with pastor and mass schedules |
 | Mission | Mission church, chapel, oratory, or other worship site |
 | School | Catholic school (preschool through high school) |
+| ReligiousHouse | Monastery, convent, friary, hermitage, or other religious community |
 | Organization | Catholic organizations with scope (diocesan, national, international) |
 | Apostolate | Ministry group (youth, pro-life, evangelization, etc.) |
 | DiocesanOffice | Administrative department (chancery, tribunal, etc.) |
@@ -246,6 +265,21 @@ Province (Metropolitan Archbishop)
             └── Parish (Pastor)
                 └── Mission (Chaplain) [if under a parish]
 ```
+
+### Religious House Types
+
+| Type | Description |
+|------|-------------|
+| monastery | Monks (Benedictines, Cistercians, Trappists, etc.) |
+| abbey | Monastery headed by an abbot |
+| priory | Monastery headed by a prior |
+| convent | Community of religious women (nuns or sisters) |
+| friary | Franciscan or mendicant community |
+| hermitage | Small community or individual hermit dwellings |
+| motherhouse | Headquarters of a religious congregation |
+| provincial_house | Provincial headquarters of a religious order |
+| formation_house | House for novices/those in formation |
+| retreat_house | Religious community focused on retreats |
 
 ### Mission Types
 
@@ -296,6 +330,8 @@ Contacts can have various roles including:
 - **Parish**: pastor, parochial_vicar, parochial_administrator, deacon, pastoral_associate
 - **Mission**: chaplain, mission_administrator
 - **School**: superintendent, associate_superintendent, principal, assistant_principal, teacher, counselor, school_nurse, librarian, athletic_director
+- **Religious House**: abbot, abbess, prior, prioress, guardian, mother_superior, novice_director, formation_director, vocation_director
+- **Seminary**: rector, vice_rector, spiritual_director, academic_dean
 - **Organization**: executive_director, president, vice_president, ceo, cfo, coo, administrator
 - **Ministry**: director, associate_director, assistant_director, coordinator, associate_coordinator
 - **USCCB**: usccb_president, usccb_vice_president, usccb_committee_chair, usccb_committee_member

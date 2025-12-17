@@ -220,6 +220,46 @@ export type OrganizationType =
   | 'other';
 
 /**
+ * Religious House Model
+ * Represents monasteries, convents, friaries, hermitages and other religious communities
+ */
+export interface ReligiousHouse {
+  id: string;
+  name: string;
+  dioceseId: string;
+  type: ReligiousHouseType;
+  religiousOrder: string; // Name of the religious order (e.g., "Benedictines", "Franciscans")
+  religiousOrderAbbreviation?: string; // e.g., "OSB", "OFM", "OP"
+  address: Address;
+  phone?: string;
+  email?: string;
+  website?: string;
+  // Leadership (Contact IDs)
+  superior?: string; // Abbot, Abbess, Prior/Prioress, Guardian, etc.
+  // Community info
+  memberCount?: number;
+  foundedDate?: Date;
+  // Features
+  hasChapel?: boolean;
+  hasRetreatCenter?: boolean;
+  hasGuestHouse?: boolean;
+  acceptsVocations?: boolean;
+  description?: string;
+}
+
+export type ReligiousHouseType =
+  | 'monastery' // Monks (Benedictines, Cistercians, Trappists, etc.)
+  | 'abbey' // Monastery headed by an abbot
+  | 'priory' // Monastery headed by a prior
+  | 'convent' // Community of religious women (nuns or sisters)
+  | 'friary' // Franciscan or mendicant community
+  | 'hermitage' // Small community or individual hermit dwellings
+  | 'motherhouse' // Headquarters of a religious congregation
+  | 'provincial_house' // Provincial headquarters of a religious order
+  | 'formation_house' // House for novices/those in formation
+  | 'retreat_house'; // Religious community focused on retreats
+
+/**
  * Apostolate Model
  * Represents ministry groups and lay apostolates doing ministry in the name of the Church
  */
@@ -314,6 +354,7 @@ export interface Contact {
   organizationId?: string;
   apostolateId?: string;
   officeId?: string;
+  religiousHouseId?: string; // Link to monastery, convent, friary, etc.
   // External diocese tracking - for contacts from other dioceses
   homeDioceseId?: string; // The diocese where this contact is incardinated/belongs
   isExternalContact?: boolean; // True if contact is from another diocese
@@ -350,6 +391,7 @@ export interface ContactPosition {
   regionId?: string;
   deaneryId?: string;
   missionId?: string;
+  religiousHouseId?: string; // Link to monastery, convent, friary, etc.
   // Position details
   startDate?: Date;
   endDate?: Date;
@@ -401,6 +443,21 @@ export type ContactRole =
   | 'school_nurse'
   | 'librarian'
   | 'athletic_director'
+  // Religious house roles
+  | 'abbot'
+  | 'abbess'
+  | 'prior'
+  | 'prioress'
+  | 'guardian' // Franciscan superior
+  | 'mother_superior'
+  | 'novice_director'
+  | 'formation_director'
+  | 'vocation_director'
+  // Seminary roles
+  | 'rector'
+  | 'vice_rector'
+  | 'spiritual_director'
+  | 'academic_dean'
   // Organization/Office roles
   | 'executive_director'
   | 'president'

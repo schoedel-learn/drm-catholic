@@ -8,6 +8,7 @@ import {
   missionsRouter,
   schoolsRouter,
   organizationsRouter,
+  religiousHousesRouter,
   apostolatesRouter,
   officesRouter,
   contactsRouter,
@@ -38,6 +39,7 @@ app.use(`${config.api.basePath}/parishes`, parishesRouter);
 app.use(`${config.api.basePath}/missions`, missionsRouter);
 app.use(`${config.api.basePath}/schools`, schoolsRouter);
 app.use(`${config.api.basePath}/organizations`, organizationsRouter);
+app.use(`${config.api.basePath}/religious-houses`, religiousHousesRouter);
 app.use(`${config.api.basePath}/apostolates`, apostolatesRouter);
 app.use(`${config.api.basePath}/offices`, officesRouter);
 app.use(`${config.api.basePath}/contacts`, contactsRouter);
@@ -58,6 +60,7 @@ app.get('/', (_req: Request, res: Response) => {
       missions: `${config.api.basePath}/missions`,
       schools: `${config.api.basePath}/schools`,
       organizations: `${config.api.basePath}/organizations`,
+      religiousHouses: `${config.api.basePath}/religious-houses`,
       apostolates: `${config.api.basePath}/apostolates`,
       offices: `${config.api.basePath}/offices`,
       contacts: `${config.api.basePath}/contacts`,
