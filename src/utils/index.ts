@@ -1,7 +1,15 @@
 /**
  * Generate a unique identifier
+ * Uses crypto.randomUUID() when available for better uniqueness
  */
 export function generateId(): string {
+  // Prefer a cryptographically strong, globally unique identifier when available
+  const globalCrypto = typeof globalThis !== 'undefined' ? (globalThis as Record<string, unknown>).crypto : undefined;
+  if (globalCrypto && typeof (globalCrypto as { randomUUID?: () => string }).randomUUID === 'function') {
+    return (globalCrypto as { randomUUID: () => string }).randomUUID();
+  }
+
+  // Fallback to timestamp + random string if crypto.randomUUID is not available
   return `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
 }
 

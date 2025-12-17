@@ -62,10 +62,10 @@ router.get('/international', (_req: Request, res: Response) => {
 });
 
 /**
- * GET /api/v1/organizations/:id
+ * GET /api/v1/organizations/by-id/:id
  * Get a specific organization by ID
  */
-router.get('/:id', (req: Request, res: Response) => {
+router.get('/by-id/:id', (req: Request, res: Response) => {
   const organization = dataStore.getOrganizationById(req.params.id);
 
   if (!organization) {
@@ -141,10 +141,10 @@ router.post('/', (req: Request, res: Response) => {
 });
 
 /**
- * PUT /api/v1/organizations/:id
+ * PUT /api/v1/organizations/by-id/:id
  * Update an existing organization
  */
-router.put('/:id', (req: Request, res: Response) => {
+router.put('/by-id/:id', (req: Request, res: Response) => {
   const updated = dataStore.updateOrganization(req.params.id, req.body);
 
   if (!updated) {
@@ -162,10 +162,10 @@ router.put('/:id', (req: Request, res: Response) => {
 });
 
 /**
- * DELETE /api/v1/organizations/:id
+ * DELETE /api/v1/organizations/by-id/:id
  * Delete an organization
  */
-router.delete('/:id', (req: Request, res: Response) => {
+router.delete('/by-id/:id', (req: Request, res: Response) => {
   const deleted = dataStore.deleteOrganization(req.params.id);
 
   if (!deleted) {
@@ -183,10 +183,10 @@ router.delete('/:id', (req: Request, res: Response) => {
 });
 
 /**
- * GET /api/v1/organizations/:id/contacts
+ * GET /api/v1/organizations/by-id/:id/contacts
  * Get leadership and key contacts at an organization
  */
-router.get('/:id/contacts', (req: Request, res: Response) => {
+router.get('/by-id/:id/contacts', (req: Request, res: Response) => {
   const organization = dataStore.getOrganizationById(req.params.id);
 
   if (!organization) {
@@ -207,10 +207,10 @@ router.get('/:id/contacts', (req: Request, res: Response) => {
 });
 
 /**
- * GET /api/v1/organizations/:id/positions
+ * GET /api/v1/organizations/by-id/:id/positions
  * Get all positions held within an organization (for USCCB, Roman Curia tracking)
  */
-router.get('/:id/positions', (req: Request, res: Response) => {
+router.get('/by-id/:id/positions', (req: Request, res: Response) => {
   const organization = dataStore.getOrganizationById(req.params.id);
 
   if (!organization) {

@@ -40,7 +40,7 @@ export interface Province {
   id: string;
   name: string;
   metropolitanDioceseId: string; // The archdiocese that leads the province
-  sufFraganDioceseIds: string[]; // List of diocese IDs in the province
+  suffraganDioceseIds: string[]; // List of diocese IDs in the province
   metropolitanId?: string; // Contact ID of the metropolitan archbishop
 }
 
@@ -339,26 +339,68 @@ export interface Apostolate {
 }
 
 export type ApostolateType =
+  // Youth and Young Adult Ministry
   | 'youth_ministry'
   | 'young_adult'
   | 'campus_ministry'
-  | 'pro_life'
+  // Evangelization and Catechesis
   | 'evangelization'
   | 'catechesis'
-  | 'liturgical'
+  | 'faith_formation'
+  | 'adult_faith_formation'
+  | 'children_faith_formation'
+  | 'ocia_ministry' // Order of Christian Initiation of Adults
+  | 'sacramental_preparation'
+  // Marriage and Family
+  | 'marriage_family'
+  | 'marriage_preparation'
+  | 'marriage_enrichment'
+  | 'marital_healing'
+  | 'divorce_ministry'
+  | 'annulment_ministry' // Tribunal support
+  // Pro-Life and Social Justice
+  | 'pro_life'
+  | 'respect_life'
   | 'social_justice'
+  // Cultural Ministries
   | 'hispanic_ministry'
+  | 'vietnamese_ministry'
+  | 'black_catholic_ministry'
+  | 'korean_ministry'
   | 'african_american_ministry'
   | 'asian_ministry'
-  | 'prison_ministry'
+  | 'multicultural_ministry'
+  // Healthcare and Mental Health
   | 'hospital_ministry'
-  | 'respect_life'
-  | 'marriage_family'
-  | 'vocations'
-  | 'missionary'
+  | 'mental_health_ministry'
+  | 'healthcare_ministry'
+  // Disability and Accessibility
+  | 'deaf_ministry'
+  | 'blind_ministry'
+  | 'neurodivergent_ministry'
+  | 'disability_ministry'
+  // Prison and Social Outreach
+  | 'prison_ministry'
+  | 'jail_ministry'
+  | 'homeless_ministry'
+  | 'poverty_outreach'
+  // Liturgical and Prayer
+  | 'liturgical'
+  | 'music_ministry'
+  | 'prayer_ministry'
   | 'charismatic'
+  // Vocations
+  | 'vocations'
+  | 'seminary_support'
+  // Missionary
+  | 'missionary'
+  // Lay Organizations
   | 'knights_of_columbus'
   | 'ladies_auxiliary'
+  | 'altar_society'
+  | 'holy_name_society'
+  | 'legion_of_mary'
+  // Other
   | 'other';
 
 /**
@@ -404,6 +446,8 @@ export interface Contact {
   id: string;
   firstName: string;
   lastName: string;
+  middleName?: string;
+  suffix?: string; // Jr., Sr., III, etc.
   title?: string;
   role: ContactRole;
   // Primary entity associations - contact's main position
@@ -423,14 +467,34 @@ export interface Contact {
   // Contact info
   email?: string;
   phone?: string;
-  notes?: string;
+  cellPhone?: string;
+  fax?: string;
+  website?: string;
+  address?: Address;
+  mailingAddress?: Address;
+  // Social media
+  linkedIn?: string;
+  twitter?: string;
+  facebook?: string;
+  // Professional info
+  biography?: string;
+  dateOfBirth?: Date;
+  ordinationDate?: Date;
+  appointmentDate?: Date;
   // Ministry status
   isClergy?: boolean;
   isReligious?: boolean; // Member of religious order
+  isConsecrated?: boolean; // Consecrated person
+  isSeminarian?: boolean;
   clergyType?: ClergyType;
   religiousOrder?: string; // Name of religious order if applicable
+  religiousOrderAbbreviation?: string; // e.g., "OSB", "SJ", "OP"
   // Multiple positions - a contact can hold multiple roles
   additionalPositions?: ContactPosition[];
+  // Status
+  isActive?: boolean;
+  isRetired?: boolean;
+  notes?: string;
 }
 
 /**
@@ -466,6 +530,7 @@ export type ContactRole =
   | 'pope'
   | 'cardinal'
   | 'archbishop'
+  | 'archbishop_emeritus'
   | 'metropolitan'
   | 'bishop'
   | 'auxiliary_bishop'
@@ -476,24 +541,45 @@ export type ContactRole =
   | 'vice_chancellor'
   | 'episcopal_vicar'
   | 'regional_vicar'
+  | 'vicar_for_clergy'
+  // Tribunal roles
   | 'judicial_vicar'
   | 'adjutant_judicial_vicar'
   | 'promoter_of_justice'
   | 'defender_of_the_bond'
+  | 'judge'
+  | 'auditor'
+  | 'notary'
   // Deanery/Region roles
   | 'dean'
   | 'vicar_forane'
   // Parish roles
   | 'pastor'
   | 'parochial_vicar'
+  | 'assistant_priest'
   | 'parochial_administrator'
   | 'deacon'
+  | 'permanent_deacon'
+  | 'transitional_deacon'
+  | 'retired_priest'
+  | 'senior_priest'
+  | 'priest_in_residence'
   | 'pastoral_associate'
+  | 'pastoral_minister'
   | 'director_religious_education'
+  | 'director_faith_formation'
   | 'music_director'
+  | 'liturgist'
   | 'business_manager'
+  | 'parish_secretary'
+  | 'parish_outreach_director'
+  | 'parish_outreach_coordinator'
   // Mission roles
   | 'chaplain'
+  | 'hospital_chaplain'
+  | 'prison_chaplain'
+  | 'military_chaplain'
+  | 'campus_chaplain'
   | 'mission_administrator'
   // School roles
   | 'superintendent'
@@ -502,6 +588,7 @@ export type ContactRole =
   | 'assistant_principal'
   | 'teacher'
   | 'counselor'
+  | 'school_counselor'
   | 'school_nurse'
   | 'librarian'
   | 'athletic_director'
@@ -520,6 +607,26 @@ export type ContactRole =
   | 'vice_rector'
   | 'spiritual_director'
   | 'academic_dean'
+  | 'seminarian'
+  // Ministry-specific roles
+  | 'missionary'
+  | 'evangelist'
+  | 'catechist'
+  | 'youth_minister'
+  | 'young_adult_minister'
+  | 'campus_minister'
+  | 'marriage_preparation_coordinator'
+  | 'ocia_director' // OCIA (Order of Christian Initiation of Adults)
+  | 'ocia_coordinator'
+  | 'faith_formation_director'
+  | 'adult_faith_formation_director'
+  | 'children_faith_formation_director'
+  | 'sacramental_preparation_coordinator'
+  // Social services and counseling
+  | 'therapist'
+  | 'licensed_counselor'
+  | 'social_worker'
+  | 'case_manager'
   // Organization/Office roles
   | 'executive_director'
   | 'president'
@@ -574,6 +681,7 @@ export type ContactRole =
   | 'program_director'
   | 'program_manager'
   | 'program_coordinator'
+  | 'consecrated_person'
   | 'other';
 
 export type ClergyType =
