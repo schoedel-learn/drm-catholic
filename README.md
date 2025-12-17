@@ -15,10 +15,11 @@ DRM Catholic is a comprehensive relationship management system designed specific
   - Dean (vicar forane) tracking
 - **Parishes**: Manage parish data within each diocese
   - Support for different canonical statuses (parish, quasi-parish, personal parish, national parish)
+  - **Sacred Site Designations**: Cathedrals, Basilicas (major/minor), Shrines (national/diocesan), Pilgrimage Sites
 - **Missions**: Track mission churches, chapels, and other worship sites
   - Mission churches, chapels, oratories
   - Campus, hospital, prison, military chapels
-  - Shrines and pilgrimage sites
+  - Shrines and pilgrimage sites (non-parish sacred sites)
 - **Schools**: Track Catholic schools (elementary, middle, high school)
   - Principal and assistant principal tracking
   - Teachers and faculty management
@@ -35,6 +36,11 @@ DRM Catholic is a comprehensive relationship management system designed specific
   - **National**: USCCB (United States Conference of Catholic Bishops) and committees
   - **International**: Roman Curia, Pontifical councils, Vatican dicasteries
   - Religious congregations, seminaries, Catholic universities
+  - **St. Vincent de Paul Society (SVDP) Hierarchy**:
+    - National Council, Regional Councils, District Councils
+    - Diocesan/Archdiocesan Councils, Parish Conferences
+    - Executive Director, Presidents at each level, Spiritual Advisors
+  - **Catholic Charities**: Executive Director, Directors of Programs, Program Directors
 - **Apostolates**: Track all ministry groups and lay apostolates doing ministry in the name of the Church
   - Youth ministry, campus ministry, pro-life
   - Evangelization, catechesis, liturgical ministries

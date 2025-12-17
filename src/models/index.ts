@@ -90,7 +90,33 @@ export interface Parish {
   established?: Date;
   parishioners?: number;
   canonicalStatus?: ParishCanonicalStatus;
+  // Sacred site designation - a parish can also be a special sacred site
+  sacredSiteDesignation?: SacredSiteDesignation;
+  isCathedral?: boolean; // Is this the cathedral parish of the diocese
+  isBasilica?: boolean; // Designated as a minor or major basilica
+  isShrine?: boolean; // Designated as a shrine
+  isPilgrimageSite?: boolean; // Notable pilgrimage destination
+  basilicaType?: BasilicaType;
+  shrineType?: ShrineType;
 }
+
+export type SacredSiteDesignation =
+  | 'cathedral' // Cathedral church of the diocese
+  | 'co_cathedral' // Co-cathedral
+  | 'minor_basilica' // Minor basilica designation from Holy See
+  | 'major_basilica' // Major basilica (only 4 in Rome)
+  | 'national_shrine' // National shrine
+  | 'diocesan_shrine' // Diocesan shrine
+  | 'pilgrimage_site'; // Major pilgrimage destination
+
+export type BasilicaType =
+  | 'major' // Only 4 major basilicas in Rome
+  | 'minor'; // Minor basilicas designated by the Pope
+
+export type ShrineType =
+  | 'national' // National shrine
+  | 'diocesan' // Diocesan shrine
+  | 'international'; // International shrine
 
 export type ParishCanonicalStatus =
   | 'parish' // Full canonical parish
@@ -117,6 +143,11 @@ export interface Mission {
   established?: Date;
   chaplain?: string; // Contact ID of assigned priest/chaplain
   description?: string;
+  // Sacred site designation for non-parish shrines/pilgrimage sites in Mission
+  isSacredSite?: boolean;
+  sacredSiteDesignation?: SacredSiteDesignation;
+  shrineType?: ShrineType;
+  isPilgrimageSite?: boolean;
 }
 
 export type MissionType =
@@ -128,6 +159,7 @@ export type MissionType =
   | 'prison_chapel' // Prison/correctional facility chapel
   | 'military_chapel' // Military chapel
   | 'shrine' // Shrine or pilgrimage site
+  | 'pilgrimage_site' // Dedicated pilgrimage site
   | 'monastery_chapel'; // Monastery or convent chapel
 
 export interface MassSchedule {
@@ -191,20 +223,50 @@ export interface Organization {
   description?: string;
   established?: Date;
   parentOrganizationId?: string; // For hierarchical organizations
+  // SVDP-specific hierarchy fields
+  svdpLevel?: SVDPLevel; // Level in the SVDP hierarchy
+  // Program areas for Catholic Charities and SVDP
+  programs?: OrganizationProgram[];
+}
+
+/**
+ * Organization Program
+ * Represents a program area within Catholic Charities, SVDP, or similar organizations
+ */
+export interface OrganizationProgram {
+  id: string;
+  name: string;
+  description?: string;
+  directorId?: string; // Contact ID for program director
 }
 
 export type OrganizationScope =
   | 'parish' // Parish-level organization
   | 'diocesan' // Diocese-level organization
   | 'provincial' // Province-level organization
+  | 'regional' // Regional level (e.g., SVDP district)
   | 'national' // National organization (e.g., USCCB)
   | 'international'; // International organization (e.g., Roman Curia, Vatican)
 
+/**
+ * SVDP organizational hierarchy:
+ * National Council > Regional Council > District Council > Diocesan Council > Parish Conference
+ */
+export type SVDPLevel =
+  | 'national_council' // National Council of the US
+  | 'regional_council' // Regional Council (multi-state)
+  | 'district_council' // District Council (within diocesan council)
+  | 'diocesan_council' // Diocesan/Archdiocesan Council
+  | 'conference'; // Parish-level Conference (the basic unit)
+
 export type OrganizationType =
   | 'catholic_charities'
+  | 'catholic_charities_program' // Program area within Catholic Charities
   | 'hospital'
   | 'healthcare_system'
-  | 'svdp' // St. Vincent de Paul
+  | 'svdp' // St. Vincent de Paul Society
+  | 'svdp_conference' // SVDP Conference (parish level)
+  | 'svdp_council' // SVDP Council (diocesan or district level)
   | 'social_services'
   | 'retreat_center'
   | 'cemetery'
@@ -474,6 +536,21 @@ export type ContactRole =
   | 'manager'
   | 'secretary'
   | 'moderator'
+  // SVDP specific roles (Society of St. Vincent de Paul)
+  | 'svdp_national_president'
+  | 'svdp_regional_president'
+  | 'svdp_diocesan_president'
+  | 'svdp_district_president'
+  | 'svdp_conference_president'
+  | 'svdp_executive_director'
+  | 'svdp_spiritual_advisor'
+  | 'svdp_treasurer'
+  | 'svdp_secretary'
+  // Catholic Charities specific roles
+  | 'cc_executive_director'
+  | 'cc_director_of_programs'
+  | 'cc_program_director'
+  | 'cc_case_manager'
   // USCCB specific roles
   | 'usccb_president'
   | 'usccb_vice_president'
@@ -494,6 +571,9 @@ export type ContactRole =
   | 'board_chair'
   | 'trustee'
   | 'consultant'
+  | 'program_director'
+  | 'program_manager'
+  | 'program_coordinator'
   | 'other';
 
 export type ClergyType =
