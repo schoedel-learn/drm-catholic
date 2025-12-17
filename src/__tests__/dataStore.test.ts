@@ -1,5 +1,5 @@
 import { dataStore } from '../services';
-import { Diocese, Parish, Contact, ContactPosition, School, Organization, Apostolate, DiocesanOffice, Deanery } from '../models';
+import { Diocese, Parish, Contact, ContactPosition, School, Organization, Apostolate, DiocesanOffice, Deanery, Region, Mission } from '../models';
 import { generateId } from '../utils';
 
 describe('DataStore', () => {
@@ -399,6 +399,96 @@ describe('DataStore', () => {
       const externalDioceses = dataStore.getExternalDioceses();
       expect(externalDioceses).toHaveLength(1);
       expect(externalDioceses[0].isExternal).toBe(true);
+    });
+  });
+
+  describe('Region Operations', () => {
+    const testRegion: Region = {
+      id: 'region-1',
+      name: 'North Region',
+      dioceseId: 'diocese-1',
+      description: 'Northern parishes',
+    };
+
+    it('should create a region', () => {
+      const created = dataStore.createRegion(testRegion);
+      expect(created).toEqual(testRegion);
+    });
+
+    it('should get regions by diocese', () => {
+      dataStore.createRegion(testRegion);
+      dataStore.createRegion({ ...testRegion, id: 'region-2', dioceseId: 'diocese-2' });
+      const diocese1Regions = dataStore.getRegionsByDiocese('diocese-1');
+      expect(diocese1Regions).toHaveLength(1);
+    });
+
+    it('should update a region', () => {
+      dataStore.createRegion(testRegion);
+      const updated = dataStore.updateRegion('region-1', { name: 'Updated Region' });
+      expect(updated?.name).toBe('Updated Region');
+    });
+
+    it('should delete a region', () => {
+      dataStore.createRegion(testRegion);
+      const deleted = dataStore.deleteRegion('region-1');
+      expect(deleted).toBe(true);
+      expect(dataStore.getRegionById('region-1')).toBeUndefined();
+    });
+  });
+
+  describe('Mission Operations', () => {
+    const testMission: Mission = {
+      id: 'mission-1',
+      name: 'St. Joseph Mission',
+      dioceseId: 'diocese-1',
+      parentParishId: 'parish-1',
+      missionType: 'mission_church',
+      address: {
+        street: '123 Mission St',
+        city: 'Test City',
+        state: 'TX',
+        zipCode: '12345',
+        country: 'USA',
+      },
+    };
+
+    it('should create a mission', () => {
+      const created = dataStore.createMission(testMission);
+      expect(created).toEqual(testMission);
+    });
+
+    it('should get missions by diocese', () => {
+      dataStore.createMission(testMission);
+      dataStore.createMission({ ...testMission, id: 'mission-2', dioceseId: 'diocese-2' });
+      const diocese1Missions = dataStore.getMissionsByDiocese('diocese-1');
+      expect(diocese1Missions).toHaveLength(1);
+    });
+
+    it('should get missions by parish', () => {
+      dataStore.createMission(testMission);
+      dataStore.createMission({ ...testMission, id: 'mission-2', parentParishId: 'parish-2' });
+      const parish1Missions = dataStore.getMissionsByParish('parish-1');
+      expect(parish1Missions).toHaveLength(1);
+    });
+
+    it('should get missions by type', () => {
+      dataStore.createMission(testMission);
+      dataStore.createMission({ ...testMission, id: 'mission-2', missionType: 'chapel' });
+      const missionChurches = dataStore.getMissionsByType('mission_church');
+      expect(missionChurches).toHaveLength(1);
+    });
+
+    it('should update a mission', () => {
+      dataStore.createMission(testMission);
+      const updated = dataStore.updateMission('mission-1', { name: 'Updated Mission' });
+      expect(updated?.name).toBe('Updated Mission');
+    });
+
+    it('should delete a mission', () => {
+      dataStore.createMission(testMission);
+      const deleted = dataStore.deleteMission('mission-1');
+      expect(deleted).toBe(true);
+      expect(dataStore.getMissionById('mission-1')).toBeUndefined();
     });
   });
 });

@@ -2,8 +2,10 @@ import express, { Application, Request, Response } from 'express';
 import { getConfig } from './config';
 import {
   diocesesRouter,
+  regionsRouter,
   deaneriesRouter,
   parishesRouter,
+  missionsRouter,
   schoolsRouter,
   organizationsRouter,
   apostolatesRouter,
@@ -30,8 +32,10 @@ app.get('/health', (_req: Request, res: Response) => {
 
 // API Routes
 app.use(`${config.api.basePath}/dioceses`, diocesesRouter);
+app.use(`${config.api.basePath}/regions`, regionsRouter);
 app.use(`${config.api.basePath}/deaneries`, deaneriesRouter);
 app.use(`${config.api.basePath}/parishes`, parishesRouter);
+app.use(`${config.api.basePath}/missions`, missionsRouter);
 app.use(`${config.api.basePath}/schools`, schoolsRouter);
 app.use(`${config.api.basePath}/organizations`, organizationsRouter);
 app.use(`${config.api.basePath}/apostolates`, apostolatesRouter);
@@ -48,8 +52,10 @@ app.get('/', (_req: Request, res: Response) => {
     endpoints: {
       health: '/health',
       dioceses: `${config.api.basePath}/dioceses`,
+      regions: `${config.api.basePath}/regions`,
       deaneries: `${config.api.basePath}/deaneries`,
       parishes: `${config.api.basePath}/parishes`,
+      missions: `${config.api.basePath}/missions`,
       schools: `${config.api.basePath}/schools`,
       organizations: `${config.api.basePath}/organizations`,
       apostolates: `${config.api.basePath}/apostolates`,

@@ -8,9 +8,17 @@ DRM Catholic is a comprehensive relationship management system designed specific
 
 - **Dioceses & Archdioceses**: Track all diocesan information including location, leadership, and statistics
   - Support for tracking external dioceses (contacts from other dioceses)
-  - Ecclesiastical province tracking
+  - Ecclesiastical province tracking with metropolitan archdiocese
+- **Regions**: Manage regions within a diocese (groupings of deaneries or parishes)
+  - Regional/Episcopal vicar tracking
 - **Deaneries**: Manage groups of parishes for coordination and support
+  - Dean (vicar forane) tracking
 - **Parishes**: Manage parish data within each diocese
+  - Support for different canonical statuses (parish, quasi-parish, personal parish, national parish)
+- **Missions**: Track mission churches, chapels, and other worship sites
+  - Mission churches, chapels, oratories
+  - Campus, hospital, prison, military chapels
+  - Shrines and pilgrimage sites
 - **Schools**: Track Catholic schools (elementary, middle, high school) with principals and enrollment
 - **Organizations**: Manage Catholic organizations at all levels:
   - **Diocesan**: Catholic Charities, hospitals, healthcare systems, SVDP, retreat centers
@@ -33,7 +41,7 @@ DRM Catholic is a comprehensive relationship management system designed specific
   - USCCB committee positions
   - Roman Curia appointments
   - Positions in other dioceses
-  - Leadership roles across multiple entities
+  - Leadership roles across multiple entities (metropolitan, regional vicar, dean)
 
 ## Features
 
@@ -42,7 +50,8 @@ DRM Catholic is a comprehensive relationship management system designed specific
 - **Cross-diocesan contact tracking** - Track contacts from other dioceses
 - **Multiple position support** - A contact can hold positions in USCCB, Roman Curia, and other organizations
 - **Organization scope levels** - Parish, diocesan, provincial, national, and international organizations
-- Complete organizational hierarchy tracking
+- **Complete territorial hierarchy** - Province → Diocese → Region → Deanery → Parish → Mission
+- **Metropolitan structure** - Track ecclesiastical provinces and metropolitan archbishops
 - Parish and deanery management
 - School management with superintendent and principal tracking
 - Organization management for hospitals, Catholic Charities, SVDP, USCCB, Roman Curia, etc.
@@ -97,6 +106,16 @@ npm start
 - `GET /api/v1/dioceses/:id/parishes` - Get parishes in diocese
 - `GET /api/v1/dioceses/:id/contacts` - Get contacts in diocese
 
+### Regions
+- `GET /api/v1/regions` - List all regions
+- `GET /api/v1/regions?dioceseId=xxx` - Filter by diocese
+- `GET /api/v1/regions/:id` - Get region by ID
+- `POST /api/v1/regions` - Create new region
+- `PUT /api/v1/regions/:id` - Update region
+- `DELETE /api/v1/regions/:id` - Delete region
+- `GET /api/v1/regions/:id/deaneries` - Get deaneries in region
+- `GET /api/v1/regions/:id/contacts` - Get contacts in region (e.g., regional vicar)
+
 ### Deaneries
 - `GET /api/v1/deaneries` - List all deaneries
 - `GET /api/v1/deaneries?dioceseId=xxx` - Filter by diocese
@@ -114,6 +133,17 @@ npm start
 - `PUT /api/v1/parishes/:id` - Update parish
 - `DELETE /api/v1/parishes/:id` - Delete parish
 - `GET /api/v1/parishes/:id/contacts` - Get contacts in parish
+
+### Missions
+- `GET /api/v1/missions` - List all missions
+- `GET /api/v1/missions?dioceseId=xxx` - Filter by diocese
+- `GET /api/v1/missions?parishId=xxx` - Filter by parent parish
+- `GET /api/v1/missions?missionType=chapel` - Filter by type (mission_church, chapel, oratory, campus_chapel, etc.)
+- `GET /api/v1/missions/:id` - Get mission by ID
+- `POST /api/v1/missions` - Create new mission
+- `PUT /api/v1/missions/:id` - Update mission
+- `DELETE /api/v1/missions/:id` - Delete mission
+- `GET /api/v1/missions/:id/contacts` - Get contacts at mission
 
 ### Schools
 - `GET /api/v1/schools` - List all schools
@@ -190,15 +220,42 @@ npm start
 | Entity | Description |
 |--------|-------------|
 | Diocese | Diocese or archdiocese with bishop, location, statistics (supports external dioceses) |
-| Province | Ecclesiastical province grouping dioceses under a metropolitan |
-| Deanery | Group of parishes for coordination |
+| Province | Ecclesiastical province grouping dioceses under a metropolitan archbishop |
+| Region | Group of deaneries or parishes within a diocese under a regional vicar |
+| Deanery | Group of parishes for coordination under a dean (vicar forane) |
 | Parish | Local church community with pastor and mass schedules |
+| Mission | Mission church, chapel, oratory, or other worship site |
 | School | Catholic school (preschool through high school) |
 | Organization | Catholic organizations with scope (diocesan, national, international) |
 | Apostolate | Ministry group (youth, pro-life, evangelization, etc.) |
 | DiocesanOffice | Administrative department (chancery, tribunal, etc.) |
 | Contact | Person associated with any entity (supports external contacts) |
 | ContactPosition | Additional roles held by a contact (USCCB, Roman Curia positions) |
+
+### Territorial Hierarchy
+
+```
+Province (Metropolitan Archbishop)
+└── Diocese (Diocesan Bishop)
+    └── Region (Regional/Episcopal Vicar) [optional]
+        └── Deanery (Dean/Vicar Forane)
+            └── Parish (Pastor)
+                └── Mission (Chaplain) [if under a parish]
+```
+
+### Mission Types
+
+| Type | Description |
+|------|-------------|
+| mission_church | Mission church (worship site) |
+| chapel | Chapel |
+| oratory | Public or semi-public oratory |
+| campus_chapel | University/college chapel |
+| hospital_chapel | Hospital chapel |
+| prison_chapel | Prison/correctional facility chapel |
+| military_chapel | Military chapel |
+| shrine | Shrine or pilgrimage site |
+| monastery_chapel | Monastery or convent chapel |
 
 ### Organization Types
 
@@ -229,9 +286,11 @@ npm start
 ### Contact Roles
 
 Contacts can have various roles including:
-- **Church Leadership**: pope, cardinal, archbishop, bishop, auxiliary_bishop, coadjutor_bishop, bishop_emeritus
-- **Diocesan**: vicar_general, chancellor, vice_chancellor, episcopal_vicar, judicial_vicar
+- **Church Leadership**: pope, cardinal, archbishop, metropolitan, bishop, auxiliary_bishop, coadjutor_bishop, bishop_emeritus
+- **Diocesan**: vicar_general, chancellor, vice_chancellor, episcopal_vicar, regional_vicar, judicial_vicar
+- **Deanery/Region**: dean, vicar_forane
 - **Parish**: pastor, parochial_vicar, parochial_administrator, deacon, pastoral_associate
+- **Mission**: chaplain, mission_administrator
 - **School**: superintendent, associate_superintendent, principal, assistant_principal
 - **Organization**: executive_director, president, vice_president, ceo, cfo, coo, administrator
 - **Ministry**: director, associate_director, assistant_director, coordinator, associate_coordinator

@@ -9,6 +9,8 @@ import {
   DiocesanOffice,
   Deanery,
   Province,
+  Region,
+  Mission,
 } from '../models';
 
 /**
@@ -18,8 +20,10 @@ import {
 class DataStore {
   private dioceses: Map<string, Diocese> = new Map();
   private provinces: Map<string, Province> = new Map();
+  private regions: Map<string, Region> = new Map();
   private deaneries: Map<string, Deanery> = new Map();
   private parishes: Map<string, Parish> = new Map();
+  private missions: Map<string, Mission> = new Map();
   private schools: Map<string, School> = new Map();
   private organizations: Map<string, Organization> = new Map();
   private apostolates: Map<string, Apostolate> = new Map();
@@ -415,12 +419,94 @@ class DataStore {
     return this.getAllContacts().filter((c) => c.isReligious === true);
   }
 
+  getContactsByRegion(regionId: string): Contact[] {
+    return this.getAllContacts().filter((c) => c.regionId === regionId);
+  }
+
+  getContactsByDeanery(deaneryId: string): Contact[] {
+    return this.getAllContacts().filter((c) => c.deaneryId === deaneryId);
+  }
+
+  getContactsByMission(missionId: string): Contact[] {
+    return this.getAllContacts().filter((c) => c.missionId === missionId);
+  }
+
+  // Region operations
+  getAllRegions(): Region[] {
+    return Array.from(this.regions.values());
+  }
+
+  getRegionById(id: string): Region | undefined {
+    return this.regions.get(id);
+  }
+
+  getRegionsByDiocese(dioceseId: string): Region[] {
+    return this.getAllRegions().filter((r) => r.dioceseId === dioceseId);
+  }
+
+  createRegion(region: Region): Region {
+    this.regions.set(region.id, region);
+    return region;
+  }
+
+  updateRegion(id: string, updates: Partial<Region>): Region | undefined {
+    const existing = this.regions.get(id);
+    if (!existing) return undefined;
+    const updated = { ...existing, ...updates };
+    this.regions.set(id, updated);
+    return updated;
+  }
+
+  deleteRegion(id: string): boolean {
+    return this.regions.delete(id);
+  }
+
+  // Mission operations
+  getAllMissions(): Mission[] {
+    return Array.from(this.missions.values());
+  }
+
+  getMissionById(id: string): Mission | undefined {
+    return this.missions.get(id);
+  }
+
+  getMissionsByDiocese(dioceseId: string): Mission[] {
+    return this.getAllMissions().filter((m) => m.dioceseId === dioceseId);
+  }
+
+  getMissionsByParish(parishId: string): Mission[] {
+    return this.getAllMissions().filter((m) => m.parentParishId === parishId);
+  }
+
+  getMissionsByType(missionType: string): Mission[] {
+    return this.getAllMissions().filter((m) => m.missionType === missionType);
+  }
+
+  createMission(mission: Mission): Mission {
+    this.missions.set(mission.id, mission);
+    return mission;
+  }
+
+  updateMission(id: string, updates: Partial<Mission>): Mission | undefined {
+    const existing = this.missions.get(id);
+    if (!existing) return undefined;
+    const updated = { ...existing, ...updates };
+    this.missions.set(id, updated);
+    return updated;
+  }
+
+  deleteMission(id: string): boolean {
+    return this.missions.delete(id);
+  }
+
   // Utility methods
   clear(): void {
     this.dioceses.clear();
     this.provinces.clear();
+    this.regions.clear();
     this.deaneries.clear();
     this.parishes.clear();
+    this.missions.clear();
     this.schools.clear();
     this.organizations.clear();
     this.apostolates.clear();

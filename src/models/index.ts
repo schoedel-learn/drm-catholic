@@ -34,13 +34,28 @@ export interface Diocese {
 
 /**
  * Province Model
- * Represents an ecclesiastical province (grouping of dioceses under a metropolitan)
+ * Represents an ecclesiastical province (grouping of dioceses under a metropolitan archbishop)
  */
 export interface Province {
   id: string;
   name: string;
   metropolitanDioceseId: string; // The archdiocese that leads the province
   sufFraganDioceseIds: string[]; // List of diocese IDs in the province
+  metropolitanId?: string; // Contact ID of the metropolitan archbishop
+}
+
+/**
+ * Region Model
+ * Represents a region within a diocese (grouping of deaneries or parishes)
+ * Some dioceses organize parishes into regions for administrative purposes
+ */
+export interface Region {
+  id: string;
+  name: string;
+  dioceseId: string;
+  vicarId?: string; // Contact ID of the regional/episcopal vicar
+  deaneryIds?: string[]; // Deaneries in this region (if organized by deanery)
+  description?: string;
 }
 
 /**
@@ -51,6 +66,7 @@ export interface Deanery {
   id: string;
   name: string;
   dioceseId: string;
+  regionId?: string; // Optional link to region if diocese uses regions
   dean?: string; // Contact ID of the dean
   description?: string;
 }
@@ -64,6 +80,7 @@ export interface Parish {
   name: string;
   dioceseId: string;
   deaneryId?: string;
+  regionId?: string; // Optional direct link to region
   pastor?: string;
   address: Address;
   phone?: string;
@@ -72,7 +89,46 @@ export interface Parish {
   massSchedule?: MassSchedule[];
   established?: Date;
   parishioners?: number;
+  canonicalStatus?: ParishCanonicalStatus;
 }
+
+export type ParishCanonicalStatus =
+  | 'parish' // Full canonical parish
+  | 'quasi_parish' // Quasi-parish (mission in formation)
+  | 'personal_parish' // Personal parish (non-territorial)
+  | 'national_parish'; // National/ethnic parish
+
+/**
+ * Mission Model
+ * Represents a mission church or chapel (under a parish or directly under diocese)
+ * Missions are worship sites that are not full parishes
+ */
+export interface Mission {
+  id: string;
+  name: string;
+  dioceseId: string;
+  parentParishId?: string; // The parish this mission belongs to
+  deaneryId?: string;
+  address: Address;
+  phone?: string;
+  email?: string;
+  missionType: MissionType;
+  massSchedule?: MassSchedule[];
+  established?: Date;
+  chaplain?: string; // Contact ID of assigned priest/chaplain
+  description?: string;
+}
+
+export type MissionType =
+  | 'mission_church' // Mission church (worship site)
+  | 'chapel' // Chapel
+  | 'oratory' // Public or semi-public oratory
+  | 'campus_chapel' // University/college chapel
+  | 'hospital_chapel' // Hospital chapel
+  | 'prison_chapel' // Prison/correctional facility chapel
+  | 'military_chapel' // Military chapel
+  | 'shrine' // Shrine or pilgrimage site
+  | 'monastery_chapel'; // Monastery or convent chapel
 
 export interface MassSchedule {
   dayOfWeek: number; // 0 = Sunday, 6 = Saturday
@@ -240,7 +296,10 @@ export interface Contact {
   role: ContactRole;
   // Primary entity associations - contact's main position
   dioceseId?: string;
+  regionId?: string;
+  deaneryId?: string;
   parishId?: string;
+  missionId?: string;
   schoolId?: string;
   organizationId?: string;
   apostolateId?: string;
@@ -278,6 +337,9 @@ export interface ContactPosition {
   apostolateId?: string;
   parishId?: string;
   schoolId?: string;
+  regionId?: string;
+  deaneryId?: string;
+  missionId?: string;
   // Position details
   startDate?: Date;
   endDate?: Date;
@@ -290,6 +352,7 @@ export type ContactRole =
   | 'pope'
   | 'cardinal'
   | 'archbishop'
+  | 'metropolitan'
   | 'bishop'
   | 'auxiliary_bishop'
   | 'bishop_emeritus'
@@ -298,10 +361,14 @@ export type ContactRole =
   | 'chancellor'
   | 'vice_chancellor'
   | 'episcopal_vicar'
+  | 'regional_vicar'
   | 'judicial_vicar'
   | 'adjutant_judicial_vicar'
   | 'promoter_of_justice'
   | 'defender_of_the_bond'
+  // Deanery/Region roles
+  | 'dean'
+  | 'vicar_forane'
   // Parish roles
   | 'pastor'
   | 'parochial_vicar'
@@ -311,6 +378,9 @@ export type ContactRole =
   | 'director_religious_education'
   | 'music_director'
   | 'business_manager'
+  // Mission roles
+  | 'chaplain'
+  | 'mission_administrator'
   // School roles
   | 'superintendent'
   | 'associate_superintendent'
