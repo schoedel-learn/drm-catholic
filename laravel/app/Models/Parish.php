@@ -22,6 +22,11 @@ class Parish extends Model
         'email',
         'website',
         'mass_schedule',
+        'google_place_id',
+        'google_formatted_address',
+        'google_maps_url',
+        'google_lat',
+        'google_lng',
     ];
 
     protected $casts = [

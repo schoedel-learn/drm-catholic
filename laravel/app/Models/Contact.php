@@ -17,6 +17,7 @@ class Contact extends Model
         'last_name',
         'title',
         'role',
+        'owner_diocese_id',
         'diocese_id',
         'parish_id',
         'email',
@@ -36,6 +37,11 @@ class Contact extends Model
     public function diocese(): BelongsTo
     {
         return $this->belongsTo(Jurisdiction::class, 'diocese_id');
+    }
+
+    public function ownerDiocese(): BelongsTo
+    {
+        return $this->belongsTo(Jurisdiction::class, 'owner_diocese_id');
     }
 
     public function parish(): BelongsTo

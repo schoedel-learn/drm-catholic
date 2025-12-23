@@ -1,12 +1,13 @@
 <?php
 
-namespace Tests\Feature\Auth;
+namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL;
+use Laravel\Fortify\Features;
 use Tests\TestCase;
 
 class EmailVerificationTest extends TestCase
@@ -15,18 +16,26 @@ class EmailVerificationTest extends TestCase
 
     public function test_email_verification_screen_can_be_rendered(): void
     {
-        $user = User::factory()->unverified()->create();
+        if (! Features::enabled(Features::emailVerification())) {
+            $this->markTestSkipped('Email verification not enabled.');
+        }
 
-        $response = $this->actingAs($user)->get('/verify-email');
+        $user = User::factory()->withPersonalTeam()->unverified()->create();
+
+        $response = $this->actingAs($user)->get('/email/verify');
 
         $response->assertStatus(200);
     }
 
     public function test_email_can_be_verified(): void
     {
-        $user = User::factory()->unverified()->create();
+        if (! Features::enabled(Features::emailVerification())) {
+            $this->markTestSkipped('Email verification not enabled.');
+        }
 
         Event::fake();
+
+        $user = User::factory()->unverified()->create();
 
         $verificationUrl = URL::temporarySignedRoute(
             'verification.verify',
@@ -37,12 +46,17 @@ class EmailVerificationTest extends TestCase
         $response = $this->actingAs($user)->get($verificationUrl);
 
         Event::assertDispatched(Verified::class);
+
         $this->assertTrue($user->fresh()->hasVerifiedEmail());
         $response->assertRedirect(route('dashboard', absolute: false).'?verified=1');
     }
 
-    public function test_email_is_not_verified_with_invalid_hash(): void
+    public function test_email_can_not_verified_with_invalid_hash(): void
     {
+        if (! Features::enabled(Features::emailVerification())) {
+            $this->markTestSkipped('Email verification not enabled.');
+        }
+
         $user = User::factory()->unverified()->create();
 
         $verificationUrl = URL::temporarySignedRoute(
