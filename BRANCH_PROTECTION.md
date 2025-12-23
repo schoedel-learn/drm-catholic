@@ -264,10 +264,10 @@ The recommended branch protection configuration is documented in `.github/branch
 
 After setting up branch protection:
 
-1. ✅ Create a CODEOWNERS file (optional) to automatically request reviews from specific people
-2. ✅ Set up additional required checks as your CI/CD pipeline grows
-3. ✅ Consider requiring signed commits for additional security
-4. ✅ Document your contribution guidelines in CONTRIBUTING.md
+1. Create a CODEOWNERS file (optional) to automatically request reviews from specific people
+2. Set up additional required checks as your CI/CD pipeline grows
+3. Consider requiring signed commits for additional security
+4. Document your contribution guidelines in CONTRIBUTING.md
 
 ## Resources
 

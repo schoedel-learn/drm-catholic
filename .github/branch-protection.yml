@@ -77,11 +77,11 @@ ruleset_configuration:
       parameters:
         required_status_checks:
           - context: "build (18.x)"
-            integration_id: 15368  # GitHub Actions
+            integration_id: 15368  # GitHub Actions (standard integration ID)
           - context: "build (20.x)"
-            integration_id: 15368
+            integration_id: 15368  # GitHub Actions (standard integration ID)
           - context: "code-quality"
-            integration_id: 15368
+            integration_id: 15368  # GitHub Actions (standard integration ID)
         strict_required_status_checks_policy: true
     
     - type: "non_fast_forward"
