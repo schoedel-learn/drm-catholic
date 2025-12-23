@@ -1,0 +1,31 @@
+# APA 7:  GitHub.  (2023). Configuring Dependabot security updates. 
+# https://docs.github.com/en/code-security/dependabot/dependabot-security-updates/configuring-dependabot-security-updates
+
+version: 2
+updates: 
+  # Monitor Composer dependencies (PHP/Laravel)
+  - package-ecosystem: "composer"
+    directory: "/"
+    schedule: 
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "schoedel-learn"
+    labels:
+      - "dependencies"
+      - "security"
+    commit-message:
+      prefix:  "chore"
+      include: "scope"
+
+  # Monitor GitHub Actions workflows (if any)
+  - package-ecosystem:  "github-actions"
+    directory: "/"
+    schedule: 
+      interval: "weekly"
+    labels:
+      - "ci"
+      - "dependencies"
