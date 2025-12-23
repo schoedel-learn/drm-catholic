@@ -1,0 +1,93 @@
+# Branch Protection Configuration for DRM Catholic
+# This file documents the recommended branch protection settings for the main branch.
+# 
+# Note: GitHub does not natively support automated branch protection via YAML files
+# in the repository. This file serves as documentation and configuration reference.
+# 
+# To apply these settings:
+# 1. Go to: https://github.com/schoedel-learn/drm-catholic/settings/branches
+# 2. Click "Add branch protection rule" or "Add rule"
+# 3. Apply the settings documented below
+
+branch_protection:
+  main:
+    # Branch name pattern
+    pattern: "main"
+    
+    # Pull Request Requirements
+    required_pull_request_reviews:
+      enabled: true
+      dismiss_stale_reviews: true
+      require_code_owner_reviews: false
+      required_approving_review_count: 1
+      require_last_push_approval: false
+    
+    # Status Check Requirements
+    required_status_checks:
+      strict: true  # Require branches to be up to date before merging
+      contexts:
+        - "build (18.x)"
+        - "build (20.x)"
+        - "code-quality"
+    
+    # Push Restrictions
+    enforce_admins: true  # Include administrators
+    required_linear_history: false
+    allow_force_pushes: false
+    allow_deletions: false
+    
+    # Additional Protection
+    required_conversation_resolution: true  # Require conversation resolution before merging
+    lock_branch: false  # Allow commits (read-only would prevent all commits)
+    
+    # Bypass Restrictions (empty = no one can bypass)
+    restrictions:
+      users: []
+      teams: []
+      apps: []
+
+# Alternative: GitHub Repository Rulesets (recommended for new repos)
+# Rulesets provide more flexibility and can be exported/imported
+# To create a ruleset:
+# 1. Go to: https://github.com/schoedel-learn/drm-catholic/settings/rules
+# 2. Click "New branch ruleset"
+# 3. Configure according to the specifications above
+
+ruleset_configuration:
+  name: "Protect main branch"
+  target: "branch"
+  enforcement: "active"
+  
+  conditions:
+    ref_name:
+      include:
+        - "refs/heads/main"
+      exclude: []
+  
+  rules:
+    - type: "pull_request"
+      parameters:
+        required_approving_review_count: 1
+        dismiss_stale_reviews_on_push: true
+        require_code_owner_review: false
+        require_last_push_approval: false
+        required_review_thread_resolution: true
+    
+    - type: "required_status_checks"
+      parameters:
+        required_status_checks:
+          - context: "build (18.x)"
+            integration_id: 15368  # GitHub Actions
+          - context: "build (20.x)"
+            integration_id: 15368
+          - context: "code-quality"
+            integration_id: 15368
+        strict_required_status_checks_policy: true
+    
+    - type: "non_fast_forward"
+      # Prevent force pushes
+    
+    - type: "deletion"
+      # Prevent branch deletion
+  
+  bypass_actors: []  # No one can bypass (including admins)

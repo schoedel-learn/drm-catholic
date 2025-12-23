@@ -1,0 +1,46 @@
+# CODEOWNERS - Automatic review request assignments
+#
+# This file defines code owners for the DRM Catholic repository.
+# When a pull request is created, GitHub will automatically request
+# reviews from the users/teams specified here.
+#
+# Learn more: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything in the repo
+# Unless a later match takes precedence, these users will be requested for review
+# when someone opens a pull request.
+*       @schoedel-learn
+
+# GitHub Actions workflows
+/.github/       @schoedel-learn
+
+# TypeScript configuration
+/tsconfig.json  @schoedel-learn
+/jest.config.js @schoedel-learn
+/.eslintrc.js   @schoedel-learn
+
+# Package configuration
+/package.json   @schoedel-learn
+/package-lock.json @schoedel-learn
+
+# Documentation
+/*.md           @schoedel-learn
+/docs/          @schoedel-learn
+
+# Source code
+/src/           @schoedel-learn
+
+# API routes
+/src/api/       @schoedel-learn
+
+# Database models and services
+/src/models/    @schoedel-learn
+/src/services/  @schoedel-learn
+
+# Tests
+/src/__tests__/ @schoedel-learn
+
+# You can add more specific owners as your team grows, for example:
+# /src/api/dioceses.ts @user1 @user2
+# /src/models/ @database-expert
+# /.github/workflows/ @devops-team

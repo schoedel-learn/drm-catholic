@@ -388,16 +388,24 @@ drm-catholic/
 
 ## Branch Protection
 
-The `main` branch is protected with the following rules:
-- Require pull request reviews before merging
+The `main` branch should be protected with the following rules:
+- Require pull request reviews before merging (1 approval required)
 - Require status checks to pass before merging
 - Require branches to be up to date before merging
+- Require conversation resolution before merging
 - Include administrators in these restrictions
+- Block force pushes and branch deletion
 
-To configure branch protection:
-1. Go to repository Settings > Branches
-2. Add a branch protection rule for `main`
-3. Enable the desired protections
+### Setup Instructions
+
+For detailed step-by-step instructions on setting up branch protection, see [BRANCH_PROTECTION.md](BRANCH_PROTECTION.md).
+
+**Quick setup:**
+1. Go to [Repository Settings → Branches](https://github.com/schoedel-learn/drm-catholic/settings/branches)
+2. Click "Add branch protection rule"
+3. Follow the configuration guide in [BRANCH_PROTECTION.md](BRANCH_PROTECTION.md)
+
+The configuration reference is documented in [.github/branch-protection.yml](.github/branch-protection.yml).
 
 ## Contributing
 
