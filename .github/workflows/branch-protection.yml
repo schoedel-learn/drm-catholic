@@ -59,10 +59,12 @@ jobs:
       - name: Check for merge conflicts
         run: |
           git fetch origin main
-          if ! git merge-tree $(git merge-base HEAD origin/main) origin/main HEAD | grep -q "changed in both"; then
+          # Check if there are merge conflicts between this branch and main
+          CONFLICTS=$(git merge-tree $(git merge-base HEAD origin/main) origin/main HEAD | grep -c "changed in both" || true)
+          if [ "$CONFLICTS" -eq 0 ]; then
             echo "✓ No merge conflicts detected"
           else
-            echo "::error::Merge conflicts detected. Please resolve conflicts before merging."
+            echo "::error::Merge conflicts detected ($CONFLICTS file(s)). Please resolve conflicts before merging."
             exit 1
           fi
 

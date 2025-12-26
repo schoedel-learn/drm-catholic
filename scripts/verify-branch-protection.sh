@@ -41,13 +41,13 @@ if [ -f ".github/workflows/branch-protection.yml" ]; then
     echo -e "${GREEN}✓ Found${NC}"
     ((SUCCESS++))
     
-    # Validate YAML syntax
-    if python3 -c "import yaml; yaml.safe_load(open('.github/workflows/branch-protection.yml'))" 2>/dev/null; then
-        echo -e "  ${GREEN}✓ Valid YAML syntax${NC}"
-        ((SUCCESS++))
-    else
+    # Validate YAML syntax with proper error handling
+    if python3 -c "import yaml, sys; yaml.safe_load(open('.github/workflows/branch-protection.yml'))" 2>&1 | grep -q "Error"; then
         echo -e "  ${RED}✗ Invalid YAML syntax${NC}"
         ((FAILURES++))
+    else
+        echo -e "  ${GREEN}✓ Valid YAML syntax${NC}"
+        ((SUCCESS++))
     fi
 else
     echo -e "${RED}✗ Missing${NC}"
@@ -61,13 +61,13 @@ if [ -f ".github/workflows/ci.yml" ]; then
     echo -e "${GREEN}✓ Found${NC}"
     ((SUCCESS++))
     
-    # Validate YAML syntax
-    if python3 -c "import yaml; yaml.safe_load(open('.github/workflows/ci.yml'))" 2>/dev/null; then
-        echo -e "  ${GREEN}✓ Valid YAML syntax${NC}"
-        ((SUCCESS++))
-    else
+    # Validate YAML syntax with proper error handling
+    if python3 -c "import yaml, sys; yaml.safe_load(open('.github/workflows/ci.yml'))" 2>&1 | grep -q "Error"; then
         echo -e "  ${RED}✗ Invalid YAML syntax${NC}"
         ((FAILURES++))
+    else
+        echo -e "  ${GREEN}✓ Valid YAML syntax${NC}"
+        ((SUCCESS++))
     fi
 else
     echo -e "${RED}✗ Missing${NC}"
@@ -124,12 +124,30 @@ echo ""
 # Check 8: Verify package.json has required scripts
 echo -n "Checking package.json scripts... "
 if [ -f "package.json" ]; then
-    if grep -q '"build"' package.json && grep -q '"lint"' package.json && grep -q '"test"' package.json; then
-        echo -e "${GREEN}✓ Required scripts found (build, lint, test)${NC}"
-        ((SUCCESS++))
+    # Use jq if available, otherwise fall back to grep
+    if command -v jq &> /dev/null; then
+        HAS_BUILD=$(jq -r '.scripts.build // empty' package.json)
+        HAS_LINT=$(jq -r '.scripts.lint // empty' package.json)
+        HAS_TEST=$(jq -r '.scripts.test // empty' package.json)
+        
+        if [ -n "$HAS_BUILD" ] && [ -n "$HAS_LINT" ] && [ -n "$HAS_TEST" ]; then
+            echo -e "${GREEN}✓ Required scripts found (build, lint, test)${NC}"
+            ((SUCCESS++))
+        else
+            echo -e "${YELLOW}⚠ Some required scripts missing${NC}"
+            ((WARNINGS++))
+        fi
     else
-        echo -e "${YELLOW}⚠ Some scripts missing${NC}"
-        ((WARNINGS++))
+        # Fallback to basic check without jq
+        if grep -q '"build"[[:space:]]*:' package.json && \
+           grep -q '"lint"[[:space:]]*:' package.json && \
+           grep -q '"test"[[:space:]]*:' package.json; then
+            echo -e "${GREEN}✓ Required scripts found (build, lint, test)${NC}"
+            ((SUCCESS++))
+        else
+            echo -e "${YELLOW}⚠ Some scripts may be missing (jq not available for accurate check)${NC}"
+            ((WARNINGS++))
+        fi
     fi
 else
     echo -e "${RED}✗ package.json not found${NC}"
