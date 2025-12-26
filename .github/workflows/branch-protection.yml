@@ -1,0 +1,130 @@
+name: Branch Protection
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  validate-pr:
+    name: Validate Pull Request
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check PR is not a draft
+        if: github.event.pull_request.draft == true
+        run: |
+          echo "::error::Pull request is still a draft. Please mark it as ready for review."
+          exit 1
+
+      - name: Check PR has description
+        run: |
+          PR_BODY="${{ github.event.pull_request.body }}"
+          if [ -z "$PR_BODY" ] || [ "$PR_BODY" = "null" ]; then
+            echo "::error::Pull request must have a description"
+            exit 1
+          fi
+          echo "✓ PR has a description"
+
+      - name: Check PR title format
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          if [ -z "$PR_TITLE" ]; then
+            echo "::error::Pull request must have a title"
+            exit 1
+          fi
+          echo "✓ PR has a title: $PR_TITLE"
+
+      - name: Validate branch naming
+        run: |
+          BRANCH_NAME="${{ github.head_ref }}"
+          
+          # Allow common branch naming patterns
+          if [[ ! "$BRANCH_NAME" =~ ^(feature|bugfix|hotfix|fix|chore|docs|refactor|test|ci|copilot)/ ]]; then
+            echo "::warning::Branch name '$BRANCH_NAME' doesn't follow conventional naming"
+            echo "::warning::Recommended patterns: feature/, bugfix/, fix/, hotfix/, chore/, docs/, refactor/, test/, ci/, copilot/"
+          else
+            echo "✓ Branch name follows convention: $BRANCH_NAME"
+          fi
+
+      - name: Check for merge conflicts
+        run: |
+          git fetch origin main
+          if ! git merge-tree $(git merge-base HEAD origin/main) origin/main HEAD | grep -q "changed in both"; then
+            echo "✓ No merge conflicts detected"
+          else
+            echo "::error::Merge conflicts detected. Please resolve conflicts before merging."
+            exit 1
+          fi
+
+  require-tests:
+    name: Require Tests to Pass
+    runs-on: ubuntu-latest
+    needs: validate-pr
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npm run lint
+
+      - name: Build project
+        run: npm run build
+
+      - name: Run tests
+        run: npm test
+
+  check-codeowners:
+    name: Verify CODEOWNERS
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check CODEOWNERS file exists
+        run: |
+          if [ ! -f .github/CODEOWNERS ]; then
+            echo "::error::CODEOWNERS file is missing"
+            exit 1
+          fi
+          echo "✓ CODEOWNERS file exists"
+
+      - name: Validate CODEOWNERS format
+        run: |
+          if grep -q "@schoedel-learn" .github/CODEOWNERS; then
+            echo "✓ CODEOWNERS file has valid owners"
+          else
+            echo "::error::CODEOWNERS file must specify valid code owners"
+            exit 1
+          fi
+
+  all-checks-passed:
+    name: All Protection Checks Passed
+    runs-on: ubuntu-latest
+    needs: [validate-pr, require-tests, check-codeowners]
+    
+    steps:
+      - name: All checks passed
+        run: |
+          echo "✅ All branch protection checks have passed!"
+          echo "This PR meets the requirements for merging to main branch."

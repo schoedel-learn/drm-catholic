@@ -388,16 +388,26 @@ drm-catholic/
 
 ## Branch Protection
 
-The `main` branch is protected with the following rules:
-- Require pull request reviews before merging
-- Require status checks to pass before merging
-- Require branches to be up to date before merging
-- Include administrators in these restrictions
+The `main` branch is protected with comprehensive safeguards:
 
-To configure branch protection:
-1. Go to repository Settings > Branches
-2. Add a branch protection rule for `main`
-3. Enable the desired protections
+### Automated Protection Mechanisms
+- **CODEOWNERS** - Automatic code review requirement from repository owners
+- **Branch Protection Workflow** - Validates PRs, checks for conflicts, enforces quality standards
+- **Continuous Integration** - Linting, building, and testing on Node.js 18.x and 20.x
+- **CodeQL Security Analysis** - Automated security vulnerability scanning
+
+### Required Settings (GitHub UI)
+- ✅ Require pull request reviews (minimum 1 approval)
+- ✅ Require review from Code Owners
+- ✅ Require status checks to pass before merging
+- ✅ Require branches to be up to date before merging
+- ✅ Require conversation resolution before merging
+- ✅ Include administrators in restrictions
+- ✅ Prevent direct pushes to main
+- ✅ Disable force pushes and deletions
+
+### Configuration
+For detailed setup instructions and workflow guidelines, see [docs/BRANCH_PROTECTION.md](docs/BRANCH_PROTECTION.md)
 
 ## Contributing
 

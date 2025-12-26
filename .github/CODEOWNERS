@@ -1,0 +1,30 @@
+# CODEOWNERS file for drm-catholic repository
+# This file defines code ownership and review requirements
+# All pull requests require review from a code owner before merging
+
+# Global owners - require review for all changes
+* @schoedel-learn
+
+# Workflow and CI/CD changes require additional scrutiny
+/.github/ @schoedel-learn
+/.github/workflows/ @schoedel-learn
+
+# Configuration files
+*.yml @schoedel-learn
+*.yaml @schoedel-learn
+*.json @schoedel-learn
+tsconfig.json @schoedel-learn
+jest.config.js @schoedel-learn
+.eslintrc.js @schoedel-learn
+
+# Source code
+/src/ @schoedel-learn
+
+# Documentation
+README.md @schoedel-learn
+/docs/ @schoedel-learn
+
+# Security and dependency management
+/.github/dependabot.yml @schoedel-learn
+package.json @schoedel-learn
+package-lock.json @schoedel-learn
