@@ -77,7 +77,7 @@ public function login(Request $request) {
 ```caddyfile
 localhost:8000 {
     root * /path/to/laravel/public
-    php_fastcgi unix//var/run/php/php8.2-fpm.sock
+    php_fastcgi unix:/var/run/php/php8.2-fpm.sock
     file_server
 }
 ```
@@ -86,7 +86,7 @@ localhost:8000 {
 ```caddyfile
 drm-catholic.example.com {
     root * /var/www/laravel-drm/public
-    php_fastcgi unix//var/run/php/php8.2-fpm.sock
+    php_fastcgi unix:/var/run/php/php8.2-fpm.sock
     file_server
     encode gzip
 }
@@ -96,7 +96,7 @@ drm-catholic.example.com {
 ```caddyfile
 192.168.1.100.nip.io {
     root * /var/www/laravel-drm/public
-    php_fastcgi unix//var/run/php/php8.2-fpm.sock
+    php_fastcgi unix:/var/run/php/php8.2-fpm.sock
     file_server
 }
 ```

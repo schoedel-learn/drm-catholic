@@ -228,7 +228,7 @@ if ($request->user()->tokenCan('dioceses:write')) {
 ```
 192.168.1.100 {
     root * /var/www/laravel-drm/public
-    php_fastcgi unix//var/run/php/php8.2-fpm.sock
+    php_fastcgi unix:/var/run/php/php8.2-fpm.sock
     file_server
     encode gzip
 }
@@ -257,7 +257,7 @@ caddy trust export --output caddy-root.crt
 192.168.1.100 {
     tls /etc/caddy/certs/server.crt /etc/caddy/certs/server.key
     root * /var/www/laravel-drm/public
-    php_fastcgi unix//var/run/php/php8.2-fpm.sock
+    php_fastcgi unix:/var/run/php/php8.2-fpm.sock
     file_server
 }
 ```
@@ -280,7 +280,7 @@ caddy trust export --output caddy-root.crt
 ```
 192.168.1.100.nip.io {
     root * /var/www/laravel-drm/public
-    php_fastcgi unix//var/run/php/php8.2-fpm.sock
+    php_fastcgi unix:/var/run/php/php8.2-fpm.sock
     file_server
     encode gzip
 }
@@ -301,7 +301,7 @@ caddy trust export --output caddy-root.crt
 ```
 drm-catholic.example.com {
     root * /var/www/laravel-drm/public
-    php_fastcgi unix//var/run/php/php8.2-fpm.sock
+    php_fastcgi unix:/var/run/php/php8.2-fpm.sock
     file_server
     encode gzip
     
@@ -341,7 +341,7 @@ your-domain.com {
     root * /var/www/laravel-drm/public
     
     # PHP-FPM
-    php_fastcgi unix//var/run/php/php8.2-fpm.sock {
+    php_fastcgi unix:/var/run/php/php8.2-fpm.sock {
         env APP_ENV production
         env APP_DEBUG false
     }
