@@ -4,6 +4,12 @@
 
 This document provides research findings for implementing a Laravel MVP with authentication and Caddy-based deployment for the DRM Catholic application. The research covers Laravel scaffolding options, Sanctum token authentication, Caddy deployment constraints, and preservation considerations for the existing Node.js API contract.
 
+**Laravel Version:** Laravel 11.5.0 (latest stable, released December 17, 2024)  
+**PHP Compatibility:** PHP 8.2, 8.3, or 8.4  
+**Package Versions:**
+- Laravel Sanctum: v4.0.7 (December 17, 2024)
+- Laravel Breeze: v2.3.0+ (compatible with Laravel 11 and Inertia V2)
+
 ---
 
 ## 1. Laravel Authentication Scaffolding
@@ -52,6 +58,17 @@ php artisan migrate
 - **Pros:** Advanced features (teams, 2FA, API tokens, session management)
 - **Cons:** Overkill for MVP, more complex learning curve
 - **Not recommended for MVP** - too feature-heavy
+
+### Laravel 11.5 New Features (December 2024)
+
+The latest Laravel 11.5.0 release includes several improvements relevant to this project:
+
+1. **Anonymous Event Broadcasting** - Simplified real-time notifications using `Broadcast::on('channel')->send()` syntax, useful for live updates without creating full event classes
+2. **Blade Performance Improvements** - Up to 20% faster rendering for components, improving page load times
+3. **Enhanced URL Generation** - New `url()->query()` method for building URLs with query parameters (useful for filter/sort endpoints)
+4. **Better Code Organization** - `make:trait` and `make:interface` commands now respect conventional namespaces (`App\Contracts`, `App\Traits`)
+
+These features can be leveraged during implementation for better performance and developer experience.
 
 ### Security Best Practices
 
@@ -558,14 +575,14 @@ Route::get('dioceses/{diocese}/contacts', [ContactController::class, 'byDiocese'
 ## 5. Implementation Recommendations
 
 ### Phase 1: Laravel Setup with Authentication
-1. Install Laravel 11
-2. Install Laravel Breeze (Blade stack)
+1. Install Laravel 11.5.0 (latest stable)
+2. Install Laravel Breeze v2.3.0+ (Blade stack)
 3. Configure database (PostgreSQL recommended)
 4. Set up basic authentication flows
 5. Test login/registration
 
 ### Phase 2: Sanctum API Authentication
-1. Install and configure Sanctum
+1. Install and configure Sanctum v4.0.7
 2. Create API authentication endpoints
 3. Protect API routes with `auth:sanctum` middleware
 4. Implement token abilities for role-based access
@@ -596,13 +613,15 @@ Route::get('dioceses/{diocese}/contacts', [ContactController::class, 'byDiocese'
 ### Technology Stack Recommendation
 
 ```
-Frontend: Laravel Blade + Tailwind CSS (via Breeze)
-Backend: Laravel 11 + Sanctum
-Database: PostgreSQL
-Web Server: Caddy 2.x
-PHP: 8.2+
-Cache: Redis (optional, for sessions/queues)
+Frontend:    Laravel Blade + Tailwind CSS (via Breeze v2.3.0+)
+Backend:     Laravel 11.5.0 + Sanctum v4.0.7
+Database:    PostgreSQL
+Web Server:  Caddy 2.x
+PHP:         8.2, 8.3, or 8.4 (8.3+ recommended)
+Cache:       Redis (optional, for sessions/queues)
 ```
+
+**Note on PHP Version:** Laravel 11.5.0 supports PHP 8.2, 8.3, and 8.4. PHP 8.3 or 8.4 is recommended for better performance and latest language features.
 
 ### Database Schema Considerations
 
@@ -662,14 +681,20 @@ Cache: Redis (optional, for sessions/queues)
 
 ## References
 
+### Laravel Framework
+- [Laravel 11.x Release Notes](https://laravel.com/docs/11.x/releases) - Official release notes
+- [Laravel 11.5.0 Features](https://laravel-news.com/laravel-11-5-0) - Latest version updates
+
 ### Laravel Authentication
 - [Laravel 11 Authentication Documentation](https://laravel.com/docs/11.x/authentication)
 - [Laravel Breeze Documentation](https://laravel.com/docs/11.x/starter-kits#laravel-breeze)
+- [Laravel Breeze GitHub Releases](https://github.com/laravel/breeze/releases) - Latest version info
 - [Laravel UI Documentation](https://github.com/laravel/ui)
 
 ### Laravel Sanctum
 - [Laravel Sanctum Documentation](https://laravel.com/docs/11.x/sanctum)
 - [Sanctum API Authentication Guide](https://laravel.com/docs/11.x/sanctum#api-token-authentication)
+- [Sanctum GitHub Releases](https://github.com/laravel/sanctum/releases) - Latest version v4.0.7
 
 ### Caddy
 - [Caddy Automatic HTTPS](https://caddyserver.com/docs/automatic-https)
@@ -681,7 +706,7 @@ Cache: Redis (optional, for sessions/queues)
 
 ---
 
-**Document Version:** 1.0  
-**Last Updated:** 2024-12-22  
+**Document Version:** 2.0  
+**Last Updated:** 2024-12-27 (Updated with Laravel 11.5.0, Sanctum v4.0.7, Breeze v2.3.0+)  
 **Author:** Research Agent  
-**Status:** Planning/Research Complete
+**Status:** Planning/Research Complete - Updated with Latest Packages

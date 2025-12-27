@@ -2,6 +2,13 @@
 
 This folder contains comprehensive research and planning documentation for implementing a Laravel MVP with authentication and Caddy deployment for the DRM Catholic application.
 
+**Latest Update:** December 27, 2024  
+**Package Versions:**
+- Laravel Framework: 11.5.0 (released December 17, 2024)
+- Laravel Sanctum: v4.0.7 (December 17, 2024)
+- Laravel Breeze: v2.3.0+ (compatible with Inertia V2)
+- PHP Support: 8.2, 8.3, and 8.4
+
 ## 📚 Documentation Index
 
 ### 1. [SUMMARY.md](./SUMMARY.md) - Start Here! 

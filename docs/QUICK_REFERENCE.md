@@ -1,5 +1,10 @@
 # Laravel MVP Quick Reference Guide
 
+**Laravel Version:** 11.5.0 (December 2024)  
+**Sanctum Version:** v4.0.7  
+**Breeze Version:** v2.3.0+  
+**PHP:** 8.2, 8.3, or 8.4
+
 ## Quick Start Commands
 
 ### Laravel + Breeze Setup
@@ -242,6 +247,27 @@ APP_URL=https://drm-catholic.example.com
 
 # Sanctum
 SANCTUM_STATEFUL_DOMAINS=drm-catholic.example.com
+
+# Session (use database or redis for production)
+SESSION_DRIVER=database
+```
+
+## Laravel 11.5 New Features
+
+```php
+// Anonymous Event Broadcasting (11.5+)
+use Illuminate\Support\Facades\Broadcast;
+
+Broadcast::on('diocese-updates')->send([
+    'message' => 'New parish added',
+    'data' => $parish
+]);
+
+// Enhanced URL building with query parameters (11.5+)
+$url = url()->query('/api/dioceses', [
+    'state' => 'TX',
+    'type' => 'diocese'
+]);
 ```
 
 ## Security Checklist

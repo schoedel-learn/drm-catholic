@@ -2,6 +2,12 @@
 
 This checklist provides a step-by-step guide for implementing the Laravel MVP based on the research findings.
 
+**Target Versions (December 2024):**
+- Laravel Framework: 11.5.0
+- Laravel Sanctum: v4.0.7
+- Laravel Breeze: v2.3.0+
+- PHP: 8.2, 8.3, or 8.4 (8.3+ recommended)
+
 ## Pre-Implementation
 
 - [ ] Review all research documentation:
@@ -10,12 +16,13 @@ This checklist provides a step-by-step guide for implementing the Laravel MVP ba
   - [ ] Reference `QUICK_REFERENCE.md` during implementation
 - [ ] **Acquire domain name** (or decide on nip.io for testing)
 - [ ] Provision server infrastructure (if deploying)
-- [ ] Set up development environment (PHP 8.2+, Composer, Node.js)
+- [ ] Set up development environment (PHP 8.2, 8.3, or 8.4, Composer, Node.js)
 
 ## Phase 1: Laravel Setup (Est. 1-2 days)
 
 ### Laravel Installation
-- [ ] Create new Laravel 11 project: `composer create-project laravel/laravel drm-catholic-laravel`
+- [ ] Create new Laravel 11.5.0 project: `composer create-project laravel/laravel drm-catholic-laravel`
+- [ ] Verify PHP version: `php -v` (should be 8.2, 8.3, or 8.4)
 - [ ] Configure `.env` file with database credentials
 - [ ] Test basic Laravel installation: `php artisan serve`
 
@@ -33,7 +40,7 @@ This checklist provides a step-by-step guide for implementing the Laravel MVP ba
 ## Phase 2: Authentication Setup (Est. 1 day)
 
 ### Install Laravel Breeze
-- [ ] Run: `composer require laravel/breeze --dev`
+- [ ] Run: `composer require laravel/breeze --dev` (installs v2.3.0+)
 - [ ] Run: `php artisan breeze:install blade`
 - [ ] Run: `npm install && npm run dev`
 - [ ] Run: `php artisan migrate`
@@ -53,10 +60,11 @@ This checklist provides a step-by-step guide for implementing the Laravel MVP ba
 ## Phase 3: API Authentication with Sanctum (Est. 1 day)
 
 ### Install Sanctum
-- [ ] Run: `php artisan install:api`
+- [ ] Run: `php artisan install:api` (installs Sanctum v4.0.7)
 - [ ] Or manually: `composer require laravel/sanctum`
 - [ ] Publish config: `php artisan vendor:publish --provider="Laravel\Sanctum\SanctumServiceProvider"`
 - [ ] Run migrations: `php artisan migrate`
+- [ ] Verify Sanctum version: `composer show laravel/sanctum` (should be v4.0.7+)
 
 ### Update User Model
 - [ ] Add `use HasApiTokens;` trait to `app/Models/User.php`
@@ -264,11 +272,11 @@ For each controller:
 ## Phase 10: Caddy Deployment (Est. 1-2 days)
 
 ### Server Setup
-- [ ] Install PHP 8.2+ and extensions
+- [ ] Install PHP 8.2, 8.3, or 8.4 (8.3+ recommended) and extensions
 - [ ] Install Composer
 - [ ] Install PostgreSQL
 - [ ] Install Node.js and npm
-- [ ] Install Caddy
+- [ ] Install Caddy 2.x
 
 ### Application Deployment
 - [ ] Clone repository to server

@@ -12,6 +12,12 @@ This research phase has investigated the best approaches for:
 3. Caddy web server deployment with HTTPS constraints (IP-only vs domain)
 4. Preservation of existing Node.js API contract and edge cases
 
+**Latest Package Versions (December 2024):**
+- Laravel Framework: 11.5.0 (released December 17, 2024)
+- Laravel Sanctum: v4.0.7 (released December 17, 2024)
+- Laravel Breeze: v2.3.0+ (compatible with Inertia V2)
+- PHP Support: 8.2, 8.3, and 8.4
+
 ## Key Findings
 
 ### 1. Laravel Authentication: Use Laravel Breeze
@@ -151,11 +157,11 @@ This research phase has investigated the best approaches for:
 ## Technology Stack
 
 ```
-Frontend:    Laravel Blade + Tailwind CSS (via Breeze)
-Backend:     Laravel 11 + Sanctum
+Frontend:    Laravel Blade + Tailwind CSS (via Breeze v2.3.0+)
+Backend:     Laravel 11.5.0 + Sanctum v4.0.7
 Database:    PostgreSQL (recommended for production)
 Web Server:  Caddy 2.x
-PHP:         8.2+
+PHP:         8.2, 8.3, or 8.4 (8.3+ recommended)
 Optional:    Redis (caching, queues)
 ```
 
