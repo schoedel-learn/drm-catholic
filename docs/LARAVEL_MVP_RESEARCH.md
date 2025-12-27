@@ -1,43 +1,41 @@
-# Laravel MVP Research: Authentication + Caddy Deployment
+# Laravel MVP Research (Updated): Auth + Deployment + API Contract
 
 ## Executive Summary
 
-This document provides research findings for implementing a Laravel MVP with authentication and Caddy-based deployment for the DRM Catholic application. The research covers Laravel scaffolding options, Sanctum token authentication, Caddy deployment constraints, and preservation considerations for the existing Node.js API contract.
+This document updates earlier research against:
+1) current official Laravel guidance (Laravel 12.x era), and
+2) the actual repository state on GitHub (`origin/main`).
 
-**Laravel Version:** Laravel 11.5.0 (latest stable, released December 17, 2024)  
-**PHP Compatibility:** PHP 8.2, 8.3, or 8.4  
-**Package Versions:**
-- Laravel Sanctum: v4.0.7 (December 17, 2024)
-- Laravel Breeze: v2.3.0+ (compatible with Laravel 11 and Inertia V2)
+**As-of:** December 26, 2025 — 7:27 PM (America/Chicago)
+
+**Repository reality (origin/main):**
+- Laravel Framework: `^12.0` (PHP `^8.2`)
+- Authentication UI: Jetstream `^5.4` using the Inertia stack
+- Inertia adapter: `inertiajs/inertia-laravel` `^2.0`
+- Frontend: Vue 3 + Inertia (`@inertiajs/vue3`), Vite
+- API auth: Sanctum `^4.0` (User already uses `HasApiTokens`)
+- AI/tooling: `laravel/mcp` `^0.5.1` (public MCP endpoint exists)
+
+**Implication:** This repo is not choosing a starter kit anymore; the scaffold is already in place. The work is now API expansion + contract parity + deployment.
 
 ---
 
-## 1. Laravel Authentication Scaffolding
+## 1. Authentication Scaffolding (What to Do in This Repo)
 
-### Recommended Approach: Laravel Breeze
+### Recommendation: Keep Jetstream + Inertia (Already Implemented)
 
-**Primary Recommendation:** Laravel Breeze
-- **Why:** Minimal, highly customizable, modern stack with Blade or Inertia.js support
-- **Pros:**
-  - Simple login, registration, password reset out-of-the-box
-  - Tailwind CSS styling (can be customized)
-  - Clean codebase, easy to understand and modify
-  - Perfect for learning and small-to-medium applications
-  - Can work with Blade (server-rendered) or Inertia.js (SPA-like experience)
-  
-**Installation:**
-```bash
-composer require laravel/breeze --dev
-php artisan breeze:install
-npm install && npm run dev
-php artisan migrate
-```
+On `origin/main`, Jetstream is configured with:
+- `stack` = `inertia`
+- `guard` = `sanctum`
 
-**Options:**
-- `blade` - Traditional Blade templates (recommended for MVP)
-- `vue` - Vue.js with Inertia.js
-- `react` - React with Inertia.js
-- `api` - API-only (no frontend scaffolding)
+So the MVP work should **not** include re-scaffolding auth with Breeze. Instead:
+- Use Jetstream/Fortify for the first-party UI authentication flows.
+- Use Sanctum personal access tokens for programmatic clients (if needed) under `/api/v1/*`.
+
+### Historical context: Breeze vs Jetstream
+
+Earlier research recommended Breeze for a “new app MVP” because it’s minimal.
+That recommendation is now obsolete for this repository because Jetstream is already installed and configured.
 
 ### Alternative Options
 
@@ -59,16 +57,14 @@ php artisan migrate
 - **Cons:** Overkill for MVP, more complex learning curve
 - **Not recommended for MVP** - too feature-heavy
 
-### Laravel 11.5 New Features (December 2024)
+### Note on “what’s available now”
 
-The latest Laravel 11.5.0 release includes several improvements relevant to this project:
+Laravel’s official docs for the current major version emphasize:
+- first-party starter kits (including Inertia-based stacks),
+- Sanctum for token auth and/or first-party SPA auth, and
+- deployment guidance that serves from `public/` and runs `optimize` during deploy.
 
-1. **Anonymous Event Broadcasting** - Simplified real-time notifications using `Broadcast::on('channel')->send()` syntax, useful for live updates without creating full event classes
-2. **Blade Performance Improvements** - Up to 20% faster rendering for components, improving page load times
-3. **Enhanced URL Generation** - New `url()->query()` method for building URLs with query parameters (useful for filter/sort endpoints)
-4. **Better Code Organization** - `make:trait` and `make:interface` commands now respect conventional namespaces (`App\Contracts`, `App\Traits`)
-
-These features can be leveraged during implementation for better performance and developer experience.
+For this repository, the important “available now” point is that the Laravel 12 app scaffold already exists, and the MVP plan is to finish the API surface.
 
 ### Security Best Practices
 
@@ -574,33 +570,28 @@ Route::get('dioceses/{diocese}/contacts', [ContactController::class, 'byDiocese'
 
 ## 5. Implementation Recommendations
 
-### Phase 1: Laravel Setup with Authentication
-1. Install Laravel 11.5.0 (latest stable)
-2. Install Laravel Breeze v2.3.0+ (Blade stack)
-3. Configure database (PostgreSQL recommended)
-4. Set up basic authentication flows
-5. Test login/registration
+### Phase 1: Establish a Working Baseline (Existing App)
+1. Use the existing Laravel app under `laravel/` (do not re-scaffold).
+2. Install dependencies and run migrations.
+3. Confirm Jetstream/Inertia auth flows work (login + dashboard).
+4. Confirm `/up` health route responds.
 
-### Phase 2: Sanctum API Authentication
-1. Install and configure Sanctum v4.0.7
-2. Create API authentication endpoints
-3. Protect API routes with `auth:sanctum` middleware
-4. Implement token abilities for role-based access
-5. Test with Postman/Insomnia
+### Phase 2: Sanctum Token Auth for `/api/v1` (If Needed)
+1. Decide which clients need Bearer tokens (programmatic/mobile).
+2. Implement minimal token endpoints (issue/revoke) under `/api/v1`.
+3. Protect API routes with `auth:sanctum` where appropriate.
+4. Add rate limiting and consistent JSON error shapes.
 
-### Phase 3: Data Models Migration
-1. Create migrations matching Node.js schema
-2. Define Eloquent models with relationships
-3. Implement API Resource classes
-4. Create seeder data for testing
-5. Ensure edge cases are handled
+### Phase 3: Expand the Domain Model (Iterative)
+1. Build out tables/migrations incrementally to support the next endpoint(s).
+2. Keep existing conventions in the repo (string UUID primary keys for domain models).
+3. Add indexes for common filters and joins.
 
-### Phase 4: API Controllers
-1. Implement RESTful controllers for each resource
-2. Maintain existing API contract
-3. Preserve query parameter filtering
-4. Implement nested resource routes
-5. Add comprehensive validation
+### Phase 4: API Parity With Node/TypeScript Contract
+1. Implement `/api/v1/*` endpoints to match the existing contract.
+2. Preserve query filtering and nested routes.
+3. Add validation (Form Requests) and stable response shapes.
+4. Add feature tests per endpoint to avoid regressions.
 
 ### Phase 5: Caddy Deployment
 1. **For Production:** Acquire domain name
@@ -613,15 +604,15 @@ Route::get('dioceses/{diocese}/contacts', [ContactController::class, 'byDiocese'
 ### Technology Stack Recommendation
 
 ```
-Frontend:    Laravel Blade + Tailwind CSS (via Breeze v2.3.0+)
-Backend:     Laravel 11.5.0 + Sanctum v4.0.7
-Database:    PostgreSQL
+Frontend:    Jetstream (Inertia) + Vue 3 + Vite
+Backend:     Laravel ^12.0 + Sanctum ^4.0
+Database:    SQLite for local dev; PostgreSQL for production (recommended)
 Web Server:  Caddy 2.x
-PHP:         8.2, 8.3, or 8.4 (8.3+ recommended)
+PHP:         >= 8.2
 Cache:       Redis (optional, for sessions/queues)
 ```
 
-**Note on PHP Version:** Laravel 11.5.0 supports PHP 8.2, 8.3, and 8.4. PHP 8.3 or 8.4 is recommended for better performance and latest language features.
+**Note:** The Laravel 12 deployment docs also mention Nginx and FrankenPHP as server options. The critical invariant remains: serve only from `public/`.
 
 ### Database Schema Considerations
 
@@ -667,34 +658,28 @@ Cache:       Redis (optional, for sessions/queues)
 ## 7. Next Steps
 
 1. ✅ **Research Complete** - This document
-2. ⏭️ Create Laravel project structure
-3. ⏭️ Implement Breeze authentication
-4. ⏭️ Configure Sanctum API authentication
-5. ⏭️ Design database schema
-6. ⏭️ Create migrations and models
-7. ⏭️ Implement API controllers
-8. ⏭️ Set up Caddy configuration
-9. ⏭️ Deploy to staging environment
-10. ⏭️ Test and validate
+2. ⏭️ Align local workspace with tracked Laravel app
+3. ⏭️ Decide token vs cookie auth for API clients
+4. ⏭️ Implement `/api/v1` token endpoints (if needed)
+5. ⏭️ Expand `/api/v1` endpoints toward contract parity
+6. ⏭️ Add feature tests for API stability
+7. ⏭️ Decide deployment approach and acquire a domain (for trusted public TLS)
 
 ---
 
 ## References
 
 ### Laravel Framework
-- [Laravel 11.x Release Notes](https://laravel.com/docs/11.x/releases) - Official release notes
-- [Laravel 11.5.0 Features](https://laravel-news.com/laravel-11-5-0) - Latest version updates
+- [Laravel Documentation](https://laravel.com/docs) - Official docs
+- [Laravel Release Notes](https://laravel.com/docs/releases) - Official release notes
 
 ### Laravel Authentication
-- [Laravel 11 Authentication Documentation](https://laravel.com/docs/11.x/authentication)
-- [Laravel Breeze Documentation](https://laravel.com/docs/11.x/starter-kits#laravel-breeze)
-- [Laravel Breeze GitHub Releases](https://github.com/laravel/breeze/releases) - Latest version info
-- [Laravel UI Documentation](https://github.com/laravel/ui)
+- [Laravel Starter Kits](https://laravel.com/docs/12.x/starter-kits)
+- [Laravel Jetstream](https://jetstream.laravel.com/)
+- [Laravel Fortify](https://laravel.com/docs/12.x/fortify)
 
 ### Laravel Sanctum
-- [Laravel Sanctum Documentation](https://laravel.com/docs/11.x/sanctum)
-- [Sanctum API Authentication Guide](https://laravel.com/docs/11.x/sanctum#api-token-authentication)
-- [Sanctum GitHub Releases](https://github.com/laravel/sanctum/releases) - Latest version v4.0.7
+- [Laravel Sanctum Documentation](https://laravel.com/docs/12.x/sanctum)
 
 ### Caddy
 - [Caddy Automatic HTTPS](https://caddyserver.com/docs/automatic-https)
@@ -702,11 +687,10 @@ Cache:       Redis (optional, for sessions/queues)
 
 ### API Design
 - [RESTful API Best Practices](https://github.com/microsoft/api-guidelines)
-- [Laravel API Resources](https://laravel.com/docs/11.x/eloquent-resources)
+- [Laravel API Resources](https://laravel.com/docs/12.x/eloquent-resources)
 
 ---
 
-**Document Version:** 2.0  
-**Last Updated:** 2024-12-27 (Updated with Laravel 11.5.0, Sanctum v4.0.7, Breeze v2.3.0+)  
-**Author:** Research Agent  
-**Status:** Planning/Research Complete - Updated with Latest Packages
+**Document Version:** 3.0  
+**Last Updated:** 2025-12-26 19:27 America/Chicago  
+**Status:** Updated to match `origin/main` Laravel 12 + Jetstream/Inertia + Sanctum

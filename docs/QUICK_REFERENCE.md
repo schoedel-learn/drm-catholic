@@ -1,35 +1,41 @@
-# Laravel MVP Quick Reference Guide
+# Laravel MVP Quick Reference Guide (Repo Reality)
 
-**Laravel Version:** 11.5.0 (December 2024)  
-**Sanctum Version:** v4.0.7  
-**Breeze Version:** v2.3.0+  
-**PHP:** 8.2, 8.3, or 8.4
+**As-of:** December 26, 2025 — 7:27 PM (America/Chicago)
 
-## Quick Start Commands
+**Repo stack (origin/main):**
+- Laravel `^12.0` (PHP `^8.2`)
+- Jetstream `^5.4` (Inertia stack)
+- Inertia `^2.0` + Vue 3 (`@inertiajs/vue3`)
+- Sanctum `^4.0`
+- `laravel/mcp` `^0.5.1`
 
-### Laravel + Breeze Setup
+## Quick Start Commands (Existing App)
+
+### Bring up the Laravel app
 ```bash
-# Create new Laravel project
-composer create-project laravel/laravel drm-catholic-laravel
+cd laravel
 
-# Install Breeze
-composer require laravel/breeze --dev
-php artisan breeze:install blade
+# one-time install
+composer install
+npm install
 
-# Install dependencies and migrate
-npm install && npm run dev
-php artisan migrate
+# app setup (creates .env if missing, generates key, migrates, builds)
+composer run setup
+
+# run dev services (PHP server + queue + logs + Vite)
+composer run dev
 ```
 
-### Sanctum API Setup
+### Common artisan commands
 ```bash
-# Install Sanctum (Laravel 11+)
-php artisan install:api
+cd laravel
 
-# Or manually
-composer require laravel/sanctum
-php artisan vendor:publish --provider="Laravel\Sanctum\SanctumServiceProvider"
 php artisan migrate
+php artisan route:list
+php artisan tinker
+
+# built-in health route (configured in bootstrap/app.php)
+curl -i http://localhost:8000/up
 ```
 
 ## Key Files to Modify
@@ -45,31 +51,48 @@ class User extends Authenticatable
 }
 ```
 
+Note: On `origin/main`, `HasApiTokens` is already applied to `App\Models\User`.
+
 ### 2. API Routes
 ```php
 // routes/api.php
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/register', [AuthController::class, 'register']);
+Route::prefix('v1')->group(function () {
+    // Example: open endpoint
+    Route::get('dioceses/search', [DioceseController::class, 'search']);
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::apiResource('dioceses', DiocesesController::class);
+    // Example: protect API endpoints with token auth
+    Route::middleware('auth:sanctum')->group(function () {
+        // Route::post('tokens', [TokenController::class, 'store']);
+    });
 });
 ```
 
 ### 3. Auth Controller
 ```php
-// app/Http/Controllers/Api/AuthController.php
-public function login(Request $request) {
-    $user = User::where('email', $request->email)->first();
-    if (!$user || !Hash::check($request->password, $user->password)) {
-        return response()->json(['error' => 'Unauthorized'], 401);
-    }
+// Example token issuance pattern (Sanctum)
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'token_name' => ['required', 'string', 'max:100'],
+    ]);
+
+    $token = $request->user()->createToken($validated['token_name']);
+
     return response()->json([
-        'token' => $user->createToken('api-token')->plainTextToken
+        'token' => $token->plainTextToken,
     ]);
 }
 ```
+
+## MCP Endpoint (laravel/mcp)
+
+The Laravel app registers a public MCP server and exposes it at:
+
+```text
+/mcp/public
+```
+
+To see what tools are available, check `App\Mcp\Servers\PublicServer`.
 
 ## Caddy Configuration
 
@@ -158,9 +181,10 @@ protected $casts = [
 ### Success Response
 ```php
 return response()->json([
+    // Keep response shapes stable for clients.
     'success' => true,
     'data' => $resource,
-    'count' => $collection->count(), // for lists
+    'count' => $collection->count(), // for list endpoints
 ]);
 ```
 
@@ -252,23 +276,10 @@ SANCTUM_STATEFUL_DOMAINS=drm-catholic.example.com
 SESSION_DRIVER=database
 ```
 
-## Laravel 11.5 New Features
+## Notes
 
-```php
-// Anonymous Event Broadcasting (11.5+)
-use Illuminate\Support\Facades\Broadcast;
-
-Broadcast::on('diocese-updates')->send([
-    'message' => 'New parish added',
-    'data' => $parish
-]);
-
-// Enhanced URL building with query parameters (11.5+)
-$url = url()->query('/api/dioceses', [
-    'state' => 'TX',
-    'type' => 'diocese'
-]);
-```
+- This repo already uses Jetstream + Inertia (Vue 3). Prefer extending existing auth and UI rather than re-scaffolding.
+- For API clients, Sanctum can authenticate requests via cookies (first-party) or Bearer tokens (programmatic).
 
 ## Security Checklist
 
@@ -278,7 +289,7 @@ $url = url()->query('/api/dioceses', [
 - [ ] Validate all inputs
 - [ ] Use prepared statements (Eloquent does this)
 - [ ] Set secure session cookies
-- [ ] Implement CSRF protection (Breeze includes)
+- [ ] Implement CSRF protection for first-party UI requests
 - [ ] Use environment variables for secrets
 - [ ] Implement token expiration
 - [ ] Add logging for authentication events

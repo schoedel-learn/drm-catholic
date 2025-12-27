@@ -1,318 +1,90 @@
-# Implementation Checklist
+# Implementation Checklist (Repo Reality)
 
-This checklist provides a step-by-step guide for implementing the Laravel MVP based on the research findings.
+This checklist is updated to match:
+- current official Laravel guidance (Laravel 12.x era), and
+- the actual repository state on GitHub (`origin/main`).
 
-**Target Versions (December 2024):**
-- Laravel Framework: 11.5.0
-- Laravel Sanctum: v4.0.7
-- Laravel Breeze: v2.3.0+
-- PHP: 8.2, 8.3, or 8.4 (8.3+ recommended)
+**As-of:** December 26, 2025 — 7:27 PM (America/Chicago)
 
-## Pre-Implementation
+## Baseline Reality (origin/main)
 
-- [ ] Review all research documentation:
-  - [ ] Read `SUMMARY.md` for key findings
-  - [ ] Review `LARAVEL_MVP_RESEARCH.md` for detailed analysis
-  - [ ] Reference `QUICK_REFERENCE.md` during implementation
-- [ ] **Acquire domain name** (or decide on nip.io for testing)
-- [ ] Provision server infrastructure (if deploying)
-- [ ] Set up development environment (PHP 8.2, 8.3, or 8.4, Composer, Node.js)
+- A Laravel app already exists under `laravel/`.
+- Laravel `^12.0` with Jetstream `^5.4` (Inertia stack) and Vue 3.
+- Sanctum `^4.0` is installed and `HasApiTokens` is already on `App\\Models\\User`.
+- Domain models and migrations already exist for: jurisdictions, parishes, contacts.
+- `/api/v1` exists but is partial (e.g., `GET /api/v1/dioceses/search`).
 
-## Phase 1: Laravel Setup (Est. 1-2 days)
+## Phase 0: Workspace Hygiene (Do This First)
 
-### Laravel Installation
-- [ ] Create new Laravel 11.5.0 project: `composer create-project laravel/laravel drm-catholic-laravel`
-- [ ] Verify PHP version: `php -v` (should be 8.2, 8.3, or 8.4)
-- [ ] Configure `.env` file with database credentials
-- [ ] Test basic Laravel installation: `php artisan serve`
+- [ ] Confirm you are working from tracked files (avoid committing `vendor/`, cache, runtime artifacts).
+- [ ] Ensure the checked-out `laravel/` directory matches what’s in GitHub.
 
-### Database Setup
-- [ ] Install PostgreSQL (or configure existing instance)
-- [ ] Create database: `drm_catholic`
-- [ ] Test database connection: `php artisan migrate`
-- [ ] Configure database settings in `.env`
+## Phase 1: Local Dev Bring-Up (Est. 0.5–1 day)
 
-### Version Control
-- [ ] Initialize git repository (if not already done)
-- [ ] Create `.gitignore` (exclude `/vendor`, `/node_modules`, `.env`)
-- [ ] Initial commit
+- [ ] `cd laravel`
+- [ ] Install deps: `composer install` and `npm install`
+- [ ] Create `.env` (copy from `.env.example` if missing)
+- [ ] Generate key: `php artisan key:generate`
+- [ ] Migrate DB: `php artisan migrate`
+- [ ] Run dev services: `composer run dev`
+- [ ] Verify health route: `GET /up`
+- [ ] Verify UI auth works (Jetstream): login and dashboard
 
-## Phase 2: Authentication Setup (Est. 1 day)
+## Phase 2: Decide the API Auth Contract (Est. 0.5 day)
 
-### Install Laravel Breeze
-- [ ] Run: `composer require laravel/breeze --dev` (installs v2.3.0+)
-- [ ] Run: `php artisan breeze:install blade`
-- [ ] Run: `npm install && npm run dev`
-- [ ] Run: `php artisan migrate`
+- [ ] Confirm API clients:
+  - [ ] First-party web UI only
+  - [ ] Programmatic/third-party clients
+  - [ ] Mobile apps
+- [ ] Decide which auth mode(s) to support:
+  - [ ] Session cookies (first-party UI)
+  - [ ] Bearer tokens (Sanctum personal access tokens)
 
-### Test Authentication
-- [ ] Register a test user via `/register`
-- [ ] Login via `/login`
-- [ ] Access dashboard
-- [ ] Test logout functionality
-- [ ] Test password reset flow
+## Phase 3: Implement `/api/v1` Token Endpoints (Est. 1 day)
 
-### Customize Branding (Optional)
-- [ ] Update application name in `.env`: `APP_NAME="DRM Catholic"`
-- [ ] Customize views in `resources/views/auth/`
-- [ ] Update logo/branding as needed
+If you need programmatic access, add explicit token endpoints under `/api/v1`.
 
-## Phase 3: API Authentication with Sanctum (Est. 1 day)
+- [ ] Add routes under `routes/api.php` within the `Route::prefix('v1')` group
+- [ ] Implement token issuance using `$user->createToken(...)`
+- [ ] Implement token revocation (current token, all tokens, or by id)
+- [ ] Protect token endpoints with `auth:sanctum`
+- [ ] Ensure consistent JSON responses (and stable error shapes)
 
-### Install Sanctum
-- [ ] Run: `php artisan install:api` (installs Sanctum v4.0.7)
-- [ ] Or manually: `composer require laravel/sanctum`
-- [ ] Publish config: `php artisan vendor:publish --provider="Laravel\Sanctum\SanctumServiceProvider"`
-- [ ] Run migrations: `php artisan migrate`
-- [ ] Verify Sanctum version: `composer show laravel/sanctum` (should be v4.0.7+)
+## Phase 4: API Parity Against Node/TypeScript Contract (Iterative)
 
-### Update User Model
-- [ ] Add `use HasApiTokens;` trait to `app/Models/User.php`
+Implement endpoints as-needed, matching the contract already expressed in the Node/TypeScript API.
 
-### Configure Middleware
-- [ ] Update `bootstrap/app.php` or `app/Http/Kernel.php` with Sanctum middleware
-- [ ] Configure CORS in `config/cors.php` if needed
+- [ ] Add/expand controllers under `App\\Http\\Controllers\\Api\\V1`
+- [ ] Preserve filtering and nested-route behavior where required
+- [ ] Keep versioning stable (`/api/v1/*`)
 
-### Create Auth Controller
-- [ ] Generate controller: `php artisan make:controller Api/AuthController`
-- [ ] Implement `login` method
-- [ ] Implement `register` method
-- [ ] Implement `logout` method
-- [ ] Implement `profile` method
+## Phase 5: Data Model Completion (Iterative)
 
-### Define API Routes
-- [ ] Add routes in `routes/api.php`
-- [ ] Unprotected: `/api/login`, `/api/register`
-- [ ] Protected: `/api/logout`, `/api/profile`
-- [ ] Test with Postman/Insomnia
+- [ ] Review existing migrations for jurisdictions/parishes/contacts
+- [ ] Add missing tables only when needed by the next endpoint(s)
+- [ ] Add indexes for common filters (e.g., diocese_id, state, type)
+- [ ] Add seeders for local dev (optional but recommended)
 
-### Test API Authentication
-- [ ] Test registration endpoint
-- [ ] Test login endpoint (verify token returned)
-- [ ] Test protected endpoint with token
-- [ ] Test logout endpoint
-- [ ] Test invalid token handling
+## Phase 6: Testing (Iterative)
 
-## Phase 4: Database Schema Design (Est. 2-3 days)
+- [ ] Add Laravel feature tests for `/api/v1` endpoints
+- [ ] Add tests for edge cases carried over from the Node contract
 
-### Core Entity Migrations
-- [ ] Diocese: `php artisan make:migration create_dioceses_table`
-- [ ] Region: `php artisan make:migration create_regions_table`
-- [ ] Deanery: `php artisan make:migration create_deaneries_table`
-- [ ] Parish: `php artisan make:migration create_parishes_table`
-- [ ] Mission: `php artisan make:migration create_missions_table`
-- [ ] School: `php artisan make:migration create_schools_table`
-- [ ] Religious House: `php artisan make:migration create_religious_houses_table`
-- [ ] Organization: `php artisan make:migration create_organizations_table`
-- [ ] Apostolate: `php artisan make:migration create_apostolates_table`
-- [ ] Diocesan Office: `php artisan make:migration create_diocesan_offices_table`
-- [ ] Contact: `php artisan make:migration create_contacts_table`
-- [ ] Contact Position: `php artisan make:migration create_contact_positions_table`
+## Phase 7: Deployment (Est. 1–2 days)
 
-### Edge Case Handling
-- [ ] External diocese tracking (dioceseId, homeDioceseId, isExternalContact)
-- [ ] Multiple positions (ContactPosition relationship)
-- [ ] Organization scope (enum field, nullable dioceseId)
-- [ ] SVDP hierarchy (parentOrganizationId, svdpLevel)
-- [ ] Sacred site designations (boolean flags + type enums)
-- [ ] Flexible hierarchy (nullable regionId, deaneryId)
-- [ ] Address as JSON column with casting
+- [ ] **Acquire a domain name** if you need trusted public HTTPS
+- [ ] Choose server approach (Nginx / Caddy / FrankenPHP)
+- [ ] Serve only from `public/` (never the project root)
+- [ ] Run `php artisan optimize` during deploy
+- [ ] Ensure `APP_DEBUG=false` in production
 
-### Run Migrations
-- [ ] Review all migration files
-- [ ] Run: `php artisan migrate`
-- [ ] Verify tables created correctly
-- [ ] Check foreign key constraints
+---
 
-## Phase 5: Eloquent Models (Est. 2-3 days)
+## Notes
 
-### Generate Models
-- [ ] Diocese: `php artisan make:model Diocese`
-- [ ] Region: `php artisan make:model Region`
-- [ ] Deanery: `php artisan make:model Deanery`
-- [ ] Parish: `php artisan make:model Parish`
-- [ ] Mission: `php artisan make:model Mission`
-- [ ] School: `php artisan make:model School`
-- [ ] ReligiousHouse: `php artisan make:model ReligiousHouse`
-- [ ] Organization: `php artisan make:model Organization`
-- [ ] Apostolate: `php artisan make:model Apostolate`
-- [ ] DiocesanOffice: `php artisan make:model DiocesanOffice`
-- [ ] Contact: `php artisan make:model Contact`
-- [ ] ContactPosition: `php artisan make:model ContactPosition`
+- The old “create a new Laravel 11 + Breeze app” plan is obsolete for this repo.
+- Jetstream + Inertia is already installed; treat it as baseline and avoid re-scaffolding.
 
-### Define Relationships
-- [ ] Diocese → hasMany → Parishes
-- [ ] Diocese → hasMany → Contacts
-- [ ] Parish → belongsTo → Diocese
-- [ ] Parish → hasMany → Contacts
-- [ ] Contact → hasMany → ContactPositions
-- [ ] Organization → belongsTo → ParentOrganization (self-referential)
-- [ ] All other relationships as per schema
-
-### Configure Model Properties
-- [ ] Define `$fillable` arrays
-- [ ] Define `$casts` (especially for JSON columns)
-- [ ] Add soft deletes where appropriate
-- [ ] Configure UUID/ULID if using
-
-### Test Models
-- [ ] Use `php artisan tinker` to test model creation
-- [ ] Test relationships
-- [ ] Verify cascading deletes work correctly
-
-## Phase 6: API Resources (Est. 1 day)
-
-### Generate Resources
-- [ ] `php artisan make:resource DiocesesResource`
-- [ ] `php artisan make:resource ParishesResource`
-- [ ] `php artisan make:resource ContactsResource`
-- [ ] Generate resources for all other entities
-
-### Format Resources
-- [ ] Wrap in standard response format: `{ success, data, count }`
-- [ ] Hide sensitive fields (tokens, passwords)
-- [ ] Include related data when needed
-
-### Collection Resources
-- [ ] Create collection resources for list endpoints
-- [ ] Include count in collection responses
-
-## Phase 7: API Controllers (Est. 3-4 days)
-
-### Generate Controllers
-- [ ] `php artisan make:controller Api/DiocesesController --api`
-- [ ] `php artisan make:controller Api/RegionsController --api`
-- [ ] `php artisan make:controller Api/DeaneriesController --api`
-- [ ] `php artisan make:controller Api/ParishesController --api`
-- [ ] `php artisan make:controller Api/MissionsController --api`
-- [ ] `php artisan make:controller Api/SchoolsController --api`
-- [ ] `php artisan make:controller Api/ReligiousHousesController --api`
-- [ ] `php artisan make:controller Api/OrganizationsController --api`
-- [ ] `php artisan make:controller Api/ApostolatesController --api`
-- [ ] `php artisan make:controller Api/OfficesController --api`
-- [ ] `php artisan make:controller Api/ContactsController --api`
-- [ ] `php artisan make:controller Api/PositionsController --api`
-
-### Implement CRUD Operations
-For each controller:
-- [ ] index() - List all with filtering
-- [ ] show() - Get single by ID
-- [ ] store() - Create new
-- [ ] update() - Update existing
-- [ ] destroy() - Delete
-
-### Implement Query Filtering
-- [ ] Filter by dioceseId
-- [ ] Filter by state
-- [ ] Filter by type
-- [ ] Filter by role
-- [ ] Filter by scope
-- [ ] Add pagination
-
-### Implement Nested Routes
-- [ ] `/dioceses/:id/parishes`
-- [ ] `/dioceses/:id/contacts`
-- [ ] `/parishes/:id/contacts`
-- [ ] `/regions/:id/deaneries`
-- [ ] Other nested routes as needed
-
-### Add Validation
-- [ ] Create Form Request classes
-- [ ] Validate all inputs
-- [ ] Return consistent error responses
-
-### Protect Routes
-- [ ] Add `auth:sanctum` middleware to all protected routes
-- [ ] Implement role-based access if needed
-- [ ] Test authentication on all endpoints
-
-## Phase 8: Seeding Test Data (Est. 1 day)
-
-### Create Seeders
-- [ ] `php artisan make:seeder DiocesesSeeder`
-- [ ] `php artisan make:seeder ParishesSeeder`
-- [ ] `php artisan make:seeder ContactsSeeder`
-- [ ] Update `DatabaseSeeder` to call all seeders
-
-### Add Sample Data
-- [ ] Add sample dioceses (at least 5)
-- [ ] Add sample parishes (at least 20)
-- [ ] Add sample contacts (at least 30)
-- [ ] Add sample organizations
-- [ ] Test edge cases (external contacts, multiple positions, etc.)
-
-### Test Seeding
-- [ ] Run: `php artisan db:seed`
-- [ ] Verify data in database
-- [ ] Test API endpoints with seeded data
-
-## Phase 9: Testing (Est. 2-3 days)
-
-### Feature Tests
-- [ ] Test authentication flows
-- [ ] Test API endpoints
-- [ ] Test query parameters
-- [ ] Test nested routes
-- [ ] Test validation
-- [ ] Test error handling
-
-### API Testing
-- [ ] Create Postman collection
-- [ ] Test all endpoints
-- [ ] Test authentication with tokens
-- [ ] Test edge cases
-- [ ] Document API examples
-
-### Performance Testing
-- [ ] Test with large datasets
-- [ ] Optimize N+1 queries (use eager loading)
-- [ ] Add database indexes
-- [ ] Test response times
-
-## Phase 10: Caddy Deployment (Est. 1-2 days)
-
-### Server Setup
-- [ ] Install PHP 8.2, 8.3, or 8.4 (8.3+ recommended) and extensions
-- [ ] Install Composer
-- [ ] Install PostgreSQL
-- [ ] Install Node.js and npm
-- [ ] Install Caddy 2.x
-
-### Application Deployment
-- [ ] Clone repository to server
-- [ ] Run: `composer install --optimize-autoloader --no-dev`
-- [ ] Run: `npm install && npm run build`
-- [ ] Copy `.env.example` to `.env`
-- [ ] Configure `.env` for production
-- [ ] Run: `php artisan key:generate`
-- [ ] Run: `php artisan migrate --force`
-- [ ] Run: `php artisan db:seed` (if needed)
-- [ ] Set proper file permissions
-
-### Caddy Configuration
-- [ ] Create `/etc/caddy/Caddyfile`
-- [ ] Configure domain (or nip.io for testing)
-- [ ] Configure PHP-FPM socket
-- [ ] Configure Laravel rewrites
-- [ ] Add security headers
-- [ ] Enable compression
-- [ ] Configure logging
-
-### Start Services
-- [ ] Start PHP-FPM: `systemctl start php8.2-fpm`
-- [ ] Start Caddy: `systemctl start caddy`
-- [ ] Enable services on boot
-
-### Test Deployment
-- [ ] Access application via domain
-- [ ] Verify HTTPS certificate (check for green lock)
-- [ ] Test authentication
-- [ ] Test API endpoints
-- [ ] Check logs for errors
-
-### Configure Firewall
-- [ ] Allow port 80 (HTTP)
-- [ ] Allow port 443 (HTTPS)
 - [ ] Block direct access to port 8000 (if using)
 
 ## Phase 11: Monitoring & Optimization (Est. 1 day)
@@ -388,33 +160,31 @@ For each controller:
 ## Maintenance
 
 ### Regular Tasks
-- [ ] Monitor application logs
-- [ ] Monitor error rates
-- [ ] Check certificate expiration (Caddy auto-renews)
-- [ ] Review and optimize database
-- [ ] Update dependencies regularly
-- [ ] Apply security patches
+- [ ] Monitor application logs and error rates
+- [ ] Keep dependencies updated (Composer + npm)
+- [ ] Review DB indexes / slow queries as data grows
+- [ ] Apply security patches regularly
 
 ---
 
-## Estimated Timeline
+## Estimated Timeline (High-Level)
 
-- Pre-Implementation: 1 day
-- Phase 1-3 (Setup & Auth): 3-4 days
-- Phase 4-7 (Data & API): 8-10 days
-- Phase 8-9 (Testing): 3-4 days
-- Phase 10-12 (Deployment & Docs): 3-4 days
-
-**Total: 18-23 business days (~4-5 weeks)**
+- Phase 0 (Hygiene): 0.5 day
+- Phase 1 (Bring-up): 0.5–1 day
+- Phase 2 (Auth contract decision): 0.5 day
+- Phase 3 (Token endpoints): ~1 day (if needed)
+- Phase 4–6 (API parity + data model + tests): iterative (days → weeks, depending on scope)
+- Phase 7 (Deployment): 1–2 days (plus domain acquisition lead time)
 
 ## Resources
 
-- Laravel Documentation: https://laravel.com/docs/11.x
-- Laravel Breeze: https://laravel.com/docs/11.x/starter-kits#laravel-breeze
-- Laravel Sanctum: https://laravel.com/docs/11.x/sanctum
+- Laravel Documentation: https://laravel.com/docs
+- Laravel Starter Kits: https://laravel.com/docs/12.x/starter-kits
+- Laravel Sanctum: https://laravel.com/docs/12.x/sanctum
+- Laravel Deployment: https://laravel.com/docs/12.x/deployment
+- Laravel Jetstream: https://jetstream.laravel.com/
 - Caddy Documentation: https://caddyserver.com/docs
-- Research Documents: See `/docs` folder
 
 ---
 
-**Note:** This is a comprehensive checklist. Adjust timeline and tasks based on team size and experience level.
+**Note:** This checklist is intentionally iterative; treat the Node/TypeScript API contract as the source-of-truth for what endpoints to build next.

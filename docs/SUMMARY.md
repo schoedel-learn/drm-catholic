@@ -1,222 +1,96 @@
-# Research Summary: Laravel MVP with Auth + Caddy
+# Research Summary: Laravel MVP (Repo Reality) + Auth + Deployment
 
-**Date:** December 22, 2024  
-**Task:** Planning-only research for Laravel MVP implementation  
-**Status:** ✅ Complete
+**As-of:** December 26, 2025 — 7:27 PM (America/Chicago)  
+**Task:** Update prior Laravel MVP research against (1) current official Laravel guidance and (2) the actual repository state on GitHub (`origin/main`).  
+**Status:** ✅ Updated
 
-## Overview
+## What Changed Since the Original Research
 
-This research phase has investigated the best approaches for:
-1. Laravel authentication scaffolding with login forms
-2. Laravel Sanctum API token authentication
-3. Caddy web server deployment with HTTPS constraints (IP-only vs domain)
-4. Preservation of existing Node.js API contract and edge cases
+The repository is no longer in a “plan a new Laravel app” state.
 
-**Latest Package Versions (December 2024):**
-- Laravel Framework: 11.5.0 (released December 17, 2024)
-- Laravel Sanctum: v4.0.7 (released December 17, 2024)
-- Laravel Breeze: v2.3.0+ (compatible with Inertia V2)
-- PHP Support: 8.2, 8.3, and 8.4
+On `origin/main`, a Laravel application already exists under `laravel/` and is configured with:
 
-## Key Findings
+- **Laravel Framework:** `^12.0`
+- **Authentication UI:** **Jetstream** (`^5.4`) using the **Inertia** stack
+- **Inertia adapter:** `inertiajs/inertia-laravel` (`^2.0`)
+- **Frontend:** Vue 3 + Inertia (`@inertiajs/vue3`), Vite, Tailwind
+- **API/Auth:** Sanctum (`^4.0`) is installed and the `User` model already uses `HasApiTokens`
+- **AI / tooling:** `laravel/mcp` (`^0.5.1`) is installed and a public MCP endpoint exists
 
-### 1. Laravel Authentication: Use Laravel Breeze
+This means the old “Laravel 11 + Breeze (Blade)” recommendation is obsolete for this repo: the scaffold choice has already been made.
 
-**Recommendation:** Laravel Breeze (Blade stack)
+## Key Findings (Updated)
 
-**Rationale:**
-- Minimal, clean, easy to understand
-- Perfect for MVP development
-- Includes login, registration, password reset
-- Tailwind CSS (customizable)
-- Well-documented and maintained
+### 1) Authentication: Keep Jetstream + Inertia (Already Implemented)
 
-**Alternative considered:**
-- Laravel UI (older, Bootstrap-based)
-- Laravel Jetstream (too feature-heavy for MVP)
+**Recommendation:** Treat Jetstream + Inertia as the baseline and build on it.
 
-### 2. Laravel Sanctum: Ideal for API Authentication
+**Why:**
+- It is already installed and wired into the app.
+- It provides a solid default auth surface area (session auth, teams, etc.) without re-scaffolding.
+- It aligns with current official guidance emphasizing first-party starter kits and modern stacks.
 
-**Recommendation:** Laravel Sanctum for API token management
+### 2) API Authentication: Use Sanctum for Token Auth (Already Installed)
 
-**Key Benefits:**
-- Simple token-based authentication
-- Perfect for SPAs and mobile apps
-- Lighter than OAuth (Passport)
-- Built-in token abilities/scopes
-- Easy integration with Breeze
+**Recommendation:** Use Sanctum for API token authentication on `/api/v1/*`.
 
-**Setup Process:**
-1. Install: `php artisan install:api`
-2. Add `HasApiTokens` trait to User model
-3. Configure `auth:sanctum` middleware
-4. Implement login/logout endpoints
-5. Issue tokens on successful authentication
+**Notes grounded in Laravel 12 docs:**
+- Laravel’s docs describe `install:api` as the standard way to install API auth primitives.
+- Sanctum supports both cookie-based SPA auth and token-based API auth; we should use **token-based auth for third-party / programmatic clients** and keep Jetstream’s normal auth for the UI.
 
-### 3. Caddy HTTPS Deployment: Domain Required for Production
+### 3) Deployment: Domain Still Required for Public Trusted HTTPS
 
-**Critical Finding:** Caddy cannot obtain trusted public certificates for bare IP addresses.
+**Still true:** Public CAs won’t issue trusted certs for bare IPs.
 
-**Options Evaluated:**
+- If you deploy behind **Caddy** or **Nginx**, you still need a domain for public trusted TLS.
+- Official Laravel deployment guidance currently calls out **Nginx** and also mentions **FrankenPHP** as a modern option; either way, the “don’t serve from project root” rule and `public/` web root remains the same.
 
-| Option | Use Case | Certificate Type | Browser Trust |
-|--------|----------|------------------|---------------|
-| IP-only (self-signed) | Development/Internal | Self-signed | ❌ Warnings |
-| IP with internal CA | Enterprise internal | Custom CA | ⚠️ If CA distributed |
-| nip.io workaround | Testing | Let's Encrypt | ✅ Trusted |
-| **Real domain** | **Production** | **Let's Encrypt** | **✅ Trusted** |
+### 4) Node.js API Contract: Edge Cases Still Matter
 
-**Strong Recommendation:** Acquire a domain name for production deployment.
+The Node/TypeScript codebase expresses domain nuances we still need to preserve. The Laravel app on `origin/main` already reflects some of that direction (e.g., contacts + jurisdictions + UUID string keys), but the overall API surface is not yet at parity.
 
-**Workaround for testing:** Use services like nip.io (e.g., `192.168.1.100.nip.io`) to get real certificates without buying a domain.
+## Current Repo Implementation Snapshot (origin/main)
 
-### 4. Node.js API Contract Edge Cases
+### Database / Models (Exists)
 
-**Critical Edge Cases Identified:**
+- `Jurisdiction`, `Parish`, `Contact`, `User` (string UUID primary keys for domain models)
+- Migrations exist for contacts / jurisdictions / parishes, personal access tokens, and Jetstream teams.
 
-1. **External Diocese Tracking**
-   - Contacts can belong to diocese A but be from diocese B
-   - Requires: `dioceseId`, `homeDioceseId`, `isExternalContact` fields
+### API (Partial)
 
-2. **Multiple Positions per Contact**
-   - One contact can hold multiple simultaneous roles
-   - Requires: Separate `ContactPosition` model with one-to-many relationship
+- `routes/api.php` currently exposes a small subset under `/api/v1/*`:
+  - `GET /api/v1/dioceses/search`
+  - Google Places search/details endpoints
 
-3. **Organization Scope Hierarchy**
-   - Organizations span parish → diocesan → national → international
-   - Requires: `scope` enum field, nullable `dioceseId` for national/international
+Other `Api\V1` controllers exist but are mostly placeholders, indicating the API migration is in progress.
 
-4. **SVDP Multi-Level Structure**
-   - St. Vincent de Paul has 5-level hierarchy
-   - Requires: Self-referential `parentOrganizationId`, `svdpLevel` field
+### MCP Endpoint (Exists)
 
-5. **Sacred Site Designations**
-   - Parishes can be cathedrals, basilicas, shrines
-   - Requires: Boolean flags + type enums
+- A public MCP server is registered and exposed at `/mcp/public`.
 
-6. **Flexible Parish Hierarchy**
-   - Parishes may/may not belong to regions/deaneries
-   - Requires: Nullable foreign keys with proper cascade handling
+## Revised Implementation Roadmap
 
-7. **Polymorphic Contact Associations**
-   - Contacts link to multiple entity types
-   - Options: Nullable FKs (simple) vs polymorphic relationships (flexible)
+### Phase 0: Align Workspaces With Reality
+- Ensure your local working tree matches the tracked Laravel app in `origin/main` (avoid vendor/cache/runtime artifacts in git).
+- Run the Laravel app using its own scripts (`composer run dev`, etc.) and confirm auth screens load.
 
-8. **Address Reusability**
-   - Common address structure across entities
-   - Recommended: JSON column with array casting
+### Phase 1: Decide the Auth Contract for API Clients
+- Confirm whether API clients will authenticate via:
+  - **Bearer tokens** (Sanctum personal access tokens), or
+  - **Session cookies** (first-party SPA).
+- Implement the minimal endpoints needed for your clients (issue/revoke tokens) under `/api/v1`.
 
-**API Response Format:**
-```json
-{
-  "success": true,
-  "data": {...},
-  "count": 10
-}
-```
+### Phase 2: Expand `/api/v1` Toward Node Contract Parity
+- Implement the core resources and filtering/nested routes already described in the root Node/TypeScript API contract.
+- Add request validation and consistent JSON response shapes.
 
-**Must preserve:**
-- `/api/v1/*` endpoint structure
-- Query parameters: `dioceseId`, `state`, `type`, `role`, `scope`
-- Nested routes: `/dioceses/:id/parishes`, `/parishes/:id/contacts`
-- All 12 core resource types
+### Phase 3: Testing + Backwards Compatibility
+- Add Laravel feature tests around the API contract and edge cases.
+- Keep `/api/v1/*` stable and versioned.
 
-## Implementation Roadmap
-
-### Phase 1: Foundation
-- Install Laravel 11
-- Set up Laravel Breeze
-- Configure PostgreSQL database
-- Test authentication flows
-
-### Phase 2: API Authentication
-- Install Sanctum
-- Create auth endpoints
-- Implement token management
-- Add role-based token abilities
-
-### Phase 3: Data Models
-- Create migrations (preserving edge cases)
-- Define Eloquent models
-- Implement relationships
-- Create API resources
-
-### Phase 4: API Controllers
-- Implement RESTful controllers
-- Maintain API contract compatibility
-- Add query parameter filtering
-- Create nested resource routes
-
-### Phase 5: Deployment
-- **Acquire domain name** (critical)
-- Set up server environment
-- Configure Caddy
-- Deploy and test HTTPS
-- Configure monitoring
-
-## Technology Stack
-
-```
-Frontend:    Laravel Blade + Tailwind CSS (via Breeze v2.3.0+)
-Backend:     Laravel 11.5.0 + Sanctum v4.0.7
-Database:    PostgreSQL (recommended for production)
-Web Server:  Caddy 2.x
-PHP:         8.2, 8.3, or 8.4 (8.3+ recommended)
-Optional:    Redis (caching, queues)
-```
-
-## Risk Mitigation
-
-1. **API Breaking Changes:** Version endpoints (`/api/v1/`), comprehensive tests
-2. **HTTPS Constraints:** Acquire domain; use nip.io for testing
-3. **Data Complexity:** Incremental migration, start with core entities
-4. **Token Security:** Implement expiration, refresh, revocation
-
-## Documentation Created
-
-1. **[LARAVEL_MVP_RESEARCH.md](./LARAVEL_MVP_RESEARCH.md)** - Complete research findings (19KB)
-2. **[QUICK_REFERENCE.md](./QUICK_REFERENCE.md)** - Developer quick reference (7KB)
-3. **[SUMMARY.md](./SUMMARY.md)** - This file
-
-## Next Steps
-
-The research phase is complete. Next steps for implementation:
-
-1. ⏭️ Obtain approval to proceed with Laravel migration
-2. ⏭️ **Acquire domain name** for production deployment
-3. ⏭️ Set up Laravel project with Breeze
-4. ⏭️ Implement Sanctum authentication
-5. ⏭️ Design and create database schema
-6. ⏭️ Migrate API endpoints
-7. ⏭️ Configure Caddy with production domain
-8. ⏭️ Deploy to staging
-9. ⏭️ Test and validate
-10. ⏭️ Production deployment
-
-## Recommendations
-
-### Critical
-- ✅ Use Laravel Breeze for authentication scaffolding
-- ✅ Use Laravel Sanctum for API tokens
-- ⚠️ **Acquire a domain name for production** (non-negotiable for trusted HTTPS)
-
-### Strongly Recommended
-- Use PostgreSQL for production database
-- Implement UUID/ULID for primary keys
-- Add soft deletes for data preservation
-- Use Laravel API Resources for consistent responses
-- Implement comprehensive testing
-- Use Redis for caching and queues
-
-### For Consideration
-- Start with Blade templates, consider Inertia.js later for SPA features
-- Implement role-based access control using Sanctum token abilities
-- Add rate limiting on authentication endpoints
-- Configure automated backups
-- Set up logging and monitoring from day one
-
-## Conclusion
-
-The research confirms that Laravel 11 with Breeze and Sanctum provides an excellent foundation for the DRM Catholic MVP. The main deployment constraint is the requirement for a domain name to enable trusted HTTPS with Caddy. All existing Node.js API edge cases can be preserved in the Laravel implementation with careful database schema design and Eloquent relationship configuration.
+### Phase 4: Deployment
+- Use a domain for trusted TLS.
+- Follow the official deployment guidance (web root is `public/`, run `php artisan optimize` during deploy).
+- Choose your web server (Caddy/Nginx/FrankenPHP) based on ops constraints.
 
 **Status:** Ready to proceed to implementation phase pending approval and domain acquisition.
