@@ -78,41 +78,66 @@ DRM Catholic is a comprehensive relationship management system designed specific
 
 ## Getting Started
 
-### Prerequisites
+The primary implementation is the **Laravel application** in the `laravel/` directory. A secondary TypeScript package lives in `src/`.
+
+### Laravel Application (Primary)
+
+#### Prerequisites
+
+- PHP >= 8.2
+- [Composer](https://getcomposer.org/)
+- Node.js >= 18.0.0
+
+#### Installation
+
+```bash
+git clone https://github.com/schoedel-learn/drm-catholic.git
+cd drm-catholic/laravel
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+touch database/database.sqlite
+php artisan migrate
+php artisan serve
+```
+
+In a separate terminal, start the Vite dev server:
+
+```bash
+npm run dev
+```
+
+#### Environment Variables
+
+Copy `.env.example` to `.env` and update the values as needed. The following variable is required to enable Google Places features:
+
+| Variable | Description |
+|----------|-------------|
+| `GOOGLE_PLACES_API_KEY` | Google Places API key (required for parish location search) |
+
+### TypeScript Package (Secondary)
+
+#### Prerequisites
 
 - Node.js >= 18.0.0
 - npm >= 9.0.0
 
-### Installation
+#### Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/schoedel-learn/drm-catholic.git
-cd drm-catholic
-
-# Install dependencies
+cd drm-catholic   # repo root
 npm install
-
-# Build the project
 npm run build
-
-# Start the development server
 npm run dev
-```
-
-### Running in Production
-
-```bash
-npm run build
-npm start
 ```
 
 ## API Endpoints
 
-### Health Check
-- `GET /health` - Service health status
+> **Note:** Only the endpoints marked ✅ are currently implemented. All others are planned for future releases.
 
 ### Dioceses
+- ✅ `GET /api/v1/dioceses/search` - Search dioceses (`query`, `limit`, `include_external` params)
 - `GET /api/v1/dioceses` - List all dioceses
 - `GET /api/v1/dioceses?state=TX` - Filter by state
 - `GET /api/v1/dioceses?type=archdiocese` - Filter by type
@@ -122,6 +147,25 @@ npm start
 - `DELETE /api/v1/dioceses/:id` - Delete diocese
 - `GET /api/v1/dioceses/:id/parishes` - Get parishes in diocese
 - `GET /api/v1/dioceses/:id/contacts` - Get contacts in diocese
+
+### Google Places
+- ✅ `GET /api/v1/google-places/search` - Text search for places (requires `GOOGLE_PLACES_API_KEY`)
+- ✅ `GET /api/v1/google-places/details` - Get place details by `place_id` (requires `GOOGLE_PLACES_API_KEY`)
+
+### MCP Server (Model Context Protocol)
+
+The Laravel app exposes an MCP server at the standard MCP endpoint with the following tools:
+
+| Tool | Description |
+|------|-------------|
+| `ping` | Health check |
+| `search-parishes` | Search parishes within a diocese |
+| `get-parish` | Get parish details by ID |
+| `create-parish` | Create a new parish |
+| `update-parish` | Update an existing parish |
+| `search-google-places` | Search Google Places for parish location data |
+| `get-google-place` | Get Google Place details by place ID |
+| `create-parish-from-google-place` | Create a parish record from a Google Places result |
 
 ### Regions
 - `GET /api/v1/regions` - List all regions
@@ -348,58 +392,59 @@ Contacts can have various roles including:
 
 ### Scripts
 
+#### Laravel (`laravel/` directory)
+
 ```bash
-npm run dev          # Start development server with hot reload
-npm run build        # Build for production
-npm start            # Start production server
-npm run lint         # Run ESLint
-npm test             # Run tests
-npm run test:watch   # Run tests in watch mode
-npm run test:coverage # Run tests with coverage report
+php artisan serve        # Start the PHP development server
+npm run dev              # Start the Vite asset development server
+php artisan test         # Run PHPUnit test suite
+php artisan migrate      # Run database migrations
+php artisan migrate:fresh --seed  # Reset and seed the database
+composer run-script lint # Run PHP linter (if configured)
+```
+
+#### TypeScript (`src/` / repo root)
+
+```bash
+npm run dev              # Start development server with hot reload
+npm run build            # Build for production
+npm start                # Start production server
+npm run lint             # Run ESLint
+npm test                 # Run Jest tests
+npm run test:watch       # Run tests in watch mode
+npm run test:coverage    # Run tests with coverage report
 ```
 
 ### Project Structure
 
 ```
 drm-catholic/
-├── src/
+├── laravel/           # Primary Laravel application
+│   ├── app/           # PHP application code
+│   ├── config/        # Laravel configuration
+│   ├── database/      # Migrations and seeders
+│   ├── resources/     # Views, Vue components, assets
+│   ├── routes/        # Route definitions (web, api, ai/MCP)
+│   ├── tests/         # PHPUnit test suite
+│   └── ...
+├── src/               # TypeScript package (secondary)
 │   ├── api/           # API route handlers
-│   │   ├── dioceses.ts
-│   │   ├── deaneries.ts
-│   │   ├── parishes.ts
-│   │   ├── schools.ts
-│   │   ├── organizations.ts
-│   │   ├── apostolates.ts
-│   │   ├── offices.ts
-│   │   └── contacts.ts
-│   ├── config/        # Application configuration
 │   ├── models/        # Data models and interfaces
-│   ├── services/      # Business logic and data access
-│   ├── utils/         # Utility functions
-│   ├── __tests__/     # Test files
-│   └── index.ts       # Application entry point
+│   ├── services/      # Business logic
+│   ├── __tests__/     # Jest test files
+│   └── index.ts
 ├── .github/
-│   └── workflows/     # GitHub Actions CI/CD
-├── package.json
+│   ├── workflows/     # GitHub Actions CI/CD
+│   └── ISSUE_TEMPLATE/
+├── docs/              # Documentation
+├── package.json       # Root TypeScript package config
 ├── tsconfig.json
-├── jest.config.js
-└── .eslintrc.js
+└── jest.config.js
 ```
 
-## Branch Protection
-
-The `main` branch is protected with the following rules:
-- Require pull request reviews before merging
-- Require status checks to pass before merging
-- Require branches to be up to date before merging
-- Include administrators in these restrictions
-
-To configure branch protection:
-1. Go to repository Settings > Branches
-2. Add a branch protection rule for `main`
-3. Enable the desired protections
-
 ## Contributing
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -413,13 +458,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Roadmap
 
-- [ ] Database integration (PostgreSQL)
-- [ ] User authentication and authorization
+- [x] Multi-tenant support for individual dioceses (in progress — Jetstream Teams)
+- [x] Integration with Google Places for parish location data
+- [ ] Database integration (PostgreSQL for production)
+- [ ] User authentication and authorization (beyond Jetstream defaults)
 - [ ] Web dashboard interface
 - [ ] Import/export functionality for diocesan data
 - [ ] Integration with USCCB data sources
 - [ ] Reporting and analytics
-- [ ] Multi-tenant support for individual dioceses
 - [ ] Ministry certification tracking
 - [ ] Safe environment training compliance
 - [ ] Event and calendar management
