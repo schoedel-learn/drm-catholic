@@ -1,12 +1,9 @@
-# APA 7:  GitHub.  (2023). Configuring Dependabot security updates. 
-# https://docs.github.com/en/code-security/dependabot/dependabot-security-updates/configuring-dependabot-security-updates
-
 version: 2
-updates: 
+updates:
   # Monitor Composer dependencies (PHP/Laravel)
   - package-ecosystem: "composer"
-    directory: "/"
-    schedule: 
+    directory: "/laravel"
+    schedule:
       interval: "weekly"
       day: "monday"
       time: "09:00"
@@ -18,14 +15,58 @@ updates:
       - "dependencies"
       - "security"
     commit-message:
-      prefix:  "chore"
+      prefix: "chore"
       include: "scope"
 
-  # Monitor GitHub Actions workflows (if any)
-  - package-ecosystem:  "github-actions"
+  # Monitor npm dependencies (root)
+  - package-ecosystem: "npm"
     directory: "/"
-    schedule: 
+    schedule:
       interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "schoedel-learn"
+    labels:
+      - "dependencies"
+      - "security"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
+  # Monitor npm dependencies (Laravel)
+  - package-ecosystem: "npm"
+    directory: "/laravel"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "schoedel-learn"
+    labels:
+      - "dependencies"
+      - "security"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
+  # Monitor GitHub Actions workflows
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/New_York"
+    reviewers:
+      - "schoedel-learn"
     labels:
       - "ci"
       - "dependencies"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
