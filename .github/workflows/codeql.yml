@@ -1,9 +1,9 @@
-name:  "CodeQL"
+name: "CodeQL"
 
-on: 
+on:
   push:
     branches: [ main ]
-  pull_request: 
+  pull_request:
     branches: [ main ]
   schedule:
     - cron: '30 2 * * 1'
@@ -18,12 +18,12 @@ jobs:
       security-events: write
 
     strategy:
-      fail-fast:  false
+      fail-fast: false
       matrix:
-        language: [ 'php' ]
+        language: [ 'php', 'javascript' ]
 
     steps:
-    - name:  Checkout repository
+    - name: Checkout repository
       uses: actions/checkout@v4
 
     - name: Initialize CodeQL
@@ -32,9 +32,9 @@ jobs:
         languages: ${{ matrix.language }}
 
     - name: Autobuild
-      uses:  github/codeql-action/autobuild@v3
+      uses: github/codeql-action/autobuild@v3
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
       with:
-        category:  "/language: ${{ matrix.language }}"
+        category: "/language:${{ matrix.language }}"
