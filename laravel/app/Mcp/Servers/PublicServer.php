@@ -3,13 +3,11 @@
 namespace App\Mcp\Servers;
 
 use App\Mcp\Tools\PingTool;
-use App\Mcp\Tools\CreateParishTool;
-use App\Mcp\Tools\CreateParishFromGooglePlaceTool;
+
 use App\Mcp\Tools\GetGooglePlaceTool;
-use App\Mcp\Tools\GetParishTool;
+
 use App\Mcp\Tools\SearchGooglePlacesTool;
-use App\Mcp\Tools\SearchParishesTool;
-use App\Mcp\Tools\UpdateParishTool;
+
 use Laravel\Mcp\Server;
 
 class PublicServer extends Server
@@ -48,13 +46,8 @@ class PublicServer extends Server
      */
     protected array $tools = [
         PingTool::class,
-        SearchParishesTool::class,
-        GetParishTool::class,
-        CreateParishTool::class,
-        UpdateParishTool::class,
         SearchGooglePlacesTool::class,
         GetGooglePlaceTool::class,
-        CreateParishFromGooglePlaceTool::class,
     ];
 
     /**

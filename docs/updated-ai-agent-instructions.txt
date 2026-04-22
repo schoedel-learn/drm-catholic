@@ -1,0 +1,1981 @@
+Nova License #: wA2EgutVJkJbAui6gXKlzIYUqEfRnikRIeQymGV0GLvPHp8txf
+Velzon License #: 
+
+
+Barry, I can absolutely map this out for your Antigravity agent — in a way that gives it a **clear architectural mandate**, a **division of responsibilities**, and a **repeatable pattern** for when to use Nova vs. Velzon across your diocesan CRM.
+
+This is the kind of blueprint that lets your agent scaffold new modules without confusion, and it ensures your system stays coherent, maintainable, and future‑proof.
+
+Below is the **canonical integration strategy** for using **Laravel Nova + Velzon** together in a diocesan‑grade platform.
+
+---
+
+# ⭐ THE ARCHITECTURE BLUEPRINT  
+## **“Nova for Data. Velzon for Applications.”**
+
+This is the core principle your Antigravity agent should follow.
+
+### **Nova = Data Administration Layer**
+Use Nova when the task is:
+
+- CRUD on Eloquent models  
+- Managing canonical records  
+- Staff back-office operations  
+- Simple forms  
+- Resource tables  
+- Filters, lenses, actions  
+- Bulk data operations  
+- Import/export  
+- Auditing and logs  
+- Permissions and roles  
+
+Nova is your **data admin console**.
+
+### **Velzon = Application UI Layer**
+Use Velzon when the task is:
+
+- Dashboards  
+- Multi-step workflows  
+- AI review queues  
+- OCR pipelines  
+- Notification routing  
+- Escalation dashboards  
+- Analytics  
+- eCommerce flows  
+- Public-facing forms  
+- Registration flows  
+- Donation flows  
+- Email campaign UI  
+- Charts, graphs, visualizations  
+- Drawers, modals, wizards  
+- Anything requiring rich UI/UX  
+
+Velzon is your **application interface**.
+
+---
+
+# ⭐ WHY THIS MATTERS  
+Nova is *incredible* for CRUD, but it is **not** designed for:
+
+- Complex workflows  
+- Multi-step forms  
+- Public-facing UI  
+- eCommerce  
+- AI-driven review flows  
+- Notification matrices  
+- Institutional routing  
+- Analytics dashboards  
+
+Velzon *is*.
+
+You’re building a diocesan platform that needs **both**:
+
+- A clean, simple admin UI for chancery staff  
+- A rich, modern application UI for workflows  
+- A simple public-facing UI for parishioners  
+
+This architecture gives you exactly that.
+
+---
+
+# ⭐ WHAT YOUR ANTIGRAVITY AGENT SHOULD DO  
+Here is the exact decision tree your agent should follow when generating new modules.
+
+---
+
+# 1. **If the module is CRUD-heavy → Use Nova**
+
+Examples:
+
+- Contacts  
+- Institutions  
+- Sacrament records  
+- Safe Environment records  
+- Case records  
+- Form submissions  
+- Notification logs  
+- User management  
+- Role/permission management  
+
+Nova gives you:
+
+- Resource classes  
+- Filters  
+- Lenses  
+- Actions  
+- Metrics  
+- Built-in pagination  
+- Built-in search  
+- Built-in authorization  
+
+This keeps your admin UI **simple** and **consistent**.
+
+---
+
+# 2. **If the module is workflow-heavy → Use Velzon**
+
+Examples:
+
+- AI Review Queue  
+- Batch Review  
+- Diff View  
+- OCR pipeline UI  
+- Notification Matrix  
+- Institution Routing  
+- Escalation Dashboard  
+- Analytics Dashboard  
+- Email campaign builder  
+- eCommerce checkout  
+- Registration flows  
+- Donation flows  
+- Public-facing forms  
+- Multi-step wizards  
+- File upload workflows  
+- Document preview drawers  
+
+Velzon gives you:
+
+- Offcanvas drawers  
+- Modals  
+- Charts (ApexCharts)  
+- Wizards  
+- Stepper flows  
+- Cards, badges, alerts  
+- Full Bootstrap 5 ecosystem  
+- Blade + Alpine.js integration  
+- Beautiful dashboards  
+
+This keeps your **application UI powerful and intuitive**.
+
+---
+
+# 3. **If the module is public-facing → Use Velzon (or a lightweight front-end)**
+
+Examples:
+
+- Event registration  
+- Donation checkout  
+- Parishioner profile updates  
+- Public forms  
+- Payment flows  
+- Volunteer signups  
+
+Velzon is perfect for this because:
+
+- It’s responsive  
+- It’s modern  
+- It’s customizable  
+- It supports eCommerce components  
+- It supports advanced forms  
+- It supports charts and visualizations  
+
+Nova should **never** be exposed publicly.
+
+---
+
+# 4. **If the module needs charts/graphs → Use Velzon**
+
+Velzon ships with:
+
+- ApexCharts  
+- Chart.js  
+- Sparkline charts  
+- Progress widgets  
+- KPI cards  
+- Analytics dashboards  
+
+Nova has metrics, but they’re limited.
+
+Your analytics dashboards (notifications, submissions, AI performance, institution activity) belong in Velzon.
+
+---
+
+# 5. **If the module needs eCommerce → Use Velzon**
+
+Velzon includes:
+
+- Product grids  
+- Checkout flows  
+- Cart UI  
+- Payment UI  
+- Order history  
+- Invoice templates  
+
+Perfect for:
+
+- Event registration  
+- Retreat payments  
+- School fees  
+- Donations  
+- Parish giving  
+- Ticketing  
+
+Nova is not built for this.
+
+---
+
+# 6. **If the module needs email integration → Use Velzon**
+
+Velzon includes:
+
+- Email templates  
+- Email inbox UI  
+- Email composer UI  
+- Email list UI  
+- Email detail view  
+
+This is ideal for:
+
+- CRM communications  
+- Parish newsletters  
+- School announcements  
+- Ministry updates  
+- Caseworker communication logs  
+
+Nova is not built for this.
+
+---
+
+# ⭐ RECOMMENDED FOLDER STRUCTURE  
+Your Antigravity agent should scaffold modules like this:
+
+```
+app/
+  Nova/
+    Contact.php
+    Institution.php
+    SacramentRecord.php
+    SafeEnvironmentRecord.php
+    CaseRecord.php
+    NotificationLog.php
+
+resources/
+  views/
+    velzon/
+      dashboard/
+      review-queue/
+      notifications/
+      routing/
+      analytics/
+      ecommerce/
+      forms/
+      public/
+```
+
+Velzon lives under `resources/views/velzon`.
+
+Nova lives under `app/Nova`.
+
+---
+
+# ⭐ ROUTING STRATEGY  
+Use two route groups:
+
+### **Nova Admin**
+```
+/nova
+```
+
+### **Velzon Admin**
+```
+/admin
+```
+
+### **Public**
+```
+/forms
+/register
+/donate
+/profile
+```
+
+This keeps everything clean and predictable.
+
+---
+
+# ⭐ HOW YOUR ANTIGRAVITY AGENT SHOULD DECIDE  
+Here is the exact rule set:
+
+### **If the task is CRUD → Nova**  
+### **If the task is workflow → Velzon**  
+### **If the task is public → Velzon**  
+### **If the task is analytics → Velzon**  
+### **If the task is eCommerce → Velzon**  
+### **If the task is email UI → Velzon**  
+### **If the task is AI review → Velzon**  
+### **If the task is institutional routing → Velzon**  
+### **If the task is notification preferences → Velzon**  
+### **If the task is canonical data → Nova**  
+
+This is the blueprint.
+
+---
+
+# ⭐ FINAL SUMMARY FOR YOUR ANTIGRAVITY AGENT  
+Here is the exact instruction you can give it:
+
+> **Use Laravel Nova for CRUD-based administrative interfaces (contacts, institutions, sacramental records, Safe Environment, cases, submissions, logs).  
+> Use Velzon for all workflow-driven, public-facing, analytics, eCommerce, email, AI, and notification-related interfaces.  
+> Nova = data admin. Velzon = application UI.**
+
+This gives your agent a **clear, deterministic rule set** for every future module.
+
+---
+
+If you want, I can now generate:
+
+- A **full architectural diagram**  
+- A **developer onboarding document**  
+- A **Velzon component library map**  
+- A **Nova resource strategy guide**  
+
+Just tell me which one you want next.
+
+Absolutely, Barry — here is the **Velzon Component Library Map** you asked for. This is a **clean, structured, architect‑level overview** of every major Velzon UI component category, what it’s for, and how your Antigravity agent should use it inside your diocesan CRM.
+
+This map is designed to be **actionable**, **navigable**, and **future‑proof**, so your agent can instantly know which Velzon component to reach for when building new modules.
+
+---
+
+# ⭐ **Velzon Component Library Map**
+### *A complete, categorized guide to Velzon’s UI building blocks*
+
+Velzon is huge — but it’s also beautifully organized. Below is the full component map broken into the categories that matter for your CRM.
+
+---
+
+# 1. **Layout & Structure Components**
+These define the skeleton of every Velzon page.
+
+### **Core Layout**
+- Header  
+- Sidebar  
+- Footer  
+- Breadcrumbs  
+- Page title bar  
+- Content wrappers  
+
+### **Containers**
+- `.container`, `.container-fluid`  
+- Grid system (Bootstrap 5)  
+- Cards (primary building block for admin UI)
+
+### **Use Cases in Your CRM**
+- Admin dashboards  
+- Review Queue layout  
+- Notification Matrix layout  
+- Institution Routing layout  
+
+---
+
+# 2. **Navigation Components**
+### **Menus**
+- Vertical sidebar menu  
+- Horizontal top menu  
+- Collapsible menu groups  
+
+### **Tabs**
+- Horizontal tabs  
+- Vertical tabs  
+
+### **Breadcrumbs**
+- Auto-generated or manual
+
+### **Use Cases**
+- Switching between CRM modules  
+- Multi-tab settings pages  
+- Institution-level routing sections  
+
+---
+
+# 3. **Form Components**
+Velzon ships with **advanced form UI** far beyond Laravel’s defaults.
+
+### **Inputs**
+- Text, email, phone  
+- Password  
+- Number  
+- Date/time pickers  
+- Tag inputs  
+- Select2 dropdowns  
+- Multi-select  
+- File upload  
+- Drag-and-drop upload  
+- Input masks  
+- Floating labels  
+
+### **Advanced Forms**
+- Multi-step wizards  
+- Steppers  
+- Validation states  
+- Repeater fields  
+- Conditional fields  
+- Rich text editor (Quill, TinyMCE)  
+- Markdown editor  
+
+### **Use Cases**
+- Public registration forms  
+- Donation checkout  
+- Case intake  
+- Sacrament request forms  
+- Notification routing configuration  
+- AI Review Queue actions  
+
+---
+
+# 4. **Table & Data Display Components**
+### **Tables**
+- Responsive tables  
+- Sortable tables  
+- Searchable tables  
+- Pagination  
+- Sticky headers  
+- Action columns  
+- Bulk selection  
+
+### **Data Lists**
+- Media lists  
+- User lists  
+- Activity lists  
+
+### **Use Cases**
+- Review Queue  
+- Notification Log  
+- Submission lists  
+- Institution lists  
+- Case management lists  
+
+---
+
+# 5. **Interactive Components**
+These are the heart of Velzon’s “application feel.”
+
+### **Modals**
+- Standard modal  
+- Large modal  
+- Fullscreen modal  
+
+### **Offcanvas Drawers**
+- Right-side drawer  
+- Left-side drawer  
+- Full-height drawer  
+
+### **Tooltips & Popovers**
+- Hover tooltips  
+- Click popovers  
+
+### **Accordions**
+- Expandable sections  
+
+### **Use Cases**
+- Review Detail Drawer  
+- Diff View  
+- Submission detail preview  
+- File preview  
+- Institution routing detail  
+
+---
+
+# 6. **Charts & Analytics Components**
+Velzon includes **ApexCharts**, **Chart.js**, and **Sparkline charts**.
+
+### **Chart Types**
+- Line  
+- Bar  
+- Area  
+- Pie  
+- Donut  
+- Radial bar  
+- Heatmap  
+- Mixed charts  
+- Sparklines  
+- KPI counters  
+
+### **Use Cases**
+- Notification Analytics  
+- Submission analytics  
+- Institution activity  
+- AI performance metrics  
+- Safe Environment compliance charts  
+
+---
+
+# 7. **Widgets & Cards**
+Velzon includes dozens of prebuilt widgets.
+
+### **Widgets**
+- Stats cards  
+- KPI counters  
+- Activity feed  
+- Recent items  
+- User profile card  
+- Timeline  
+- Progress bars  
+- Mini charts  
+
+### **Use Cases**
+- Admin dashboard  
+- Institution dashboard  
+- Caseworker dashboard  
+- Notification overview  
+
+---
+
+# 8. **eCommerce Components**
+Velzon includes a full eCommerce UI suite.
+
+### **Components**
+- Product grid  
+- Product detail  
+- Cart  
+- Checkout  
+- Orders list  
+- Invoice templates  
+- Payment status UI  
+
+### **Use Cases**
+- Event registration  
+- Retreat payments  
+- School fees  
+- Donations  
+- Ticketing  
+
+---
+
+# 9. **Email & Messaging Components**
+Velzon includes a full email UI.
+
+### **Components**
+- Email inbox  
+- Email list  
+- Email detail view  
+- Email composer  
+- Templates  
+
+### **Use Cases**
+- CRM communications  
+- Parish newsletters  
+- School announcements  
+- Caseworker communication logs  
+
+---
+
+# 10. **Authentication Components**
+### **Screens**
+- Login  
+- Register  
+- Forgot password  
+- Reset password  
+- Two-factor auth  
+
+### **Use Cases**
+- Public login  
+- Staff login  
+- Volunteer login  
+- Parishioner profile access  
+
+---
+
+# 11. **Utility Components**
+### **Alerts**
+- Success  
+- Warning  
+- Danger  
+- Info  
+
+### **Badges**
+- Status indicators  
+- Labels  
+
+### **Spinners**
+- Loading states  
+
+### **Avatars**
+- User icons  
+- Institution icons  
+
+### **Use Cases**
+- Review Queue statuses  
+- Notification statuses  
+- Case statuses  
+- Sacrament verification statuses  
+
+---
+
+# ⭐ **How Your Antigravity Agent Should Use This Map**
+Here is the rule set your agent should follow:
+
+### **If the UI is CRUD → Use Nova**  
+### **If the UI is workflow → Use Velzon**  
+### **If the UI is public-facing → Use Velzon**  
+### **If the UI needs charts → Use Velzon**  
+### **If the UI needs drawers/modals → Use Velzon**  
+### **If the UI needs eCommerce → Use Velzon**  
+### **If the UI needs email → Use Velzon**  
+### **If the UI needs advanced forms → Use Velzon**  
+### **If the UI needs dashboards → Use Velzon**  
+
+This map gives your agent a **complete component vocabulary** to build any module you need.
+
+---
+
+If you want, I can now generate a **Velzon Component Cheat Sheet** (one-page quick reference) or a **Velzon + Nova integration playbook** for your agent.
+
+Absolutely, Barry — here is the **Velzon Component Cheat Sheet** you asked for.  
+This is the *quick‑reference map* your Antigravity agent can use to instantly choose the right Velzon component for any UI it needs to build.
+
+It’s intentionally concise, structured, and actionable — the kind of thing you’d pin on the wall next to your architecture diagram.
+
+---
+
+# ⭐ **Velzon Component Cheat Sheet**
+### *A fast, practical guide to every major Velzon UI building block*
+
+---
+
+# 1. **Layout & Structure**
+Use these to scaffold any Velzon page.
+
+| Component | Purpose |
+|----------|---------|
+| **Card** | Primary container for all admin UI content |
+| **Grid (Bootstrap 5)** | Layout rows/columns |
+| **Page Title / Breadcrumbs** | Page headers |
+| **Sidebar Navigation** | Module navigation |
+| **Topbar / Header** | User menu, notifications |
+| **Offcanvas Layout** | Slide‑in panels (drawers) |
+
+**Use for:** dashboards, settings pages, review queue, routing UI.
+
+---
+
+# 2. **Forms**
+Velzon’s form system is extremely rich.
+
+| Component | Purpose |
+|----------|---------|
+| **Text / Email / Phone Inputs** | Standard fields |
+| **Select2 Dropdown** | Searchable selects |
+| **Multi-select** | Assign multiple users/roles |
+| **Date / Time Pickers** | Scheduling, sacrament dates |
+| **File Upload / Drag & Drop** | Document uploads |
+| **Input Masks** | Phone, SSN, DOB formatting |
+| **Wizards / Steppers** | Multi-step forms |
+| **Repeater Fields** | Dynamic lists (e.g., multiple children) |
+| **Rich Text Editor** | Notes, summaries, descriptions |
+
+**Use for:** registrations, donations, case intake, routing rules, notification settings.
+
+---
+
+# 3. **Tables & Data Display**
+Velzon tables are flexible and interactive.
+
+| Component | Purpose |
+|----------|---------|
+| **Responsive Table** | Standard data lists |
+| **Sortable Columns** | Sorting by field |
+| **Searchable Table** | Quick filtering |
+| **Bulk Selection** | Batch review actions |
+| **Action Column** | Edit, view, delete buttons |
+| **Sticky Header** | Long tables |
+
+**Use for:** Review Queue, Notification Logs, Submissions, Cases.
+
+---
+
+# 4. **Interactive Components**
+These give Velzon its “application feel.”
+
+| Component | Purpose |
+|----------|---------|
+| **Offcanvas Drawer** | Detail view, diff view, preview |
+| **Modal** | Confirmations, forms, previews |
+| **Accordion** | Expandable sections |
+| **Tabs** | Multi-section settings |
+| **Tooltips / Popovers** | Inline help |
+| **Toast Notifications** | Success/error messages |
+
+**Use for:** Review Detail Drawer, Institution Routing, Submission Preview.
+
+---
+
+# 5. **Charts & Analytics**
+Velzon ships with ApexCharts + Chart.js.
+
+| Chart Type | Purpose |
+|------------|---------|
+| **Line Chart** | Trends over time |
+| **Bar Chart** | Comparisons |
+| **Pie / Donut** | Distribution |
+| **Area Chart** | Volume over time |
+| **Radial Bar** | Progress indicators |
+| **Heatmap** | Activity patterns |
+| **Sparklines** | Mini trend indicators |
+
+**Use for:** Notification Analytics, Submission Analytics, Institution Activity.
+
+---
+
+# 6. **Widgets & Cards**
+Velzon includes dozens of prebuilt widgets.
+
+| Widget | Purpose |
+|--------|---------|
+| **KPI Counter** | Total submissions, total notifications |
+| **Mini Charts** | Quick trends |
+| **Activity Feed** | Recent actions |
+| **Timeline** | Case history, submission history |
+| **User Card** | Staff profiles |
+| **Progress Bars** | Completion status |
+
+**Use for:** Dashboards, institution overviews, reviewer performance.
+
+---
+
+# 7. **eCommerce Components**
+Velzon includes a full eCommerce UI suite.
+
+| Component | Purpose |
+|----------|---------|
+| **Product Grid** | Event listings, retreat options |
+| **Product Detail** | Event details |
+| **Cart** | Registrations, donations |
+| **Checkout** | Payment flow |
+| **Invoice Template** | Receipts |
+| **Order List** | Payment history |
+
+**Use for:** registrations, donations, school fees, ticketing.
+
+---
+
+# 8. **Email & Messaging**
+Velzon includes a full email UI.
+
+| Component | Purpose |
+|----------|---------|
+| **Email Inbox** | CRM communications |
+| **Email List** | Campaigns |
+| **Email Detail** | Message view |
+| **Email Composer** | Write/send messages |
+| **Email Templates** | Saved layouts |
+
+**Use for:** parish newsletters, school announcements, caseworker communication logs.
+
+---
+
+# 9. **Authentication**
+Velzon includes polished auth screens.
+
+| Component | Purpose |
+|----------|---------|
+| **Login** | Staff login |
+| **Register** | Public account creation |
+| **Forgot Password** | Reset flow |
+| **Two-Factor Auth** | Enhanced security |
+
+**Use for:** parishioner portal, staff portal.
+
+---
+
+# 10. **Utility Components**
+| Component | Purpose |
+|----------|---------|
+| **Alerts** | Success/error/info messages |
+| **Badges** | Status indicators |
+| **Spinners** | Loading states |
+| **Avatars** | User icons |
+| **Breadcrumbs** | Navigation context |
+
+**Use for:** everywhere.
+
+---
+
+# ⭐ How Your Antigravity Agent Should Use This Cheat Sheet
+
+### **If the UI is CRUD → Nova**  
+### **If the UI is workflow → Velzon**  
+### **If the UI is public-facing → Velzon**  
+### **If the UI needs charts → Velzon**  
+### **If the UI needs drawers/modals → Velzon**  
+### **If the UI needs eCommerce → Velzon**  
+### **If the UI needs email → Velzon**  
+### **If the UI needs advanced forms → Velzon**  
+### **If the UI needs dashboards → Velzon**  
+
+This cheat sheet gives your agent a **fast, deterministic vocabulary** for building any UI module.
+
+---
+
+If you’re ready, I can now generate the **Velzon + Nova Integration Playbook** — the definitive guide for how your agent should combine both systems across your entire diocesan CRM.
+
+Barry, here it is — the **Velzon + Nova Integration Playbook** you asked for.  
+This is the *definitive*, architect‑level guide your Antigravity agent can follow to build every future module in your diocesan CRM with total clarity.
+
+It’s structured, prescriptive, and designed so your agent never has to “guess” which tool to use.
+
+---
+
+# ⭐ **Velzon + Nova Integration Playbook**
+### *How to use both systems together in a clean, scalable, future‑proof architecture*
+
+---
+
+# 🎯 **Core Principle**
+### **Nova = Data Admin**  
+### **Velzon = Application UI**
+
+Everything in this playbook flows from that one rule.
+
+---
+
+# 1. **Nova Responsibilities (Data Administration Layer)**  
+Nova is your **canonical data console**.  
+It should remain clean, predictable, and CRUD‑focused.
+
+### ✔ Use Nova for:
+- Contacts  
+- Institutions  
+- Sacrament records  
+- Safe Environment records  
+- Case records  
+- Form submissions  
+- Notification logs  
+- Users, roles, permissions  
+- Any “table of records” with CRUD  
+- Any “back-office” data management  
+- Import/export  
+- Auditing  
+- Bulk actions  
+
+### ✔ Nova strengths:
+- Resource classes  
+- Filters  
+- Lenses  
+- Actions  
+- Metrics (simple counts)  
+- Authorization baked in  
+- Zero front-end complexity  
+
+### ✔ Nova should **not** be used for:
+- Dashboards  
+- Workflows  
+- Multi-step forms  
+- Public-facing UI  
+- eCommerce  
+- Email UI  
+- AI review flows  
+- Notification routing  
+- Analytics  
+- Anything requiring drawers, modals, charts, or rich UX  
+
+---
+
+# 2. **Velzon Responsibilities (Application Layer)**  
+Velzon is your **workflow engine** and **UI framework**.
+
+### ✔ Use Velzon for:
+- AI Review Queue  
+- Review Detail Drawer  
+- Diff View  
+- Batch Review  
+- Notification Preferences  
+- Per-event Notification Matrix  
+- Institution Routing  
+- Escalation Dashboard  
+- Notification Log Dashboard  
+- Notification Analytics  
+- OCR pipeline UI  
+- Submission detail drawers  
+- Multi-step workflows  
+- Public-facing forms  
+- Registration flows  
+- Donation flows  
+- eCommerce checkout  
+- Email UI (inbox, composer, templates)  
+- Dashboards  
+- Charts & graphs  
+- Anything requiring rich UI/UX  
+
+### ✔ Velzon strengths:
+- ApexCharts  
+- Offcanvas drawers  
+- Modals  
+- Wizards  
+- Advanced forms  
+- eCommerce components  
+- Email components  
+- Cards, widgets, KPIs  
+- Full Bootstrap 5 ecosystem  
+- Blade + Alpine.js friendly  
+
+### ✔ Velzon should **not** be used for:
+- Canonical CRUD  
+- Deep data admin  
+- Complex relational data editing  
+- Permission/role management  
+
+---
+
+# 3. **Routing Strategy**
+A clean separation keeps your system maintainable.
+
+### **Nova Admin**
+```
+/nova
+```
+
+### **Velzon Admin**
+```
+/admin
+```
+
+### **Public**
+```
+/forms
+/register
+/donate
+/profile
+```
+
+Your Antigravity agent should always route new modules according to this structure.
+
+---
+
+# 4. **Folder Structure**
+A predictable structure helps your agent scaffold new modules correctly.
+
+```
+app/
+  Nova/
+    Contact.php
+    Institution.php
+    SacramentRecord.php
+    SafeEnvironmentRecord.php
+    CaseRecord.php
+    FormSubmission.php
+    NotificationLog.php
+    User.php
+
+app/Services/
+  AiExtractionService.php
+  CrmSyncService.php
+  NotificationRouter.php
+  PaymentService.php
+  EmailIntegrationService.php
+  ReviewQueueService.php
+
+app/Jobs/
+  ProcessOcrJob.php
+  SyncToCrmJob.php
+  EscalateNotificationJob.php
+
+resources/views/
+  velzon/
+    dashboard/
+    review-queue/
+    notifications/
+    routing/
+    analytics/
+    ecommerce/
+    forms/
+    public/
+```
+
+---
+
+# 5. **Decision Tree for Your Antigravity Agent**
+This is the **heart** of the playbook — the rule engine.
+
+### ✔ If the task is CRUD → **Nova**  
+### ✔ If the task is workflow → **Velzon**  
+### ✔ If the task is public-facing → **Velzon**  
+### ✔ If the task is analytics → **Velzon**  
+### ✔ If the task is eCommerce → **Velzon**  
+### ✔ If the task is email → **Velzon**  
+### ✔ If the task is AI review → **Velzon**  
+### ✔ If the task is notification routing → **Velzon**  
+### ✔ If the task is canonical data → **Nova**  
+
+This decision tree should be followed *every time*.
+
+---
+
+# 6. **Integration Pattern**
+Nova and Velzon should never “fight” each other.  
+They should **cooperate** through the **Service Layer**.
+
+### **Pattern:**
+1. Velzon UI → Controller  
+2. Controller → Service  
+3. Service → Models / Jobs / Notifications  
+4. Nova → Views the same data  
+
+### Example:
+AI Review Queue (Velzon)  
+→ Approve change  
+→ CrmSyncService applies update  
+→ Contact model updated  
+→ Nova shows updated contact  
+
+This keeps your system consistent and auditable.
+
+---
+
+# 7. **Where Each Feature Belongs**
+Here’s a quick placement guide for your agent:
+
+| Feature | Nova or Velzon? | Why |
+|--------|------------------|-----|
+| Contact CRUD | Nova | Canonical data |
+| AI Review Queue | Velzon | Workflow |
+| Diff View | Velzon | Drawer + JS |
+| Batch Review | Velzon | Workflow |
+| Notification Preferences | Velzon | Advanced forms |
+| Notification Matrix | Velzon | Matrix UI |
+| Institution Routing | Velzon | Complex UI |
+| Escalation Dashboard | Velzon | Analytics |
+| Notification Logs | Nova + Velzon | CRUD + dashboard |
+| Notification Analytics | Velzon | Charts |
+| Public Registration | Velzon | Public UI |
+| Donations | Velzon | eCommerce |
+| Email Campaigns | Velzon | Email UI |
+| Case Records | Nova | Canonical data |
+| Safe Environment | Nova | Canonical data |
+| Sacrament Records | Nova | Canonical data |
+
+---
+
+# 8. **UI/UX Philosophy**
+Your CRM has three audiences:
+
+### **1. Public (parishioners, parents, volunteers)**
+- Simple  
+- Friendly  
+- Mobile-first  
+- Velzon public-facing components  
+
+### **2. Staff (chancery, schools, ministries)**
+- Clean  
+- Guided  
+- Workflow-driven  
+- Velzon admin components  
+
+### **3. Power Admins (IT, data, canonical)**
+- Full CRUD  
+- Bulk operations  
+- Nova resources  
+
+This separation keeps everyone happy.
+
+---
+
+# 9. **How Nova and Velzon Share Data**
+They share the **same models**, **same database**, and **same services**.
+
+### Example:
+- Velzon Review Queue approves a change  
+- CrmSyncService updates Contact  
+- Nova Contact resource shows updated data  
+
+No duplication.  
+No divergence.  
+One source of truth.
+
+---
+
+# 10. **How Your Agent Should Scaffold New Modules**
+When your agent is asked to build a new feature:
+
+### Step 1 — Identify the type:
+- CRUD? → Nova  
+- Workflow? → Velzon  
+- Public? → Velzon  
+- Analytics? → Velzon  
+- Canonical data? → Nova  
+
+### Step 2 — Generate:
+- Nova resource **or** Velzon Blade + Alpine.js  
+- Controller  
+- Service  
+- Routes  
+- Jobs (if async)  
+- Notifications (if needed)  
+
+### Step 3 — Integrate:
+- Use services for all business logic  
+- Keep Nova and Velzon thin  
+- Keep UI and logic separate  
+
+---
+
+# ⭐ **Your system now has a complete, unified architecture.**  
+Nova handles the **data**.  
+Velzon handles the **experience**.  
+Services handle the **logic**.  
+Jobs handle the **async work**.  
+Notifications handle the **communication**.
+
+This playbook gives your Antigravity agent everything it needs to build modules that fit perfectly into your ecosystem.
+
+If you want, I can now generate a **developer onboarding guide** so future collaborators instantly understand how to work inside this architecture.
+Absolutely, Barry — here is the **Developer Onboarding Guide** you asked for.  
+This is written as if you were handing it to a new engineer joining your diocesan CRM project. It’s clear, opinionated, and gives them everything they need to build confidently inside your Nova + Velzon + Laravel ecosystem.
+
+---
+
+# ⭐ **Developer Onboarding Guide**
+### *For the Diocesan CRM Platform (Nova + Velzon + Laravel)*
+
+Welcome to the diocesan CRM project. This guide gives you a complete mental model of the system, the architecture, the tools, and the conventions you’ll use every day. By the end, you’ll know exactly where to put new code, how to extend the platform, and how to build new modules that fit the system’s design.
+
+---
+
+# 1. **High-Level Architecture**
+The platform is built on a **three‑layer architecture**:
+
+### **1. Velzon (Application UI Layer)**
+- All workflow-driven interfaces  
+- Dashboards, analytics, charts  
+- AI review queue  
+- Notification matrix  
+- Institution routing  
+- Escalation dashboards  
+- Public-facing forms  
+- eCommerce flows  
+- Email UI  
+- Drawers, modals, wizards  
+
+### **2. Laravel Nova (Data Admin Layer)**
+- CRUD for canonical data  
+- Contacts, institutions, sacraments  
+- Safe Environment records  
+- Case records  
+- Form submissions  
+- Notification logs  
+- User/role management  
+
+### **3. Laravel Services (Domain Logic Layer)**
+- AI extraction  
+- OCR pipeline  
+- CRM sync  
+- Notification routing  
+- Escalation logic  
+- Payment processing  
+- Email integration  
+- Jobs + queues  
+
+**Velzon handles the experience.  
+Nova handles the data.  
+Services handle the logic.**
+
+---
+
+# 2. **Folder Structure**
+Here’s the structure you’ll work in:
+
+```
+app/
+  Nova/                     # Nova resources (CRUD)
+  Services/                 # Business logic
+  Jobs/                     # Async processing
+  Notifications/            # Notification classes
+  Models/                   # Eloquent models
+
+resources/views/
+  velzon/                   # Velzon UI
+    dashboard/
+    review-queue/
+    notifications/
+    routing/
+    analytics/
+    ecommerce/
+    forms/
+    public/
+
+routes/
+  web.php                   # Velzon + public routes
+  nova.php                  # Nova routes
+```
+
+---
+
+# 3. **When to Use Nova vs. Velzon**
+This is the most important rule in the entire system.
+
+### ✔ Use **Nova** when:
+- You’re building CRUD  
+- You’re managing canonical data  
+- You’re building admin-only data tables  
+- You need filters, lenses, actions  
+- You need bulk operations  
+
+### ✔ Use **Velzon** when:
+- You’re building a workflow  
+- You need drawers, modals, wizards  
+- You need charts or analytics  
+- You’re building public-facing UI  
+- You’re building eCommerce  
+- You’re building email UI  
+- You’re building notification routing  
+- You’re building AI review flows  
+
+If you’re unsure, ask:  
+**“Is this CRUD or workflow?”**  
+That question always gives you the right answer.
+
+---
+
+# 4. **Service Layer Pattern**
+All business logic lives in **Services**, not controllers.
+
+### Example pattern:
+```
+Velzon UI → Controller → Service → Models/Jobs/Notifications
+Nova UI   → Nova Action → Service → Models/Jobs/Notifications
+```
+
+### Example services:
+- `ReviewQueueService`
+- `CrmSyncService`
+- `NotificationRouter`
+- `PaymentService`
+- `EmailIntegrationService`
+- `OcrPipelineService`
+
+This keeps controllers thin and logic reusable.
+
+---
+
+# 5. **Jobs & Queues**
+Anything that might take more than 100ms goes into a job:
+
+- OCR  
+- AI extraction  
+- CRM sync  
+- Notification escalation  
+- Email sending  
+- Payment processing  
+
+Jobs live in `app/Jobs`.
+
+---
+
+# 6. **Notifications**
+Notifications are routed through a unified system:
+
+- Email (SendGrid)  
+- SMS (Twilio)  
+- Phone calls (Twilio Voice)  
+- Telegram  
+- Browser push  
+
+Routing is controlled by:
+
+- User preferences  
+- Per-event matrix  
+- Institution-level routing  
+- Escalation rules  
+
+All outbound notifications are logged in `notification_logs`.
+
+---
+
+# 7. **Velzon UI Conventions**
+Velzon uses:
+
+- Blade  
+- Alpine.js  
+- Bootstrap 5  
+- ApexCharts  
+
+### Common patterns:
+- **Offcanvas drawers** for detail views  
+- **Modals** for confirmations  
+- **Tables** for lists  
+- **Cards** for layout  
+- **Charts** for analytics  
+- **Wizards** for multi-step forms  
+
+### Example Velzon page structure:
+```
+@extends('layouts.master')
+
+@section('content')
+<div class="container-fluid">
+    <div class="card">
+        <div class="card-header">...</div>
+        <div class="card-body">...</div>
+    </div>
+</div>
+@endsection
+```
+
+---
+
+# 8. **Nova Conventions**
+Nova resources live in `app/Nova`.
+
+Each resource includes:
+
+- Fields  
+- Filters  
+- Lenses  
+- Actions  
+- Metrics  
+
+Nova is intentionally simple — don’t over-customize it.
+
+---
+
+# 9. **Public-Facing UI**
+Public pages use Velzon but with a simplified layout:
+
+- Registration  
+- Donations  
+- Profile updates  
+- Public forms  
+- Payment flows  
+
+These should be:
+
+- Mobile-first  
+- Minimal  
+- Pastoral  
+- Accessible  
+
+---
+
+# 10. **Adding a New Feature (Step-by-Step)**
+Here’s the exact process you should follow:
+
+### **Step 1 — Identify the type**
+- CRUD → Nova  
+- Workflow → Velzon  
+- Public → Velzon  
+- Analytics → Velzon  
+- Canonical data → Nova  
+
+### **Step 2 — Create the UI**
+- Velzon Blade view **or** Nova resource  
+
+### **Step 3 — Add routes**
+- `/admin/...` for Velzon  
+- `/nova/...` for Nova  
+
+### **Step 4 — Add controller**
+Controllers should be thin.
+
+### **Step 5 — Add service**
+Put all logic here.
+
+### **Step 6 — Add jobs (if async)**
+
+### **Step 7 — Add notifications (if needed)**
+
+### **Step 8 — Add tests (optional but encouraged)**
+
+---
+
+# 11. **Developer Tools & Environment**
+You’ll use:
+
+- Laravel 10+  
+- PHP 8.2+  
+- MySQL/Postgres  
+- Redis (queues)  
+- Horizon (queue monitoring)  
+- Telescope (debugging)  
+- Nova  
+- Velzon  
+- Tailwind (optional for public UI)  
+
+---
+
+# 12. **Principles to Follow**
+### ✔ Keep Nova boring  
+### ✔ Keep Velzon beautiful  
+### ✔ Keep services pure  
+### ✔ Keep controllers thin  
+### ✔ Keep jobs async  
+### ✔ Keep notifications logged  
+### ✔ Keep workflows intuitive  
+### ✔ Keep public UI pastoral  
+### ✔ Keep everything auditable  
+
+This is how the system stays maintainable for years.
+
+---
+
+If you’d like, I can now generate a **“New Developer Quickstart Checklist”** — a one-page version of this guide that a new engineer can follow on day one.
+
+Absolutely, Barry — here is the **New Developer Quickstart Checklist**, designed so a new engineer can get productive in your diocesan CRM within their first hour. It’s short, direct, and built on everything we’ve architected so far.
+
+---
+
+# ⭐ **New Developer Quickstart Checklist**
+### *A one‑page, high‑signal guide for onboarding into the Diocesan CRM (Nova + Velzon + Laravel)*
+
+This checklist is the “start here” document for any new engineer joining the project. It tells them exactly what to install, where things live, and how to build new features correctly.
+
+---
+
+# ✅ 1. Environment Setup (10 minutes)
+
+### **Install the basics**
+- PHP 8.2+
+- Composer
+- Node.js + npm
+- MySQL/Postgres
+- Redis
+- Laravel Valet / Sail / Homestead (your choice)
+- Git
+
+### **Clone the repo**
+```
+git clone <repo-url>
+cd diocesan-crm
+composer install
+npm install
+npm run dev
+php artisan migrate --seed
+```
+
+### **Start services**
+```
+php artisan serve
+php artisan queue:work
+```
+
+---
+
+# ✅ 2. Know the Architecture (2 minutes)
+
+### **Nova = Data Admin**
+- CRUD for canonical data  
+- Contacts, institutions, sacraments, Safe Environment, cases  
+- Notification logs  
+- Users & roles  
+
+### **Velzon = Application UI**
+- Dashboards  
+- AI Review Queue  
+- Notification Matrix  
+- Institution Routing  
+- Escalation Dashboard  
+- Analytics  
+- Public forms  
+- eCommerce  
+- Email UI  
+
+### **Services = Business Logic**
+- OCR  
+- AI extraction  
+- CRM sync  
+- Notifications  
+- Payments  
+
+---
+
+# ✅ 3. Folder Map (1 minute)
+
+```
+app/Nova/               # Nova resources (CRUD)
+app/Services/           # Business logic
+app/Jobs/               # Async tasks
+app/Notifications/      # Notification classes
+resources/views/velzon/ # Velzon UI
+routes/web.php          # Velzon + public routes
+routes/nova.php         # Nova routes
+```
+
+---
+
+# ✅ 4. The Golden Rule (30 seconds)
+
+### **If it’s CRUD → Nova**  
+### **If it’s workflow → Velzon**  
+### **If it’s public → Velzon**  
+### **If it’s analytics → Velzon**  
+### **If it’s canonical data → Nova**
+
+This rule alone prevents 90% of architectural mistakes.
+
+---
+
+# ✅ 5. Creating a New Feature (5 minutes)
+
+### **Step 1 — Decide Nova or Velzon**
+Use the Golden Rule above.
+
+### **Step 2 — Create UI**
+- Velzon → Blade + Alpine.js  
+- Nova → Resource class  
+
+### **Step 3 — Add routes**
+- Velzon → `/admin/...`  
+- Nova → `/nova/...`  
+
+### **Step 4 — Add controller**
+Controllers stay thin.
+
+### **Step 5 — Add service**
+All logic goes here.
+
+### **Step 6 — Add jobs (if async)**
+
+### **Step 7 — Add notifications (if needed)**
+
+---
+
+# ✅ 6. Working With Velzon (3 minutes)
+
+### Use Velzon for:
+- Offcanvas drawers  
+- Modals  
+- Wizards  
+- Advanced forms  
+- Charts (ApexCharts)  
+- Dashboards  
+- eCommerce  
+- Email UI  
+
+### Common patterns:
+- `card` for layout  
+- `table` for lists  
+- `offcanvas` for detail views  
+- `apexcharts` for analytics  
+- `form-switch` for toggles  
+- `select2` for multi-select  
+
+---
+
+# ✅ 7. Working With Nova (3 minutes)
+
+### Use Nova for:
+- CRUD  
+- Filters  
+- Lenses  
+- Actions  
+- Metrics  
+
+### Nova resources live in:
+```
+app/Nova/ModelName.php
+```
+
+Keep Nova simple and boring — that’s its strength.
+
+---
+
+# ✅ 8. Working With Notifications (2 minutes)
+
+### Notification channels:
+- Email (SendGrid)  
+- SMS (Twilio)  
+- Phone calls (Twilio Voice)  
+- Telegram  
+- Browser push  
+
+### Routing layers:
+- User preferences  
+- Per-event matrix  
+- Institution routing  
+- Escalation rules  
+
+### All notifications are logged in:
+```
+notification_logs
+```
+
+---
+
+# ✅ 9. Working With Jobs (1 minute)
+
+Anything slow goes into a job:
+
+- OCR  
+- AI extraction  
+- CRM sync  
+- Escalation  
+- Email sending  
+- Payment processing  
+
+Jobs live in:
+```
+app/Jobs/
+```
+
+---
+
+# ✅ 10. Working With Services (2 minutes)
+
+All business logic belongs in services:
+
+```
+app/Services/
+```
+
+Examples:
+- `ReviewQueueService`
+- `CrmSyncService`
+- `NotificationRouter`
+- `PaymentService`
+- `EmailIntegrationService`
+
+Controllers should never contain business logic.
+
+---
+
+# ⭐ **That’s the entire quickstart.**  
+A new developer can read this in 5 minutes and immediately understand:
+
+- How the system is structured  
+- Where to put new code  
+- How Nova and Velzon work together  
+- How to build new modules correctly  
+- How to avoid architectural mistakes  
+
+If you want, I can now generate a **“Developer Handbook”** — a longer, narrative-style document that explains the philosophy, patterns, and best practices behind the system.
+
+Absolutely, Barry — here is the **Developer Handbook** you asked for.  
+This is the long‑form, narrative version of everything we’ve built so far: the philosophy, the patterns, the architecture, and the expectations. It’s written so a new engineer can *feel* the system, not just follow checklists.
+
+This is the document you hand to someone on day one and say:  
+**“Read this, and you’ll understand how our entire platform works.”**
+
+---
+
+# ⭐ **Developer Handbook**
+### *The Philosophy, Architecture, and Practices Behind the Diocesan CRM Platform*
+
+Welcome to the diocesan CRM project. This system is designed to serve parishes, schools, ministries, chancery staff, and the faithful — and it’s built with clarity, transparency, and long‑term stewardship in mind.
+
+This handbook explains the *why* behind the architecture, not just the *how*.  
+By the end, you’ll understand the system’s design principles and how to build new features that fit seamlessly into the platform.
+
+---
+
+# 1. **The Philosophy of the Platform**
+This CRM is built for the Church — which means:
+
+### **1. It must be trustworthy.**  
+Data must be canonical, auditable, and handled with care.
+
+### **2. It must be humane.**  
+Staff should feel empowered, not overwhelmed.  
+Parishioners should feel welcomed, not confused.
+
+### **3. It must be future‑proof.**  
+Every module should be easy to extend, easy to hand off, and easy to understand.
+
+### **4. It must be transparent.**  
+AI suggestions must be reviewable.  
+Notifications must be logged.  
+Routing must be visible.  
+Escalations must be traceable.
+
+### **5. It must be modular.**  
+Each part of the system should be replaceable without breaking the whole.
+
+These principles shape every architectural decision.
+
+---
+
+# 2. **The Three‑Layer Architecture**
+The platform is built on a clear separation of concerns:
+
+## **Layer 1 — Velzon (Application UI)**
+Velzon is the **experience layer**.  
+It handles:
+
+- Dashboards  
+- Workflows  
+- AI review queue  
+- Notification matrix  
+- Institution routing  
+- Escalation dashboards  
+- Analytics  
+- Public-facing forms  
+- eCommerce  
+- Email UI  
+- Drawers, modals, wizards  
+
+Velzon is where the *work* happens.
+
+---
+
+## **Layer 2 — Nova (Data Admin)**
+Nova is the **canonical data layer**.  
+It handles:
+
+- CRUD  
+- Tables of records  
+- Filters, lenses, actions  
+- Bulk operations  
+- User/role management  
+- Notification logs  
+- Form submissions  
+- Sacrament records  
+- Safe Environment records  
+- Case records  
+
+Nova is where the *data* lives.
+
+---
+
+## **Layer 3 — Laravel Services (Domain Logic)**
+Services are the **brain** of the system.
+
+They handle:
+
+- OCR  
+- AI extraction  
+- CRM sync  
+- Notification routing  
+- Escalation logic  
+- Payment processing  
+- Email integration  
+- Background jobs  
+
+Services ensure that Velzon and Nova stay thin and clean.
+
+---
+
+# 3. **The Golden Rule**
+This is the most important rule in the entire system:
+
+### **If it’s CRUD → Nova**  
+### **If it’s workflow → Velzon**  
+### **If it’s public → Velzon**  
+### **If it’s analytics → Velzon**  
+### **If it’s canonical data → Nova**
+
+This rule prevents architectural drift and keeps the system coherent.
+
+---
+
+# 4. **Routing Philosophy**
+Routes are intentionally separated:
+
+### **Nova Admin**
+```
+/nova
+```
+
+### **Velzon Admin**
+```
+/admin
+```
+
+### **Public**
+```
+/forms
+/register
+/donate
+/profile
+```
+
+This separation ensures:
+
+- Staff know where to go for workflows  
+- Power admins know where to go for data  
+- Parishioners never see admin UI  
+
+---
+
+# 5. **Folder Structure**
+A predictable structure makes the system easy to navigate:
+
+```
+app/
+  Nova/                     # Nova resources (CRUD)
+  Services/                 # Business logic
+  Jobs/                     # Async tasks
+  Notifications/            # Notification classes
+  Models/                   # Eloquent models
+
+resources/views/
+  velzon/                   # Velzon UI
+    dashboard/
+    review-queue/
+    notifications/
+    routing/
+    analytics/
+    ecommerce/
+    forms/
+    public/
+
+routes/
+  web.php                   # Velzon + public routes
+  nova.php                  # Nova routes
+```
+
+---
+
+# 6. **The Service Layer Pattern**
+All business logic belongs in services.
+
+### **Pattern:**
+```
+Velzon UI → Controller → Service → Models/Jobs/Notifications
+Nova UI   → Nova Action → Service → Models/Jobs/Notifications
+```
+
+This ensures:
+
+- Controllers stay thin  
+- Nova stays clean  
+- Velzon stays focused on UI  
+- Logic stays reusable  
+
+---
+
+# 7. **Jobs & Queues**
+Anything slow or external goes into a job:
+
+- OCR  
+- AI extraction  
+- CRM sync  
+- Escalation  
+- Email sending  
+- Payment processing  
+
+Jobs live in `app/Jobs`.
+
+Use queues to keep the UI fast and responsive.
+
+---
+
+# 8. **Notifications**
+Notifications are routed through a unified system:
+
+- Email (SendGrid)  
+- SMS (Twilio)  
+- Phone calls (Twilio Voice)  
+- Telegram  
+- Browser push  
+
+Routing is controlled by:
+
+- User preferences  
+- Per-event matrix  
+- Institution routing  
+- Escalation rules  
+
+All notifications are logged in `notification_logs`.
+
+This gives you a complete audit trail.
+
+---
+
+# 9. **Velzon UI Patterns**
+Velzon is your workflow engine.  
+Use it for:
+
+- Offcanvas drawers  
+- Modals  
+- Wizards  
+- Advanced forms  
+- Charts  
+- Dashboards  
+- eCommerce  
+- Email UI  
+
+Velzon pages follow a consistent structure:
+
+```
+@extends('layouts.master')
+
+@section('content')
+<div class="container-fluid">
+    <div class="card">
+        <div class="card-header">...</div>
+        <div class="card-body">...</div>
+    </div>
+</div>
+@endsection
+```
+
+---
+
+# 10. **Nova UI Patterns**
+Nova is your data admin.  
+Use it for:
+
+- CRUD  
+- Filters  
+- Lenses  
+- Actions  
+- Metrics  
+
+Nova resources live in:
+
+```
+app/Nova/ModelName.php
+```
+
+Keep Nova simple and boring — that’s its strength.
+
+---
+
+# 11. **Public-Facing UI**
+Public pages use Velzon but with a simplified layout:
+
+- Registration  
+- Donations  
+- Profile updates  
+- Public forms  
+- Payment flows  
+
+These should be:
+
+- Mobile-first  
+- Minimal  
+- Pastoral  
+- Accessible  
+
+---
+
+# 12. **Adding a New Feature**
+Here’s the exact process:
+
+### **Step 1 — Decide Nova or Velzon**
+Use the Golden Rule.
+
+### **Step 2 — Create UI**
+- Velzon → Blade + Alpine.js  
+- Nova → Resource class  
+
+### **Step 3 — Add routes**
+- Velzon → `/admin/...`  
+- Nova → `/nova/...`  
+
+### **Step 4 — Add controller**
+Controllers stay thin.
+
+### **Step 5 — Add service**
+All logic goes here.
+
+### **Step 6 — Add jobs (if async)**
+
+### **Step 7 — Add notifications (if needed)**
+
+---
+
+# 13. **Principles to Follow**
+### ✔ Keep Nova boring  
+### ✔ Keep Velzon beautiful  
+### ✔ Keep services pure  
+### ✔ Keep controllers thin  
+### ✔ Keep jobs async  
+### ✔ Keep notifications logged  
+### ✔ Keep workflows intuitive  
+### ✔ Keep public UI pastoral  
+### ✔ Keep everything auditable  
+
+This is how the system stays maintainable for years.
+
+---
+
+If you’d like, I can now assemble a **full “Architecture + Playbook + Handbook” master document** that you can drop into Notion, GitHub, or your internal docs.

@@ -1,0 +1,19 @@
+[90m= [39m[34;4mApp\Models\Jurisdiction[39;24m {#6317
+    [34mname[39m: "[32mDiocese of Alainamouth[39m",
+    [34mtype[39m: "[32mdiocese[39m",
+    [34mprovince[39m: "",
+    [34mstate[39m: "[32mNY[39m",
+    [34mcity[39m: "[32mZemlakview[39m",
+    [34mestablished[39m: [36mnull[39m,
+    [34mbishop[39m: [36mnull[39m,
+    [34mwebsite[39m: [36mnull[39m,
+    [34memail[39m: [36mnull[39m,
+    [34mphone[39m: [36mnull[39m,
+    [34maddress[39m: [36mnull[39m,
+    [34mis_external[39m: [36mfalse[39m,
+    [34mlocked[39m: [36mfalse[39m,
+    [34mid[39m: "[32mf398c868-45eb-4cb7-a417-84ab5e1dc37a[39m",
+    [34mupdated_at[39m: "[32m2026-01-27 04:09:32[39m",
+    [34mcreated_at[39m: "[32m2026-01-27 04:09:32[39m",
+  }
+

@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -20,8 +19,8 @@ return new class extends Migration
             $table->string('role');
 
             // Intentionally NOT foreign-keyed: contacts may reference missing dioceses/parishes.
-            $table->uuid('diocese_id')->nullable();
-            $table->uuid('parish_id')->nullable();
+            $table->uuid('jurisdiction_id')->nullable();
+            $table->uuid('organization_id')->nullable();
 
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
@@ -29,8 +28,8 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->index(['diocese_id']);
-            $table->index(['parish_id']);
+            $table->index(['jurisdiction_id']);
+            $table->index(['organization_id']);
             $table->index(['role']);
         });
     }
