@@ -47,8 +47,8 @@ class Jurisdiction extends Model
         });
     }
 
-    public function parishes(): HasMany
+    public function organizations(): HasMany
     {
-        return $this->hasMany(Parish::class, 'diocese_id');
+        return $this->hasMany(Organization::class);
     }
 }
