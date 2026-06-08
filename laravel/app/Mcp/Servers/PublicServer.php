@@ -3,8 +3,13 @@
 namespace App\Mcp\Servers;
 
 use App\Mcp\Tools\PingTool;
+use App\Mcp\Tools\CreateParishTool;
+use App\Mcp\Tools\CreateParishFromGooglePlaceTool;
 use App\Mcp\Tools\GetGooglePlaceTool;
+use App\Mcp\Tools\GetParishTool;
 use App\Mcp\Tools\SearchGooglePlacesTool;
+use App\Mcp\Tools\SearchParishesTool;
+use App\Mcp\Tools\UpdateParishTool;
 use Laravel\Mcp\Server;
 
 class PublicServer extends Server
@@ -27,8 +32,13 @@ class PublicServer extends Server
 
         Available tools:
         - ping: Returns "pong".
+        - search-parishes: Search parishes by name.
+        - get-parish: Fetch a parish by id.
+        - create-parish: Create a new parish.
+        - update-parish: Update an existing parish.
         - search-google-places: Search Google Places for candidates.
         - get-google-place: Fetch Google Place details by place_id.
+        - create-parish-from-google-place: Create a parish using a Google place_id.
     MARKDOWN;
 
     /**
@@ -38,8 +48,13 @@ class PublicServer extends Server
      */
     protected array $tools = [
         PingTool::class,
+        SearchParishesTool::class,
+        GetParishTool::class,
+        CreateParishTool::class,
+        UpdateParishTool::class,
         SearchGooglePlacesTool::class,
         GetGooglePlaceTool::class,
+        CreateParishFromGooglePlaceTool::class,
     ];
 
     /**

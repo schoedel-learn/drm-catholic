@@ -1,22 +1,14 @@
 # Dependencies
 node_modules/
-vendor/
-laravel/vendor/
 
 # Build output
 dist/
 build/
-laravel/public/build/
-laravel/public/hot
-laravel/public/vendor/nova/
 
 # Environment files
 .env
 .env.local
 .env.*.local
-laravel/.env
-laravel/.env.*
-!laravel/.env.example
 
 # IDE
 .vscode/
@@ -28,15 +20,12 @@ laravel/.env.*
 .DS_Store
 Thumbs.db
 
-# Logs and debug output
+# Logs
 logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-laravel/*_output.txt
-laravel/*_error.txt
-laravel/page_output.html
 
 # Test coverage
 coverage/
@@ -47,8 +36,3 @@ coverage/
 # Temporary files
 tmp/
 temp/
-
-# Local extracted templates and tunnels
-laravel/resources/velzon-extracted/
-laravel/resources/themeforest-*/
-laravel/ngrok.exe

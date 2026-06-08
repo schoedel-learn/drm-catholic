@@ -2,40 +2,36 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
-class Jurisdiction extends Model
+class Parish extends Model
 {
-    use HasFactory;
-
     public $incrementing = false;
 
     protected $keyType = 'string';
 
     protected $fillable = [
+        'diocese_id',
         'name',
-        'type',
-        'province',
-        'state',
-        'city',
-        'established',
-        'bishop',
-        'website',
-        'email',
-        'phone',
+        'pastor',
         'address',
-        'is_external',
-        'locked',
+        'phone',
+        'email',
+        'website',
+        'mass_schedule',
+        'google_place_id',
+        'google_formatted_address',
+        'google_maps_url',
+        'google_lat',
+        'google_lng',
     ];
 
     protected $casts = [
         'address' => 'array',
-        'established' => 'date',
-        'is_external' => 'boolean',
-        'locked' => 'boolean',
+        'mass_schedule' => 'array',
     ];
 
     protected static function booted(): void
@@ -47,8 +43,13 @@ class Jurisdiction extends Model
         });
     }
 
-    public function parishes(): HasMany
+    public function diocese(): BelongsTo
     {
-        return $this->hasMany(Parish::class, 'diocese_id');
+        return $this->belongsTo(Jurisdiction::class, 'diocese_id');
+    }
+
+    public function contacts(): HasMany
+    {
+        return $this->hasMany(Contact::class, 'parish_id');
     }
 }

@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="white">
-  <!-- Main cross shape -->
-  <path d="M35 5 L35 35 L5 35 L5 50 L35 50 L35 95 L50 95 L50 50 L95 50 L95 35 L50 35 L50 5 Z"/>
-  <!-- 3D shadow/depth effect -->
-  <path d="M50 5 L50 35 L95 35 L95 50 L50 50 L50 95 L65 95 L65 52 L95 47 L95 38 L65 43 L65 5 Z" fill-opacity="0.25"/>
-</svg>
