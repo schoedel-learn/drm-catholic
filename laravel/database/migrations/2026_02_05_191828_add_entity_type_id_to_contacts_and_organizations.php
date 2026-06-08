@@ -17,7 +17,7 @@ return new class extends Migration {
         });
 
         Schema::table('organizations', function (Blueprint $table) {
-            $table->uuid('entity_type_id')->nullable()->after('type');
+            $table->uuid('entity_type_id')->nullable()->after('jurisdiction_id');
             $table->foreign('entity_type_id')->references('id')->on('entity_types')->onDelete('set null');
             $table->index('entity_type_id');
         });

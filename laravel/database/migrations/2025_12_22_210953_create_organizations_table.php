@@ -12,9 +12,8 @@ return new class extends Migration {
     {
         Schema::create('organizations', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('jurisdiction_id'); // Replaces diocese_id
+            $table->uuid('jurisdiction_id');
             $table->string('name');
-            $table->string('type')->default('parish'); // parish, office, school, apostolate
 
             $table->uuid('leader_id')->nullable(); // Pastor, Director, Principal
             // Note: We don't constrain leader_id yet to avoid circular dependency issues during seed/creation, 
@@ -25,7 +24,7 @@ return new class extends Migration {
             $table->string('email')->nullable();
             $table->string('website')->nullable();
 
-            $table->jsonb('mass_schedule')->nullable(); // Specific to parishes, but nullable so fine here.
+            $table->jsonb('mass_schedule')->nullable();
             $table->jsonb('custom_data')->nullable(); // For dynamic fields
 
             // Google Places Integration
@@ -39,7 +38,6 @@ return new class extends Migration {
 
             $table->foreign('jurisdiction_id')->references('id')->on('jurisdictions')->onDelete('cascade');
             $table->index(['jurisdiction_id']);
-            $table->index(['type']);
         });
     }
 

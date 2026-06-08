@@ -11,12 +11,13 @@ import ActionMessage from '@/Components/ActionMessage.vue';
 const props = defineProps({
     organization: Object,
     customFields: Array,
+    entityTypes: Array,
 });
 
 const form = useForm({
     _method: 'PUT',
     name: props.organization.name,
-    type: props.organization.type,
+    entity_type_id: props.organization.entity_type_id || '',
     email: props.organization.email,
     phone: props.organization.phone,
     website: props.organization.website,
@@ -69,22 +70,21 @@ const submit = () => {
                             <InputError :message="form.errors.name" class="mt-2" />
                         </div>
 
-                        <!-- Type -->
+                        <!-- Entity Type -->
                         <div class="col-span-6 sm:col-span-3">
-                            <InputLabel for="type" value="Type" />
+                            <InputLabel for="entity_type_id" value="Type" />
                             <select
-                                id="type"
-                                v-model="form.type"
+                                id="entity_type_id"
+                                v-model="form.entity_type_id"
                                 class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
                                 required
                             >
-                                <option value="parish">Parish</option>
-                                <option value="school">School</option>
-                                <option value="office">Office</option>
-                                <option value="apostolate">Apostolate</option>
-                                <option value="other">Other</option>
+                                <option value="" disabled>Select type</option>
+                                <option v-for="entityType in entityTypes" :key="entityType.id" :value="entityType.id">
+                                    {{ entityType.name }}
+                                </option>
                             </select>
-                            <InputError :message="form.errors.type" class="mt-2" />
+                            <InputError :message="form.errors.entity_type_id" class="mt-2" />
                         </div>
 
                         <!-- Contact Info -->

@@ -3,12 +3,11 @@
 namespace Tests\Feature;
 
 use App\Models\CustomField;
+use App\Models\EntityType;
 use App\Models\Jurisdiction;
 use App\Models\Organization;
-use App\Models\Team;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -17,25 +16,42 @@ class OrganizationTest extends TestCase
     use RefreshDatabase;
 
     protected $user;
-    protected $diocese;
+    protected $jurisdiction;
+    protected $parishType;
+    protected $schoolType;
+    protected $officeType;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Setup Tenant
         $this->user = User::factory()->withPersonalTeam()->create();
-        $this->diocese = Jurisdiction::factory()->create();
+        $this->jurisdiction = Jurisdiction::factory()->create();
 
-        // Link team to diocese
-        $this->user->personalTeam()->update(['jurisdiction_id' => $this->diocese->id]);
+        $this->user->personalTeam()->update(['jurisdiction_id' => $this->jurisdiction->id]);
         $this->user->switchTeam($this->user->personalTeam());
+
+        EntityType::seedDefaults($this->jurisdiction);
+        $this->parishType = EntityType::withoutGlobalScopes()
+            ->where('jurisdiction_id', $this->jurisdiction->id)
+            ->where('slug', EntityType::SLUG_PARISH)
+            ->firstOrFail();
+        $this->schoolType = EntityType::withoutGlobalScopes()
+            ->where('jurisdiction_id', $this->jurisdiction->id)
+            ->where('slug', EntityType::SLUG_SCHOOL)
+            ->firstOrFail();
+        $this->officeType = EntityType::withoutGlobalScopes()
+            ->where('jurisdiction_id', $this->jurisdiction->id)
+            ->where('slug', EntityType::SLUG_OFFICE)
+            ->firstOrFail();
     }
 
     public function test_can_list_organizations()
     {
-        // Organization::factory()->count(3)->create(['jurisdiction_id' => $this->diocese->id]);
-
+        Organization::factory()->count(3)->create([
+            'jurisdiction_id' => $this->jurisdiction->id,
+            'entity_type_id' => $this->parishType->id,
+        ]);
 
         $this->actingAs($this->user)
             ->get(route('organizations.index'))
@@ -47,27 +63,27 @@ class OrganizationTest extends TestCase
             );
     }
 
-    public function test_can_filter_organizations_by_type()
+    public function test_can_filter_organizations_by_entity_type()
     {
         Organization::factory()->create([
-            'jurisdiction_id' => $this->diocese->id,
-            'type' => 'parish',
+            'jurisdiction_id' => $this->jurisdiction->id,
+            'entity_type_id' => $this->parishType->id,
             'name' => 'St. Mary'
         ]);
         Organization::factory()->create([
-            'jurisdiction_id' => $this->diocese->id,
-            'type' => 'school',
+            'jurisdiction_id' => $this->jurisdiction->id,
+            'entity_type_id' => $this->schoolType->id,
             'name' => 'St. Mary School'
         ]);
 
         $this->actingAs($this->user)
-            ->get(route('organizations.index', ['type' => 'parish']))
+            ->get(route('organizations.index', ['entity_type_id' => $this->parishType->id]))
             ->assertStatus(200)
             ->assertInertia(
                 fn(Assert $page) => $page
                     ->component('Organizations/Index')
                     ->has('organizations.data', 1)
-                    ->where('organizations.data.0.type', 'parish')
+                    ->where('organizations.data.0.entity_type.slug', EntityType::SLUG_PARISH)
                     ->where('organizations.data.0.name', 'St. Mary')
             );
     }
@@ -75,8 +91,8 @@ class OrganizationTest extends TestCase
     public function test_can_create_organization_with_custom_fields()
     {
         // specific custom field for organization
-        $field = CustomField::create([
-            'jurisdiction_id' => $this->diocese->id,
+        CustomField::create([
+            'jurisdiction_id' => $this->jurisdiction->id,
             'label' => 'Established Year',
             'key' => 'established_year',
             'type' => 'number',
@@ -87,7 +103,7 @@ class OrganizationTest extends TestCase
         $this->actingAs($this->user)
             ->post(route('organizations.store'), [
                 'name' => 'New Parish',
-                'type' => 'parish',
+                'entity_type_id' => $this->parishType->id,
                 'email' => 'new@parish.com',
                 'custom_data' => [
                     'established_year' => 1950
@@ -107,14 +123,15 @@ class OrganizationTest extends TestCase
     public function test_can_update_organization()
     {
         $org = Organization::factory()->create([
-            'jurisdiction_id' => $this->diocese->id,
+            'jurisdiction_id' => $this->jurisdiction->id,
+            'entity_type_id' => $this->parishType->id,
             'name' => 'Old Name'
         ]);
 
         $this->actingAs($this->user)
             ->put(route('organizations.update', $org), [
                 'name' => 'Updated Name',
-                'type' => 'office',
+                'entity_type_id' => $this->officeType->id,
                 'address' => ['city' => 'New City']
             ])
             ->assertRedirect();
@@ -122,7 +139,7 @@ class OrganizationTest extends TestCase
         $this->assertDatabaseHas('organizations', [
             'id' => $org->id,
             'name' => 'Updated Name',
-            'type' => 'office',
+            'entity_type_id' => $this->officeType->id,
         ]);
 
         $org->refresh();
@@ -131,7 +148,10 @@ class OrganizationTest extends TestCase
 
     public function test_can_delete_organization()
     {
-        $org = Organization::factory()->create(['jurisdiction_id' => $this->diocese->id]);
+        $org = Organization::factory()->create([
+            'jurisdiction_id' => $this->jurisdiction->id,
+            'entity_type_id' => $this->parishType->id,
+        ]);
 
         $this->actingAs($this->user)
             ->delete(route('organizations.destroy', $org))
@@ -142,8 +162,8 @@ class OrganizationTest extends TestCase
 
     public function test_cannot_access_other_tenants_organizations()
     {
-        $otherDiocese = Jurisdiction::factory()->create();
-        $otherOrg = Organization::factory()->create(['jurisdiction_id' => $otherDiocese->id]);
+        $otherJurisdiction = Jurisdiction::factory()->create();
+        $otherOrg = Organization::factory()->create(['jurisdiction_id' => $otherJurisdiction->id]);
 
         $this->actingAs($this->user)
             ->get(route('organizations.index'))

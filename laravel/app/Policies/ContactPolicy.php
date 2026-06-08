@@ -15,7 +15,7 @@ class ContactPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasTeamPermission($user->currentTeam, 'read');
+        return $this->hasPermission($user, 'read');
     }
 
     /**
@@ -23,7 +23,7 @@ class ContactPolicy
      */
     public function view(User $user, Contact $contact): bool
     {
-        return $user->hasTeamPermission($user->currentTeam, 'read');
+        return $this->hasPermission($user, 'read') && $this->belongsToCurrentJurisdiction($user, $contact);
     }
 
     /**
@@ -31,7 +31,7 @@ class ContactPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasTeamPermission($user->currentTeam, 'create');
+        return $this->hasPermission($user, 'create');
     }
 
     /**
@@ -39,7 +39,7 @@ class ContactPolicy
      */
     public function update(User $user, Contact $contact): bool
     {
-        return $user->hasTeamPermission($user->currentTeam, 'update');
+        return $this->hasPermission($user, 'update') && $this->belongsToCurrentJurisdiction($user, $contact);
     }
 
     /**
@@ -47,6 +47,17 @@ class ContactPolicy
      */
     public function delete(User $user, Contact $contact): bool
     {
-        return $user->hasTeamPermission($user->currentTeam, 'delete');
+        return $this->hasPermission($user, 'delete') && $this->belongsToCurrentJurisdiction($user, $contact);
+    }
+
+    private function hasPermission(User $user, string $permission): bool
+    {
+        return $user->currentTeam && $user->hasTeamPermission($user->currentTeam, $permission);
+    }
+
+    private function belongsToCurrentJurisdiction(User $user, Contact $contact): bool
+    {
+        return $user->currentTeam?->jurisdiction_id
+            && $contact->owner_jurisdiction_id === $user->currentTeam->jurisdiction_id;
     }
 }

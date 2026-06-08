@@ -19,10 +19,9 @@ class Contact extends Model
         'title',
         'role',
         'entity_type_id',
-        'owner_diocese_id',
+        'owner_jurisdiction_id',
         'jurisdiction_id',
-        'diocese_id',
-        'parish_id',
+        'organization_id',
         'email',
         'phone',
         'notes',
@@ -45,14 +44,14 @@ class Contact extends Model
         });
     }
 
-    public function diocese(): BelongsTo
+    public function jurisdiction(): BelongsTo
     {
-        return $this->belongsTo(Jurisdiction::class, 'diocese_id');
+        return $this->belongsTo(Jurisdiction::class);
     }
 
-    public function ownerDiocese(): BelongsTo
+    public function ownerJurisdiction(): BelongsTo
     {
-        return $this->belongsTo(Jurisdiction::class, 'owner_diocese_id');
+        return $this->belongsTo(Jurisdiction::class, 'owner_jurisdiction_id');
     }
 
     public function organization(): BelongsTo

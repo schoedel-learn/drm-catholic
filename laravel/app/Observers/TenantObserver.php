@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 class TenantObserver
 {
@@ -16,21 +17,13 @@ class TenantObserver
             $jurisdictionId = Auth::user()->currentTeam->jurisdiction_id;
 
             if ($jurisdictionId) {
-                // Determine the column to set
-                // For Contact, we set 'owner_diocese_id' to the current tenant
-                // For Parish, we set 'diocese_id'
-                if ($model instanceof \App\Models\Organization) {
-                    // For Organization, we set 'jurisdiction_id'
+                if ($model instanceof \App\Models\Contact) {
+                    if (!$model->owner_jurisdiction_id) {
+                        $model->owner_jurisdiction_id = $jurisdictionId;
+                    }
+                } elseif (Schema::hasColumn($model->getTable(), 'jurisdiction_id')) {
                     if (!$model->jurisdiction_id) {
                         $model->jurisdiction_id = $jurisdictionId;
-                    }
-                } elseif ($model instanceof \App\Models\Contact) {
-                    if (!$model->owner_diocese_id) {
-                        $model->owner_diocese_id = $jurisdictionId;
-                    }
-                } else { // This 'else' will catch Parish, Team, and other models that use 'diocese_id'
-                    if (!$model->diocese_id) {
-                        $model->diocese_id = $jurisdictionId;
                     }
                 }
             }

@@ -4,12 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\Contact;
 use App\Models\Form;
-use App\Models\FormSubmission;
 use App\Models\Jurisdiction;
-use App\Models\Organization;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class PublicFormSubmissionTest extends TestCase
@@ -22,7 +18,7 @@ class PublicFormSubmissionTest extends TestCase
         $diocese = Jurisdiction::factory()->create();
         $form = Form::create([
             'jurisdiction_id' => $diocese->id,
-            'name' => 'New Parishioner Form',
+            'name' => 'New Contact Form',
             'entity_type' => 'contact',
             'fields' => ['phone'],
             'token' => 'test-token-123',
@@ -72,7 +68,7 @@ class PublicFormSubmissionTest extends TestCase
         $diocese = Jurisdiction::factory()->create();
         $existingContact = Contact::create([
             'jurisdiction_id' => $diocese->id,
-            'owner_diocese_id' => $diocese->id,
+            'owner_jurisdiction_id' => $diocese->id,
             'first_name' => 'Jane',
             'last_name' => 'Doe',
             'role' => 'parishioner',

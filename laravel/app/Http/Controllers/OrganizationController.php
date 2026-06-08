@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\CustomField;
+use App\Models\EntityType;
 use App\Models\Organization;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -17,12 +19,15 @@ class OrganizationController extends Controller
     {
         $this->authorize('viewAny', Organization::class);
 
+        $entityTypes = $this->organizationEntityTypes($request);
+
         $organizations = Organization::query()
+            ->with('entityType')
             ->when($request->search, function ($query, $search) {
                 $query->where('name', 'ilike', '%' . $search . '%');
             })
-            ->when($request->type, function ($query, $type) {
-                $query->where('type', $type);
+            ->when($request->entity_type_id, function ($query, $entityTypeId) {
+                $query->where('entity_type_id', $entityTypeId);
             })
             ->orderBy('name')
             ->paginate(10)
@@ -30,7 +35,8 @@ class OrganizationController extends Controller
 
         return Inertia::render('Organizations/Index', [
             'organizations' => $organizations,
-            'filters' => $request->only(['search', 'type']),
+            'filters' => $request->only(['search', 'entity_type_id']),
+            'entityTypes' => $entityTypes,
             'userPermissions' => $this->getUserPermissions($request),
         ]);
     }
@@ -52,6 +58,7 @@ class OrganizationController extends Controller
 
         return Inertia::render('Organizations/Create', [
             'customFields' => $customFields,
+            'entityTypes' => $this->organizationEntityTypes($request),
         ]);
     }
 
@@ -71,7 +78,13 @@ class OrganizationController extends Controller
 
         $rules = [
             'name' => ['required', 'string', 'max:255'],
-            'type' => ['required', 'string', 'in:parish,office,school,apostolate,other'],
+            'entity_type_id' => [
+                'required',
+                Rule::exists('entity_types', 'id')->where(fn($query) => $query
+                    ->where('jurisdiction_id', $tenantId)
+                    ->where('base_entity', EntityType::BASE_ORGANIZATION)
+                    ->where('is_active', true)),
+            ],
             'email' => ['nullable', 'email', 'max:255'],
             'phone' => ['nullable', 'string', 'max:20'],
             'website' => ['nullable', 'url', 'max:255'],
@@ -109,7 +122,7 @@ class OrganizationController extends Controller
     {
         $this->authorize('view', $organization);
 
-        $organization->load('jurisdiction');
+        $organization->load(['jurisdiction', 'entityType']);
 
         $customFields = CustomField::query()
             ->where('jurisdiction_id', $organization->jurisdiction_id)
@@ -139,6 +152,7 @@ class OrganizationController extends Controller
         return Inertia::render('Organizations/Edit', [
             'organization' => $organization,
             'customFields' => $customFields,
+            'entityTypes' => $this->organizationEntityTypes($request),
         ]);
     }
 
@@ -158,7 +172,13 @@ class OrganizationController extends Controller
 
         $rules = [
             'name' => ['required', 'string', 'max:255'],
-            'type' => ['required', 'string', 'in:parish,office,school,apostolate,other'],
+            'entity_type_id' => [
+                'required',
+                Rule::exists('entity_types', 'id')->where(fn($query) => $query
+                    ->where('jurisdiction_id', $tenantId)
+                    ->where('base_entity', EntityType::BASE_ORGANIZATION)
+                    ->where('is_active', true)),
+            ],
             'email' => ['nullable', 'email', 'max:255'],
             'phone' => ['nullable', 'string', 'max:20'],
             'website' => ['nullable', 'url', 'max:255'],
@@ -211,5 +231,20 @@ class OrganizationController extends Controller
             'canUpdate' => $request->user()->hasTeamPermission($team, 'update'),
             'canDelete' => $request->user()->hasTeamPermission($team, 'delete'),
         ];
+    }
+
+    private function organizationEntityTypes(Request $request)
+    {
+        $jurisdiction = $request->user()->currentTeam?->jurisdiction;
+
+        if ($jurisdiction) {
+            EntityType::seedDefaults($jurisdiction);
+        }
+
+        return EntityType::query()
+            ->where('base_entity', EntityType::BASE_ORGANIZATION)
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name', 'slug']);
     }
 }

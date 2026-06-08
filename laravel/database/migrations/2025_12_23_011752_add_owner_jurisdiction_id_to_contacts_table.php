@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('contacts', function (Blueprint $table) {
-            $table->uuid('owner_diocese_id')->nullable()->after('role');
-            $table->index(['owner_diocese_id']);
+            $table->uuid('owner_jurisdiction_id')->nullable()->after('role');
+            $table->index(['owner_jurisdiction_id']);
         });
     }
 
@@ -23,8 +23,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('contacts', function (Blueprint $table) {
-            $table->dropIndex(['owner_diocese_id']);
-            $table->dropColumn('owner_diocese_id');
+            $table->dropIndex(['owner_jurisdiction_id']);
+            $table->dropColumn('owner_jurisdiction_id');
         });
     }
 };

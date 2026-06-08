@@ -11,13 +11,14 @@ const props = defineProps({
         type: Object,
         default: () => ({ canCreate: false, canUpdate: false, canDelete: false }),
     },
+    entityTypes: Array,
 });
 
 const search = ref(props.filters.search);
-const type = ref(props.filters.type || '');
+const entityTypeId = ref(props.filters.entity_type_id || '');
 
-watch([search, type], debounce(([searchValue, typeValue]) => {
-    router.get(route('organizations.index'), { search: searchValue, type: typeValue }, { preserveState: true, replace: true });
+watch([search, entityTypeId], debounce(([searchValue, entityTypeValue]) => {
+    router.get(route('organizations.index'), { search: searchValue, entity_type_id: entityTypeValue }, { preserveState: true, replace: true });
 }, 300));
 
 const deleteOrganization = (id) => {
@@ -47,14 +48,13 @@ const deleteOrganization = (id) => {
                                 class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
                             >
                             <select 
-                                v-model="type"
+                                v-model="entityTypeId"
                                 class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
                             >
                                 <option value="">All Types</option>
-                                <option value="parish">Parish</option>
-                                <option value="school">School</option>
-                                <option value="office">Office</option>
-                                <option value="apostolate">Apostolate</option>
+                                <option v-for="entityType in entityTypes" :key="entityType.id" :value="entityType.id">
+                                    {{ entityType.name }}
+                                </option>
                             </select>
                         </div>
 
@@ -91,7 +91,7 @@ const deleteOrganization = (id) => {
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 capitalize">
-                                        {{ org.type }}
+                                        {{ org.entity_type?.name || 'Unspecified' }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {{ org.email }}

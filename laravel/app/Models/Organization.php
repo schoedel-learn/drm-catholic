@@ -17,7 +17,6 @@ class Organization extends Model
         'entity_type_id',
         'leader_id',
         'name',
-        'type', // parish, office, etc. (legacy - use entity_type_id)
         'address',
         'phone',
         'email',
@@ -43,9 +42,6 @@ class Organization extends Model
         static::observe(\App\Observers\TenantObserver::class);
     }
 
-    /**
-     * The jurisdiction (Diocese) provided by the tenant scope.
-     */
     public function jurisdiction(): BelongsTo
     {
         return $this->belongsTo(Jurisdiction::class);

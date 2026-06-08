@@ -26,7 +26,7 @@ class VelzonController extends Controller
         // Diocesan KPI metrics — safe counts with fallback to 0
         $metrics = [
             'contacts' => $this->safeCount(\App\Models\Contact::class),
-            'parishes' => $this->safeCount(\App\Models\Organization::class, ['type' => 'parish']),
+            'parishes' => $this->safeOrganizationCountByType(\App\Models\EntityType::SLUG_PARISH),
             'clergy' => $this->safeCount(\App\Models\Clergy::class, ['status' => 'active']),
             'pendingForms' => $this->safeCount(\App\Models\FormSubmission::class, ['status' => 'pending']),
             'eventsThisWeek' => \App\Models\CalendarEvent::where('start_at', '>=', now())
@@ -100,6 +100,17 @@ class VelzonController extends Controller
                 $query->where($column, $value);
             }
             return $query->count();
+        } catch (\Throwable $e) {
+            return 0;
+        }
+    }
+
+    private function safeOrganizationCountByType(string $entityTypeSlug): int
+    {
+        try {
+            return \App\Models\Organization::query()
+                ->whereHas('entityType', fn($query) => $query->where('slug', $entityTypeSlug))
+                ->count();
         } catch (\Throwable $e) {
             return 0;
         }

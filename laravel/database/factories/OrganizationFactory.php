@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\Jurisdiction;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Organization>
@@ -18,8 +19,8 @@ class OrganizationFactory extends Factory
     {
         return [
             'name' => $this->faker->company(),
-            'type' => 'parish',
-            'jurisdiction_id' => \App\Models\Jurisdiction::factory(),
+            'jurisdiction_id' => Jurisdiction::factory(),
+            'entity_type_id' => null,
             'address' => [
                 'street' => $this->faker->streetAddress(),
                 'city' => $this->faker->city(),

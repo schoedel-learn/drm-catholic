@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->string('title')->nullable();
             $table->string('role');
 
-            // Intentionally NOT foreign-keyed: contacts may reference missing dioceses/parishes.
+            // Intentionally NOT foreign-keyed: contacts may reference records imported before related entities exist.
             $table->uuid('jurisdiction_id')->nullable();
             $table->uuid('organization_id')->nullable();
 

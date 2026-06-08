@@ -18,11 +18,12 @@ class DioceseController extends Controller
         ]);
 
         $limit = $validated['limit'] ?? 10;
-        $includeExternal = (bool) ($validated['include_external'] ?? true);
+        $includeExternal = (bool) ($validated['include_external'] ?? false);
+        $query = strtolower($validated['query']);
 
         $builder = Jurisdiction::query()
             ->whereIn('type', ['diocese', 'archdiocese', 'eparchy', 'archeparchy'])
-            ->where('name', 'like', '%'.$validated['query'].'%');
+            ->whereRaw('LOWER(name) LIKE ?', ['%'.$query.'%']);
 
         if (! $includeExternal) {
             $builder->where('is_external', false);

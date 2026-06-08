@@ -46,7 +46,7 @@ class FormSubmissionProcessor
         // 1. Find or Create Contact
         // Bypassing Global Scope to search by jurisdiction_id manually
         $contact = Contact::withoutGlobalScope(TenantScope::class)
-            ->where('owner_diocese_id', $form->jurisdiction_id)
+            ->where('owner_jurisdiction_id', $form->jurisdiction_id)
             ->where('email', $email)
             ->first();
 
@@ -59,7 +59,7 @@ class FormSubmissionProcessor
             $contact = new Contact();
             $contact->id = (string) Str::uuid();
             $contact->jurisdiction_id = $form->jurisdiction_id;
-            $contact->owner_diocese_id = $form->jurisdiction_id; // Default ownership
+            $contact->owner_jurisdiction_id = $form->jurisdiction_id;
             $contact->first_name = $firstName;
             $contact->last_name = $lastName;
             $contact->role = 'Unassigned'; // Required field

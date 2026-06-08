@@ -5,6 +5,7 @@ namespace App\Scopes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Auth;
 
 class TenantScope implements Scope
@@ -14,25 +15,26 @@ class TenantScope implements Scope
      */
     public function apply(Builder $builder, Model $model): void
     {
-        \Illuminate\Support\Facades\Log::info('TenantScope: apply start for ' . get_class($model));
         if (Auth::hasUser() && Auth::user()->currentTeam) {
-            \Illuminate\Support\Facades\Log::info('TenantScope: has user and team');
             $jurisdictionId = Auth::user()->currentTeam->jurisdiction_id;
+            $column = $this->tenantColumn($model);
 
-            // Determine the column to scope by
-            // For Contact, it is 'owner_diocese_id' (to see only contacts OWNED by this tenant)
-            // For Organization, it is 'jurisdiction_id'
-            // For Parish, it is 'diocese_id'
-            $column = 'diocese_id'; // Default
-            if ($model instanceof \App\Models\Contact) {
-                $column = 'owner_diocese_id';
-            } elseif ($model instanceof \App\Models\Organization) {
-                $column = 'jurisdiction_id';
-            }
-
-            if ($jurisdictionId) {
+            if ($jurisdictionId && $column) {
                 $builder->where($model->getTable() . '.' . $column, $jurisdictionId);
             }
         }
+    }
+
+    private function tenantColumn(Model $model): ?string
+    {
+        if ($model instanceof \App\Models\Contact) {
+            return 'owner_jurisdiction_id';
+        }
+
+        if (Schema::hasColumn($model->getTable(), 'jurisdiction_id')) {
+            return 'jurisdiction_id';
+        }
+
+        return null;
     }
 }

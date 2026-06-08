@@ -201,15 +201,6 @@
                     </div>
                 </li>
 
-                @if(auth()->user())
-                    <li class="nav-item">
-                        <a class="nav-link menu-link" href="{{ url('/nova') }}" target="_blank">
-                            <i class="ri-database-2-line"></i> <span>Data Admin (Nova)</span>
-                            <span class="badge bg-primary-subtle text-primary ms-auto">Nova</span>
-                        </a>
-                    </li>
-                @endif
-
             </ul>
         </div>
         <!-- Sidebar -->

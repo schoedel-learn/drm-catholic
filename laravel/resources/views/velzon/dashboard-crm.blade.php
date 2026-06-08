@@ -63,9 +63,6 @@
                             class="btn btn-soft-warning btn-sm text-start">
                             <i class="ri-mail-send-line me-2"></i> Send Communication
                         </a>
-                        <a href="{{ url('/nova') }}" class="btn btn-soft-secondary btn-sm text-start" target="_blank">
-                            <i class="ri-database-2-line me-2"></i> Data Admin
-                        </a>
                     </div>
                 </div>
             </div>

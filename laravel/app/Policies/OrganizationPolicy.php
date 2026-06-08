@@ -15,7 +15,7 @@ class OrganizationPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasTeamPermission($user->currentTeam, 'read');
+        return $this->hasPermission($user, 'read');
     }
 
     /**
@@ -23,7 +23,7 @@ class OrganizationPolicy
      */
     public function view(User $user, Organization $organization): bool
     {
-        return $user->hasTeamPermission($user->currentTeam, 'read');
+        return $this->hasPermission($user, 'read') && $this->belongsToCurrentJurisdiction($user, $organization);
     }
 
     /**
@@ -31,7 +31,7 @@ class OrganizationPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasTeamPermission($user->currentTeam, 'create');
+        return $this->hasPermission($user, 'create');
     }
 
     /**
@@ -39,7 +39,7 @@ class OrganizationPolicy
      */
     public function update(User $user, Organization $organization): bool
     {
-        return $user->hasTeamPermission($user->currentTeam, 'update');
+        return $this->hasPermission($user, 'update') && $this->belongsToCurrentJurisdiction($user, $organization);
     }
 
     /**
@@ -47,6 +47,17 @@ class OrganizationPolicy
      */
     public function delete(User $user, Organization $organization): bool
     {
-        return $user->hasTeamPermission($user->currentTeam, 'delete');
+        return $this->hasPermission($user, 'delete') && $this->belongsToCurrentJurisdiction($user, $organization);
+    }
+
+    private function hasPermission(User $user, string $permission): bool
+    {
+        return $user->currentTeam && $user->hasTeamPermission($user->currentTeam, $permission);
+    }
+
+    private function belongsToCurrentJurisdiction(User $user, Organization $organization): bool
+    {
+        return $user->currentTeam?->jurisdiction_id
+            && $organization->jurisdiction_id === $user->currentTeam->jurisdiction_id;
     }
 }
