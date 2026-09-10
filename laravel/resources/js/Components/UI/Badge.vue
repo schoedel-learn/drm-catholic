@@ -20,13 +20,13 @@ const props = defineProps({
 
 const classes = computed(() => {
     const base = 'inline-flex items-center font-medium rounded-full';
-    
+
     const sizes = {
         sm: 'px-2 py-0.5 text-xs',
         md: 'px-2.5 py-1 text-xs',
         lg: 'px-3 py-1.5 text-sm',
     };
-    
+
     const variants = {
         default: 'bg-slate-500/20 text-slate-300',
         success: 'bg-emerald-500/20 text-emerald-400',
@@ -35,7 +35,7 @@ const classes = computed(() => {
         info: 'bg-blue-500/20 text-blue-400',
         primary: 'bg-indigo-500/20 text-indigo-400',
     };
-    
+
     return [base, sizes[props.size], variants[props.variant]];
 });
 
@@ -48,7 +48,7 @@ const dotClasses = computed(() => {
         info: 'bg-blue-400',
         primary: 'bg-indigo-400',
     };
-    
+
     return ['w-1.5 h-1.5 rounded-full mr-1.5', variants[props.variant]];
 });
 </script>

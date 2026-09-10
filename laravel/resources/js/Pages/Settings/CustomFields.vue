@@ -10,7 +10,7 @@ import ActionMessage from '@/Components/ActionMessage.vue';
 import DangerButton from '@/Components/DangerButton.vue';
 import Checkbox from '@/Components/Checkbox.vue';
 
-const props = defineProps({
+defineProps({
     customFields: Array,
 });
 
@@ -26,7 +26,10 @@ const submit = () => {
     // Parse options
     let options = null;
     if ((form.type === 'select' || form.type === 'multiselect') && form.options_string) {
-        options = form.options_string.split(',').map(s => s.trim()).filter(s => s);
+        options = form.options_string
+            .split(',')
+            .map((s) => s.trim())
+            .filter((s) => s);
     }
 
     form.transform((data) => ({
@@ -50,22 +53,16 @@ const deleteField = (id) => {
 <template>
     <AppLayout title="Custom Fields">
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Custom Fields
-            </h2>
+            <h2 class="text-xl leading-tight font-semibold text-gray-800">Custom Fields</h2>
         </template>
 
         <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            <div class="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
                 <!-- Create New Field Form -->
                 <FormSection @submitted="submit">
-                    <template #title>
-                        Add Custom Field
-                    </template>
+                    <template #title> Add Custom Field </template>
 
-                    <template #description>
-                        Define a new field to collect custom data for your contacts.
-                    </template>
+                    <template #description> Define a new field to collect custom data for your contacts. </template>
 
                     <template #form>
                         <!-- Label -->
@@ -88,7 +85,7 @@ const deleteField = (id) => {
                             <select
                                 id="entity_type"
                                 v-model="form.entity_type"
-                                class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                             >
                                 <option value="contact">Contact</option>
                                 <option value="organization">Organization</option>
@@ -102,7 +99,7 @@ const deleteField = (id) => {
                             <select
                                 id="type"
                                 v-model="form.type"
-                                class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                             >
                                 <option value="text">Text</option>
                                 <option value="textarea">Textarea (Long Text)</option>
@@ -142,9 +139,7 @@ const deleteField = (id) => {
                     </template>
 
                     <template #actions>
-                        <ActionMessage :on="form.recentlySuccessful" class="mr-3">
-                            Created.
-                        </ActionMessage>
+                        <ActionMessage :on="form.recentlySuccessful" class="mr-3"> Created. </ActionMessage>
 
                         <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
                             Create Field
@@ -153,37 +148,59 @@ const deleteField = (id) => {
                 </FormSection>
 
                 <!-- List Existing Fields -->
-                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Existing Fields</h3>
-                    
+                <div class="overflow-hidden bg-white p-6 shadow-xl sm:rounded-lg">
+                    <h3 class="mb-4 text-lg font-medium text-gray-900">Existing Fields</h3>
+
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Label</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Key</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Entity</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Required</th>
-                                    <th class="px-6 py-3 relative">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+                                    >
+                                        Label
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+                                    >
+                                        Key
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+                                    >
+                                        Entity
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+                                    >
+                                        Type
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+                                    >
+                                        Required
+                                    </th>
+                                    <th class="relative px-6 py-3">
                                         <span class="sr-only">Actions</span>
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
+                            <tbody class="divide-y divide-gray-200 bg-white">
                                 <tr v-for="field in customFields" :key="field.id">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ field.label }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ field.key }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 capitalize">{{ field.entity_type }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ field.type }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <span v-if="field.required" class="text-green-600 font-bold">Yes</span>
+                                    <td class="px-6 py-4 text-sm font-medium whitespace-nowrap text-gray-900">
+                                        {{ field.label }}
+                                    </td>
+                                    <td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">{{ field.key }}</td>
+                                    <td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500 capitalize">
+                                        {{ field.entity_type }}
+                                    </td>
+                                    <td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">{{ field.type }}</td>
+                                    <td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
+                                        <span v-if="field.required" class="font-bold text-green-600">Yes</span>
                                         <span v-else class="text-gray-400">No</span>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <DangerButton @click="deleteField(field.id)">
-                                            Delete
-                                        </DangerButton>
+                                    <td class="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
+                                        <DangerButton @click="deleteField(field.id)"> Delete </DangerButton>
                                     </td>
                                 </tr>
                                 <tr v-if="customFields.length === 0">

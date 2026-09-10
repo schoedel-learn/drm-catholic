@@ -53,26 +53,27 @@ const changePrefix = computed(() => {
 </script>
 
 <template>
-    <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
+    <div class="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
         <div class="flex items-start justify-between">
             <div>
-                <p class="text-sm font-medium text-slate-400 mb-1">{{ title }}</p>
+                <p class="mb-1 text-sm font-medium text-slate-400">{{ title }}</p>
                 <p class="text-3xl font-bold text-white">{{ value }}</p>
-                
-                <div v-if="change !== null" class="flex items-center gap-1.5 mt-2">
-                    <span :class="['text-sm font-medium', changeClass]">
-                        {{ changePrefix }}{{ change }}%
-                    </span>
+
+                <div v-if="change !== null" class="mt-2 flex items-center gap-1.5">
+                    <span :class="['text-sm font-medium', changeClass]"> {{ changePrefix }}{{ change }}% </span>
                     <span class="text-xs text-slate-500">{{ changeLabel }}</span>
                 </div>
             </div>
-            
-            <div 
-                v-if="icon || $slots.icon" 
-                :class="['w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-lg', iconBgClass]"
+
+            <div
+                v-if="icon || $slots.icon"
+                :class="[
+                    'flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br shadow-lg',
+                    iconBgClass,
+                ]"
             >
                 <slot name="icon">
-                    <span class="text-white text-lg">{{ icon }}</span>
+                    <span class="text-lg text-white">{{ icon }}</span>
                 </slot>
             </div>
         </div>

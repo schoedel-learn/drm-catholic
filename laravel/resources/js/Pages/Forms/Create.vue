@@ -48,12 +48,12 @@ const submit = () => {
     <DashboardLayout title="Create Form">
         <template #header>
             <div class="flex items-center gap-4">
-                <button 
+                <button
                     v-if="step === 2"
                     @click="goBack"
-                    class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+                    class="rounded-lg p-2 text-slate-400 transition-colors hover:bg-white/10 hover:text-white"
                 >
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
                 </button>
@@ -62,51 +62,56 @@ const submit = () => {
         </template>
 
         <!-- Step 1: Basic Info -->
-        <div v-if="step === 1" class="max-w-2xl mx-auto">
+        <div v-if="step === 1" class="mx-auto max-w-2xl">
             <Card variant="glass" class="p-6">
-                <h2 class="text-xl font-semibold text-white mb-6">Form Details</h2>
-                
+                <h2 class="mb-6 text-xl font-semibold text-white">Form Details</h2>
+
                 <div class="space-y-5">
                     <!-- Name -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-300 mb-2">Form Name *</label>
-                        <input 
+                        <label class="mb-2 block text-sm font-medium text-slate-300">Form Name *</label>
+                        <input
                             v-model="form.name"
                             type="text"
-                            class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none"
                             placeholder="e.g. Annual Parish Report 2026"
                         />
                         <p v-if="form.errors.name" class="mt-2 text-sm text-rose-400">{{ form.errors.name }}</p>
                     </div>
-                    
+
                     <!-- Description -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-300 mb-2">Description</label>
-                        <textarea 
+                        <label class="mb-2 block text-sm font-medium text-slate-300">Description</label>
+                        <textarea
                             v-model="form.description"
                             rows="3"
-                            class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 resize-none"
+                            class="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none"
                             placeholder="Instructions shown to respondents..."
                         ></textarea>
                     </div>
-                    
+
                     <!-- Entity Type -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-300 mb-2">Form Type</label>
+                        <label class="mb-2 block text-sm font-medium text-slate-300">Form Type</label>
                         <div class="grid grid-cols-2 gap-3">
                             <button
                                 type="button"
                                 @click="form.entity_type = 'contact'"
                                 :class="[
-                                    'p-4 rounded-xl border text-left transition-all',
+                                    'rounded-xl border p-4 text-left transition-all',
                                     form.entity_type === 'contact'
-                                        ? 'bg-indigo-500/20 border-indigo-500/50 text-white'
-                                        : 'bg-white/5 border-white/10 text-slate-400 hover:border-white/20'
+                                        ? 'border-indigo-500/50 bg-indigo-500/20 text-white'
+                                        : 'border-white/10 bg-white/5 text-slate-400 hover:border-white/20',
                                 ]"
                             >
-                                <div class="flex items-center gap-3 mb-2">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                <div class="mb-2 flex items-center gap-3">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                        />
                                     </svg>
                                     <span class="font-medium">Contact</span>
                                 </div>
@@ -116,15 +121,20 @@ const submit = () => {
                                 type="button"
                                 @click="form.entity_type = 'organization'"
                                 :class="[
-                                    'p-4 rounded-xl border text-left transition-all',
+                                    'rounded-xl border p-4 text-left transition-all',
                                     form.entity_type === 'organization'
-                                        ? 'bg-indigo-500/20 border-indigo-500/50 text-white'
-                                        : 'bg-white/5 border-white/10 text-slate-400 hover:border-white/20'
+                                        ? 'border-indigo-500/50 bg-indigo-500/20 text-white'
+                                        : 'border-white/10 bg-white/5 text-slate-400 hover:border-white/20',
                                 ]"
                             >
-                                <div class="flex items-center gap-3 mb-2">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                <div class="mb-2 flex items-center gap-3">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                                        />
                                     </svg>
                                     <span class="font-medium">Organization</span>
                                 </div>
@@ -132,26 +142,22 @@ const submit = () => {
                             </button>
                         </div>
                     </div>
-                    
+
                     <!-- Expiry -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-300 mb-2">Expiration Date (Optional)</label>
-                        <input 
+                        <label class="mb-2 block text-sm font-medium text-slate-300">Expiration Date (Optional)</label>
+                        <input
                             v-model="form.expires_at"
                             type="datetime-local"
-                            class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-indigo-500"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white focus:border-indigo-500 focus:outline-none"
                         />
                     </div>
                 </div>
-                
+
                 <div class="mt-8 flex justify-end">
-                    <Button 
-                        @click="goToBuilder"
-                        :disabled="!form.name"
-                        variant="primary"
-                    >
+                    <Button @click="goToBuilder" :disabled="!form.name" variant="primary">
                         Continue to Builder
-                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                         </svg>
                     </Button>
@@ -166,33 +172,33 @@ const submit = () => {
                 :entity-type="form.entity_type"
                 :custom-fields="currentCustomFields"
             />
-            
+
             <!-- Bottom action bar -->
-            <div class="fixed bottom-0 left-0 right-0 lg:left-64 bg-slate-900/95 backdrop-blur-xl border-t border-white/10 px-6 py-4">
-                <div class="flex items-center justify-between max-w-7xl mx-auto">
+            <div
+                class="fixed right-0 bottom-0 left-0 border-t border-white/10 bg-slate-900/95 px-6 py-4 backdrop-blur-xl lg:left-64"
+            >
+                <div class="mx-auto flex max-w-7xl items-center justify-between">
                     <div class="flex items-center gap-4">
                         <label class="flex items-center gap-2 text-sm text-slate-400">
-                            <input 
-                                type="checkbox" 
+                            <input
+                                type="checkbox"
                                 v-model="form.save_as_template"
-                                class="w-4 h-4 rounded border-white/20 bg-white/5 text-indigo-500"
+                                class="h-4 w-4 rounded border-white/20 bg-white/5 text-indigo-500"
                             />
                             Save as template
                         </label>
-                        <input 
+                        <input
                             v-if="form.save_as_template"
                             v-model="form.template_name"
                             type="text"
                             placeholder="Template name"
-                            class="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                            class="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none"
                         />
                     </div>
-                    
+
                     <div class="flex items-center gap-3">
-                        <span class="text-sm text-slate-400">
-                            {{ form.fields.length }} fields
-                        </span>
-                        <Button 
+                        <span class="text-sm text-slate-400"> {{ form.fields.length }} fields </span>
+                        <Button
                             @click="submit"
                             :loading="form.processing"
                             :disabled="form.fields.length === 0"

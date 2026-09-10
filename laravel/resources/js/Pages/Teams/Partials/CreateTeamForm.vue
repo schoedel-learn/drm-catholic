@@ -20,20 +20,20 @@ const createTeam = () => {
 
 <template>
     <FormSection @submitted="createTeam">
-        <template #title>
-            Team Details
-        </template>
+        <template #title> Team Details </template>
 
-        <template #description>
-            Create a new team to collaborate with others on projects.
-        </template>
+        <template #description> Create a new team to collaborate with others on projects. </template>
 
         <template #form>
             <div class="col-span-6">
                 <InputLabel value="Team Owner" />
 
-                <div class="flex items-center mt-2">
-                    <img class="object-cover size-12 rounded-full" :src="$page.props.auth.user.profile_photo_url" :alt="$page.props.auth.user.name">
+                <div class="mt-2 flex items-center">
+                    <img
+                        class="size-12 rounded-full object-cover"
+                        :src="$page.props.auth.user.profile_photo_url"
+                        :alt="$page.props.auth.user.name"
+                    />
 
                     <div class="ms-4 leading-tight">
                         <div class="text-gray-900">{{ $page.props.auth.user.name }}</div>
@@ -46,13 +46,7 @@ const createTeam = () => {
 
             <div class="col-span-6 sm:col-span-4">
                 <InputLabel for="name" value="Team Name" />
-                <TextInput
-                    id="name"
-                    v-model="form.name"
-                    type="text"
-                    class="block w-full mt-1"
-                    autofocus
-                />
+                <TextInput id="name" v-model="form.name" type="text" class="mt-1 block w-full" autofocus />
                 <InputError :message="form.errors.name" class="mt-2" />
             </div>
         </template>

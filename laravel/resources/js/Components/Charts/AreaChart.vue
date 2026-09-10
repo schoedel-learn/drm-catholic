@@ -43,7 +43,7 @@ const padding = { top: 20, right: 20, bottom: 30, left: 40 };
 const chartWidth = computed(() => width - padding.left - padding.right);
 const chartHeight = computed(() => props.height - padding.top - padding.bottom);
 
-const maxValue = computed(() => Math.max(...props.data.map(d => d.value)) * 1.1);
+const maxValue = computed(() => Math.max(...props.data.map((d) => d.value)) * 1.1);
 const minValue = computed(() => 0);
 
 const xScale = (index) => {
@@ -64,34 +64,34 @@ const points = computed(() => {
 
 const linePath = computed(() => {
     if (points.value.length === 0) return '';
-    
+
     if (props.smooth && points.value.length > 2) {
         // Catmull-Rom spline
         let path = `M ${points.value[0].x} ${points.value[0].y}`;
-        
+
         for (let i = 0; i < points.value.length - 1; i++) {
             const p0 = points.value[Math.max(0, i - 1)];
             const p1 = points.value[i];
             const p2 = points.value[Math.min(points.value.length - 1, i + 1)];
             const p3 = points.value[Math.min(points.value.length - 1, i + 2)];
-            
+
             const cp1x = p1.x + (p2.x - p0.x) / 6;
             const cp1y = p1.y + (p2.y - p0.y) / 6;
             const cp2x = p2.x - (p3.x - p1.x) / 6;
             const cp2y = p2.y - (p3.y - p1.y) / 6;
-            
+
             path += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
         }
-        
+
         return path;
     }
-    
+
     return points.value.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
 });
 
 const areaPath = computed(() => {
     if (points.value.length === 0) return '';
-    
+
     const baseY = padding.top + chartHeight.value;
     return `${linePath.value} L ${points.value[points.value.length - 1].x} ${baseY} L ${points.value[0].x} ${baseY} Z`;
 });
@@ -112,14 +112,14 @@ const yGridLines = computed(() => {
 
 <template>
     <div class="w-full overflow-hidden">
-        <svg :width="width" :height="height" :viewBox="`0 0 ${width} ${height}`" class="w-full h-auto">
+        <svg :width="width" :height="height" :viewBox="`0 0 ${width} ${height}`" class="h-auto w-full">
             <defs>
                 <linearGradient :id="`areaGradient`" x1="0%" y1="0%" x2="0%" y2="100%">
                     <stop offset="0%" :stop-color="gradientFrom" />
                     <stop offset="100%" :stop-color="gradientTo" />
                 </linearGradient>
             </defs>
-            
+
             <!-- Grid lines -->
             <g v-if="showGrid">
                 <line
@@ -143,14 +143,10 @@ const yGridLines = computed(() => {
                     {{ line.value }}
                 </text>
             </g>
-            
+
             <!-- Area fill -->
-            <path
-                :d="areaPath"
-                :fill="`url(#areaGradient)`"
-                class="transition-all duration-500"
-            />
-            
+            <path :d="areaPath" :fill="`url(#areaGradient)`" class="transition-all duration-500" />
+
             <!-- Line -->
             <path
                 :d="linePath"
@@ -161,7 +157,7 @@ const yGridLines = computed(() => {
                 stroke-linejoin="round"
                 class="transition-all duration-500"
             />
-            
+
             <!-- Points -->
             <circle
                 v-for="(point, i) in points"
@@ -170,21 +166,22 @@ const yGridLines = computed(() => {
                 :cy="point.y"
                 r="4"
                 :fill="color"
-                class="transition-all duration-300 hover:r-6"
+                class="hover:r-6 transition-all duration-300"
             />
-            
+
             <!-- X-axis labels -->
-            <text
-                v-if="showLabels"
-                v-for="(point, i) in points"
-                :key="`x-${i}`"
-                :x="point.x"
-                :y="height - 8"
-                class="fill-slate-500 text-xs"
-                text-anchor="middle"
-            >
-                {{ point.label }}
-            </text>
+            <template v-if="showLabels">
+                <text
+                    v-for="(point, i) in points"
+                    :key="`x-${i}`"
+                    :x="point.x"
+                    :y="height - 8"
+                    class="fill-slate-500 text-xs"
+                    text-anchor="middle"
+                >
+                    {{ point.label }}
+                </text>
+            </template>
         </svg>
     </div>
 </template>

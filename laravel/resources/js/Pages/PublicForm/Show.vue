@@ -28,15 +28,22 @@ const submit = () => {
 
 <template>
     <Head :title="form.name" />
-    
+
     <div class="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
         <!-- Header -->
-        <div class="bg-white/80 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-10">
-            <div class="max-w-2xl mx-auto px-4 py-4">
+        <div class="sticky top-0 z-10 border-b border-gray-100 bg-white/80 backdrop-blur-sm">
+            <div class="mx-auto max-w-2xl px-4 py-4">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    <div
+                        class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-200"
+                    >
+                        <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                            />
                         </svg>
                     </div>
                     <div>
@@ -48,30 +55,33 @@ const submit = () => {
         </div>
 
         <!-- Main Content -->
-        <div class="max-w-2xl mx-auto px-4 py-8">
+        <div class="mx-auto max-w-2xl px-4 py-8">
             <!-- Description Card -->
-            <div v-if="form.description" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
-                <p class="text-gray-600 leading-relaxed">{{ form.description }}</p>
+            <div v-if="form.description" class="mb-8 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+                <p class="leading-relaxed text-gray-600">{{ form.description }}</p>
             </div>
 
             <!-- Form Card -->
-            <form @submit.prevent="submit" class="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
+            <form
+                @submit.prevent="submit"
+                class="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-xl shadow-gray-200/50"
+            >
                 <!-- Form Header -->
                 <div class="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-5">
                     <h2 class="text-lg font-semibold text-white">Your Information</h2>
-                    <p class="text-indigo-100 text-sm mt-1">Please fill out the fields below</p>
+                    <p class="mt-1 text-sm text-indigo-100">Please fill out the fields below</p>
                 </div>
 
-                <div class="p-6 space-y-6">
+                <div class="space-y-6 p-6">
                     <!-- Error Message -->
-                    <div v-if="formData.errors.form" class="bg-red-50 border border-red-200 rounded-xl p-4">
-                        <p class="text-red-600 text-sm">{{ formData.errors.form }}</p>
+                    <div v-if="formData.errors.form" class="rounded-xl border border-red-200 bg-red-50 p-4">
+                        <p class="text-sm text-red-600">{{ formData.errors.form }}</p>
                     </div>
 
                     <!-- Contact Info Section -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
-                            <label for="submitter_name" class="block text-sm font-medium text-gray-700 mb-2">
+                            <label for="submitter_name" class="mb-2 block text-sm font-medium text-gray-700">
                                 Your Name <span class="text-red-500">*</span>
                             </label>
                             <input
@@ -79,14 +89,16 @@ const submit = () => {
                                 v-model="formData.submitter_name"
                                 type="text"
                                 required
-                                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200 outline-none"
+                                class="w-full rounded-xl border border-gray-200 px-4 py-3 transition-all duration-200 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
                                 placeholder="John Smith"
                             />
-                            <p v-if="formData.errors.submitter_name" class="text-red-500 text-sm mt-1">{{ formData.errors.submitter_name }}</p>
+                            <p v-if="formData.errors.submitter_name" class="mt-1 text-sm text-red-500">
+                                {{ formData.errors.submitter_name }}
+                            </p>
                         </div>
 
                         <div>
-                            <label for="submitter_email" class="block text-sm font-medium text-gray-700 mb-2">
+                            <label for="submitter_email" class="mb-2 block text-sm font-medium text-gray-700">
                                 Email Address <span class="text-red-500">*</span>
                             </label>
                             <input
@@ -94,10 +106,12 @@ const submit = () => {
                                 v-model="formData.submitter_email"
                                 type="email"
                                 required
-                                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200 outline-none"
+                                class="w-full rounded-xl border border-gray-200 px-4 py-3 transition-all duration-200 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
                                 placeholder="you@example.com"
                             />
-                            <p v-if="formData.errors.submitter_email" class="text-red-500 text-sm mt-1">{{ formData.errors.submitter_email }}</p>
+                            <p v-if="formData.errors.submitter_email" class="mt-1 text-sm text-red-500">
+                                {{ formData.errors.submitter_email }}
+                            </p>
                         </div>
                     </div>
 
@@ -107,7 +121,7 @@ const submit = () => {
                     <!-- Custom Fields -->
                     <div class="space-y-5">
                         <div v-for="field in fields" :key="field.key">
-                            <label :for="field.key" class="block text-sm font-medium text-gray-700 mb-2">
+                            <label :for="field.key" class="mb-2 block text-sm font-medium text-gray-700">
                                 {{ field.label }}
                                 <span v-if="field.required" class="text-red-500">*</span>
                             </label>
@@ -119,7 +133,7 @@ const submit = () => {
                                 v-model="formData.data[field.key]"
                                 type="text"
                                 :required="field.required"
-                                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200 outline-none"
+                                class="w-full rounded-xl border border-gray-200 px-4 py-3 transition-all duration-200 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
                             />
 
                             <!-- Textarea -->
@@ -129,7 +143,7 @@ const submit = () => {
                                 v-model="formData.data[field.key]"
                                 :required="field.required"
                                 rows="4"
-                                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200 outline-none resize-none"
+                                class="w-full resize-none rounded-xl border border-gray-200 px-4 py-3 transition-all duration-200 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
                             ></textarea>
 
                             <!-- Number -->
@@ -139,7 +153,7 @@ const submit = () => {
                                 v-model="formData.data[field.key]"
                                 type="number"
                                 :required="field.required"
-                                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200 outline-none"
+                                class="w-full rounded-xl border border-gray-200 px-4 py-3 transition-all duration-200 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
                             />
 
                             <!-- Date -->
@@ -149,7 +163,7 @@ const submit = () => {
                                 v-model="formData.data[field.key]"
                                 type="date"
                                 :required="field.required"
-                                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200 outline-none"
+                                class="w-full rounded-xl border border-gray-200 px-4 py-3 transition-all duration-200 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
                             />
 
                             <!-- Email -->
@@ -159,7 +173,7 @@ const submit = () => {
                                 v-model="formData.data[field.key]"
                                 type="email"
                                 :required="field.required"
-                                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200 outline-none"
+                                class="w-full rounded-xl border border-gray-200 px-4 py-3 transition-all duration-200 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
                             />
 
                             <!-- Phone -->
@@ -169,7 +183,7 @@ const submit = () => {
                                 v-model="formData.data[field.key]"
                                 type="tel"
                                 :required="field.required"
-                                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200 outline-none"
+                                class="w-full rounded-xl border border-gray-200 px-4 py-3 transition-all duration-200 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
                                 placeholder="(555) 123-4567"
                             />
 
@@ -180,30 +194,30 @@ const submit = () => {
                                 v-model="formData.data[field.key]"
                                 type="url"
                                 :required="field.required"
-                                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200 outline-none"
+                                class="w-full rounded-xl border border-gray-200 px-4 py-3 transition-all duration-200 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
                                 placeholder="https://"
                             />
 
                             <!-- Currency -->
                             <div v-else-if="field.type === 'currency'" class="relative">
-                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                                <span class="absolute top-1/2 left-4 -translate-y-1/2 text-gray-500">$</span>
                                 <input
                                     :id="field.key"
                                     v-model="formData.data[field.key]"
                                     type="number"
                                     step="0.01"
                                     :required="field.required"
-                                    class="w-full pl-8 pr-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200 outline-none"
+                                    class="w-full rounded-xl border border-gray-200 py-3 pr-4 pl-8 transition-all duration-200 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
                                 />
                             </div>
 
                             <!-- Checkbox -->
-                            <label v-else-if="field.type === 'checkbox'" class="flex items-center gap-3 cursor-pointer">
+                            <label v-else-if="field.type === 'checkbox'" class="flex cursor-pointer items-center gap-3">
                                 <input
                                     type="checkbox"
                                     :id="field.key"
                                     v-model="formData.data[field.key]"
-                                    class="w-5 h-5 rounded-lg border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                    class="h-5 w-5 rounded-lg border-gray-300 text-indigo-600 focus:ring-indigo-500"
                                 />
                                 <span class="text-gray-600">Yes</span>
                             </label>
@@ -214,7 +228,7 @@ const submit = () => {
                                 :id="field.key"
                                 v-model="formData.data[field.key]"
                                 :required="field.required"
-                                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200 outline-none bg-white"
+                                class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 transition-all duration-200 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
                             >
                                 <option value="">Select an option...</option>
                                 <option v-for="option in field.options" :key="option" :value="option">
@@ -229,7 +243,7 @@ const submit = () => {
                                 v-model="formData.data[field.key]"
                                 :required="field.required"
                                 multiple
-                                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200 outline-none bg-white min-h-[120px]"
+                                class="min-h-[120px] w-full rounded-xl border border-gray-200 bg-white px-4 py-3 transition-all duration-200 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
                             >
                                 <option v-for="option in field.options" :key="option" :value="option">
                                     {{ option }}
@@ -240,21 +254,39 @@ const submit = () => {
 
                     <!-- Honeypot (hidden from real users) -->
                     <div class="absolute -left-[9999px]" aria-hidden="true">
-                        <input type="text" name="website_url" v-model="formData.website_url" tabindex="-1" autocomplete="off" />
+                        <input
+                            type="text"
+                            name="website_url"
+                            v-model="formData.website_url"
+                            tabindex="-1"
+                            autocomplete="off"
+                        />
                     </div>
                 </div>
 
                 <!-- Submit Button -->
-                <div class="bg-gray-50 px-6 py-4 border-t border-gray-100">
+                <div class="border-t border-gray-100 bg-gray-50 px-6 py-4">
                     <button
                         type="submit"
                         :disabled="formData.processing"
-                        class="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold py-4 px-6 rounded-xl shadow-lg shadow-indigo-200 hover:shadow-xl hover:shadow-indigo-300 transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                        class="w-full transform rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-4 font-semibold text-white shadow-lg shadow-indigo-200 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-indigo-300 disabled:transform-none disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         <span v-if="formData.processing" class="flex items-center justify-center gap-2">
-                            <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            <svg class="h-5 w-5 animate-spin" viewBox="0 0 24 24">
+                                <circle
+                                    class="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    stroke-width="4"
+                                    fill="none"
+                                ></circle>
+                                <path
+                                    class="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                ></path>
                             </svg>
                             Submitting...
                         </span>
@@ -266,8 +298,13 @@ const submit = () => {
             <!-- Security Footer -->
             <div class="mt-8 text-center">
                 <div class="inline-flex items-center gap-2 text-sm text-gray-500">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                        />
                     </svg>
                     <span>Your response is secure and encrypted</span>
                 </div>
