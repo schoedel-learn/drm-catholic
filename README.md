@@ -76,6 +76,35 @@ DRM Catholic is a comprehensive relationship management system designed specific
 - Comprehensive contact management for anyone doing ministry in the name of the Church
 - Extensible architecture for future features
 
+## Architecture
+
+DRM Catholic ships as a single Laravel application (`laravel/`). The TypeScript
+package in `src/` is an early in-memory prototype kept for reference only: it has
+no database, no authentication, and no deployed consumer (confirmed against the
+repository's GitHub deployments, webhooks, and environments, all of which are
+empty of any runtime that serves it).
+
+The Laravel domain model supersedes the prototype's separate per-type entity
+maps. Rather than maintaining a distinct in-memory collection for each concept
+(dioceses, parishes, schools, organizations, contacts, positions, and so on),
+Laravel consolidates on a small set of first-class, database-backed models:
+
+- **Jurisdiction** — the tenant boundary (a diocese or archdiocese) that owns all
+  other records.
+- **EntityType** — metadata-driven types (each based on a `contact`,
+  `organization`, or `standalone` entity) that replace hard-coded categories such
+  as parish, school, and office.
+- **Organization** and **Contact** — the two core records, specialized at runtime
+  by their `EntityType` and extended through `CustomField`/`custom_data` instead
+  of by adding new tables.
+- **ClergyAssignment** — time-bounded roles that replace the prototype's separate
+  `ContactPosition` map.
+
+Because the prototype's HTTP routes were never deployed or consumed, the Laravel
+API is not a drop-in replacement for them and intentionally does not preserve
+their paths or response shapes. Treat `laravel/` as the sole source of truth for
+the domain model.
+
 ## Getting Started
 
 The primary implementation is the **Laravel application** in the `laravel/` directory. A secondary TypeScript package lives in `src/`.
