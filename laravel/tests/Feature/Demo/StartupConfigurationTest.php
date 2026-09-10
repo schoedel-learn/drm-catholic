@@ -3,9 +3,75 @@
 namespace Tests\Feature\Demo;
 
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Process\Process;
 
 class StartupConfigurationTest extends TestCase
 {
+    /** @var list<string> */
+    private array $sandboxes = [];
+
+    protected function tearDown(): void
+    {
+        foreach ($this->sandboxes as $sandbox) {
+            $this->removeDirectory($sandbox);
+        }
+        $this->sandboxes = [];
+
+        parent::tearDown();
+    }
+
+    public function test_invalid_configuration_fails_before_any_startup_command_is_invoked(): void
+    {
+        $sandbox = $this->makeStartupSandbox();
+
+        $environment = $this->validStartupEnvironment();
+        $environment['APP_KEY'] = '';
+
+        $result = $this->runStartupScript($sandbox, $environment);
+
+        $this->assertNotSame(0, $result['exitCode']);
+        $this->assertSame([], $this->readStubInvocations($sandbox));
+
+        $event = json_decode(trim($result['stderr']), true, flags: JSON_THROW_ON_ERROR);
+        $this->assertSame('demo_startup_failed', $event['event']);
+        $this->assertSame('validation', $event['stage']);
+        $this->assertSame('ERROR', $event['severity']);
+    }
+
+    public function test_valid_configuration_runs_artisan_commands_in_order_then_hands_off_to_frankenphp(): void
+    {
+        $sandbox = $this->makeStartupSandbox();
+
+        $result = $this->runStartupScript($sandbox, $this->validStartupEnvironment());
+
+        $this->assertSame(0, $result['exitCode']);
+        $this->assertSame([
+            'php artisan optimize:clear',
+            'php artisan migrate:fresh --seed --force',
+            'php artisan optimize',
+            'frankenphp run --config /etc/frankenphp/Caddyfile',
+        ], $this->readStubInvocations($sandbox));
+    }
+
+    public function test_a_failing_startup_command_halts_before_frankenphp_and_reports_its_stage(): void
+    {
+        $sandbox = $this->makeStartupSandbox();
+        $this->makeStubFailOn($sandbox, 'php', 'migrate:fresh');
+
+        $result = $this->runStartupScript($sandbox, $this->validStartupEnvironment());
+
+        $this->assertNotSame(0, $result['exitCode']);
+        $this->assertSame([
+            'php artisan optimize:clear',
+            'php artisan migrate:fresh --seed --force',
+        ], $this->readStubInvocations($sandbox));
+
+        $event = json_decode(trim($result['stderr']), true, flags: JSON_THROW_ON_ERROR);
+        $this->assertSame('demo_startup_failed', $event['event']);
+        $this->assertSame('database_rebuild', $event['stage']);
+        $this->assertSame('ERROR', $event['severity']);
+    }
+
     public function test_startup_requires_the_complete_demo_environment_contract(): void
     {
         $script = $this->contents('scripts/start-demo.sh');
@@ -115,6 +181,10 @@ class StartupConfigurationTest extends TestCase
             'database/*.sqlite',
             'node_modules',
             'vendor',
+            'bootstrap/cache/*',
+            'storage/framework/cache',
+            'storage/framework/sessions',
+            'storage/framework/views',
             'storage/logs',
             'gha-creds-*.json',
         ] as $pattern) {
@@ -129,5 +199,179 @@ class StartupConfigurationTest extends TestCase
         $this->assertFileExists($path);
 
         return file_get_contents($path);
+    }
+
+    /**
+     * Build an isolated sandbox root containing a fake "/app" writable tree
+     * and stubbed "php"/"frankenphp" executables, so the real start-demo.sh
+     * script can be executed end-to-end without touching real migrations,
+     * a real server, or the host filesystem's actual /app path.
+     */
+    private function makeStartupSandbox(): string
+    {
+        if (! $this->commandExists('bwrap')) {
+            $this->markTestSkipped('bwrap (bubblewrap) is required to sandbox scripts/start-demo.sh for behavioral testing.');
+        }
+
+        $root = dirname(__DIR__, 3).'/storage/framework/testing/startup-sandbox-'.bin2hex(random_bytes(8));
+
+        foreach ([
+            '/app/storage/framework/cache',
+            '/app/storage/framework/sessions',
+            '/app/storage/framework/views',
+            '/app/storage/logs',
+            '/app/bootstrap/cache',
+            '/app/tmp/drm',
+            '/stubbin',
+            '/log',
+        ] as $path) {
+            $this->assertTrue(mkdir($root.$path, 0o755, true));
+        }
+
+        $this->writeStub($root, 'php', <<<'SH'
+            #!/bin/sh
+            printf '%s\n' "php $*" >> "$STUB_LOG"
+            if [ -n "${STUB_FAIL_ON:-}" ]; then
+                case "$*" in
+                    *"$STUB_FAIL_ON"*) exit 9 ;;
+                esac
+            fi
+            exit 0
+            SH);
+
+        $this->writeStub($root, 'frankenphp', <<<'SH'
+            #!/bin/sh
+            printf '%s\n' "frankenphp $*" >> "$STUB_LOG"
+            exit 0
+            SH);
+
+        $this->sandboxes[] = $root;
+
+        return $root;
+    }
+
+    private function writeStub(string $sandboxRoot, string $name, string $contents): void
+    {
+        $path = $sandboxRoot.'/stubbin/'.$name;
+        file_put_contents($path, $contents);
+        chmod($path, 0o755);
+    }
+
+    private function makeStubFailOn(string $sandboxRoot, string $stub, string $argsSubstring): void
+    {
+        $marker = $sandboxRoot.'/log/fail-on-'.$stub;
+        file_put_contents($marker, $argsSubstring);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function validStartupEnvironment(): array
+    {
+        return [
+            'DEMO_MODE' => 'true',
+            'APP_KEY' => 'base64:sandbox-test-key',
+            'DEMO_USER_PASSWORD' => 'sandbox-test-password',
+            'DEPLOYMENT_GIT_SHA' => 'sandbox-test-sha',
+            'DB_CONNECTION' => 'sqlite',
+            'DB_DATABASE' => '/app/tmp/drm/database.sqlite',
+        ];
+    }
+
+    /**
+     * Run the real scripts/start-demo.sh under bwrap inside a fresh, private
+     * mount+user namespace: a tmpfs root with the host's /usr, /bin, /lib,
+     * /lib64 and /etc bind-mounted read-only, plus the sandbox's own /app,
+     * /stubbin and /log bound in. This never touches the host's real /app
+     * and does not require root or sudo.
+     *
+     * @param  array<string, string>  $environment
+     * @return array{exitCode: int, stdout: string, stderr: string}
+     */
+    private function runStartupScript(string $sandboxRoot, array $environment): array
+    {
+        $scriptPath = dirname(__DIR__, 3).'/scripts/start-demo.sh';
+        $this->assertFileExists($scriptPath);
+
+        $failOnPhp = @file_get_contents($sandboxRoot.'/log/fail-on-php') ?: '';
+
+        $command = ['bwrap', '--unshare-all', '--die-with-parent', '--tmpfs', '/'];
+
+        foreach (['/usr', '/bin', '/lib', '/lib64', '/etc'] as $systemPath) {
+            if (is_dir($systemPath)) {
+                array_push($command, '--ro-bind', $systemPath, $systemPath);
+            }
+        }
+
+        array_push(
+            $command,
+            '--bind', $sandboxRoot.'/app', '/app',
+            '--ro-bind', $sandboxRoot.'/stubbin', '/stubbin',
+            '--bind', $sandboxRoot.'/log', '/log',
+            '--ro-bind', $scriptPath, '/entrypoint.sh',
+            '--proc', '/proc',
+            '--dev', '/dev',
+            '--chdir', '/app',
+            '--clearenv',
+            '--setenv', 'PATH', '/stubbin:/usr/bin:/bin',
+            '--setenv', 'STUB_LOG', '/log/invocations.log',
+            '--setenv', 'STUB_FAIL_ON', $failOnPhp,
+        );
+
+        foreach ($environment as $name => $value) {
+            array_push($command, '--setenv', $name, $value);
+        }
+
+        array_push($command, '--', '/bin/sh', '/entrypoint.sh');
+
+        $process = new Process($command);
+        $process->setTimeout(30);
+        $process->run();
+
+        return [
+            'exitCode' => $process->getExitCode(),
+            'stdout' => $process->getOutput(),
+            'stderr' => $process->getErrorOutput(),
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function readStubInvocations(string $sandboxRoot): array
+    {
+        $logPath = $sandboxRoot.'/log/invocations.log';
+
+        if (! is_file($logPath)) {
+            return [];
+        }
+
+        return array_values(array_filter(explode("\n", trim(file_get_contents($logPath)))));
+    }
+
+    private function commandExists(string $binary): bool
+    {
+        $process = Process::fromShellCommandline('command -v '.escapeshellarg($binary));
+        $process->run();
+
+        return $process->isSuccessful();
+    }
+
+    private function removeDirectory(string $directory): void
+    {
+        if (! is_dir($directory)) {
+            return;
+        }
+
+        $items = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($directory, \FilesystemIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::CHILD_FIRST,
+        );
+
+        foreach ($items as $item) {
+            $item->isDir() ? rmdir($item->getPathname()) : unlink($item->getPathname());
+        }
+
+        rmdir($directory);
     }
 }
