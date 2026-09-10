@@ -43,7 +43,10 @@ class ProtectDemoAccount
             $matchesRoute = $request->route()?->getName() === $protectedRoute['name']
                 || $request->path() === $protectedRoute['path'];
 
-            if ($matchesRoute && $request->isMethod($protectedRoute['method'])) {
+            $matchesMethod = $request->isMethod($protectedRoute['method'])
+                || ($protectedRoute['method'] === 'GET' && $request->isMethod('HEAD'));
+
+            if ($matchesRoute && $matchesMethod) {
                 abort(403, 'The public demo account cannot modify authentication settings.');
             }
         }
