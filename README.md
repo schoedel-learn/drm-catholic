@@ -120,9 +120,12 @@ DRM Catholic is a single **Laravel application** that lives in the `laravel/` di
 
 #### Prerequisites
 
-- PHP >= 8.2
+- PHP >= 8.4
 - [Composer](https://getcomposer.org/)
-- Node.js >= 18.0.0
+- Node.js >= 24 and < 25, with npm >= 11 (see the root [`.nvmrc`](.nvmrc))
+
+The application runs on Laravel 13 and targets PHP 8.4 for the backend and the
+Node.js 24 LTS toolchain for the Vite/Inertia frontend build.
 
 #### Installation
 
