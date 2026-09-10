@@ -20,8 +20,6 @@ updates:
         update-types:
           - "minor"
           - "patch"
-    reviewers:
-      - "schoedel-learn"
     labels:
       - "dependencies"
       - "security"
@@ -49,8 +47,6 @@ updates:
         update-types:
           - "minor"
           - "patch"
-    reviewers:
-      - "schoedel-learn"
     labels:
       - "dependencies"
       - "security"
@@ -76,8 +72,6 @@ updates:
         update-types:
           - "minor"
           - "patch"
-    reviewers:
-      - "schoedel-learn"
     labels:
       - "ci"
       - "dependencies"
@@ -103,8 +97,6 @@ updates:
         update-types:
           - "minor"
           - "patch"
-    reviewers:
-      - "schoedel-learn"
     labels:
       - "dependencies"
     commit-message:
