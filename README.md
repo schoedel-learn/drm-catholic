@@ -92,29 +92,28 @@ The primary implementation is the **Laravel application** in the `laravel/` dire
 
 ```bash
 git clone https://github.com/schoedel-learn/drm-catholic.git
-cd drm-catholic/laravel
-composer install
-npm install
-cp .env.example .env
-php artisan key:generate
-touch database/database.sqlite
-php artisan migrate
-php artisan serve
+cd drm-catholic
+cd laravel && composer run setup && composer run dev
 ```
 
-In a separate terminal, start the Vite dev server:
+The canonical workstation bootstrap is `cd laravel && composer run setup && composer run dev`.
 
-```bash
-npm run dev
+`composer run setup` creates `.env` only when it is missing, prepares the local SQLite database, keeps any existing `APP_KEY`, runs migrations, seeds a preview user, and builds the frontend assets. Once `composer run dev` is running, open `http://127.0.0.1:8000`.
+
+Use the seeded preview account to sign in and inspect the authenticated screens:
+
+```text
+Email: test@example.com
+Password: password
 ```
 
 #### Environment Variables
 
-Copy `.env.example` to `.env` and update the values as needed. The following variable is required to enable Google Places features:
+`composer run setup` copies `.env.example` to `.env` only when `.env` is absent. Update the values as needed afterward. The following variable is required to enable Google Places features:
 
 | Variable | Description |
 |----------|-------------|
-| `GOOGLE_PLACES_API_KEY` | Google Places API key (required for parish location search) |
+| `GOOGLE_PLACES_API_KEY` | Google Places API key (optional for local preview, required for parish location search) |
 
 ### TypeScript Package (Secondary)
 
@@ -395,6 +394,8 @@ Contacts can have various roles including:
 #### Laravel (`laravel/` directory)
 
 ```bash
+composer run setup       # Install PHP/JS deps, create local SQLite DB, migrate, and seed preview data
+composer run dev         # Start the PHP server, queue listener, logs, and Vite dev server
 php artisan serve        # Start the PHP development server
 npm run dev              # Start the Vite asset development server
 php artisan test         # Run PHPUnit test suite
