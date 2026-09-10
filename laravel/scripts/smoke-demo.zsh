@@ -18,12 +18,25 @@
 # Safe to re-run repeatedly (collision-resistant container names, cleanup
 # traps on success/failure/interrupt) and intended for CI use (Task 14).
 #
-# Requires: zsh, docker, curl, jq, openssl.
+# Requires: zsh, docker, curl, jq, openssl, ss, sed, grep, tr, date, sleep, tail.
 
 set -euo pipefail
 
 log() { print -r -- "[smoke-demo] $*" }
 fail() { print -ru2 -- "[smoke-demo] FAIL: $*"; exit 1 }
+
+# --- Preflight: fail loudly if any required external command is missing --
+# `ss` in particular must be verified explicitly: if it were silently
+# absent, the occupied-port guard below (which redirects its stderr) would
+# quietly disable itself instead of ever detecting a conflict.
+REQUIRED_COMMANDS=(docker curl jq openssl ss sed grep tr date sleep tail)
+missing_commands=()
+for cmd in "${REQUIRED_COMMANDS[@]}"; do
+    command -v -- "$cmd" >/dev/null 2>&1 || missing_commands+=("$cmd")
+done
+if (( ${#missing_commands[@]} > 0 )); then
+    fail "required command(s) not found on PATH: ${missing_commands[*]}"
+fi
 
 SCRIPT_DIR=${0:A:h}
 LARAVEL_DIR=${SCRIPT_DIR:h}
@@ -31,6 +44,7 @@ LOCAL_IMAGE_TAG='drm-catholic-demo:local'
 HOST='127.0.0.1'
 PORT='8080'
 READY_TIMEOUT=60
+HTTP_TIMEOUT=10
 GIT_SHA='local-smoke'
 
 SUFFIX="$$-${RANDOM}-$(date +%s)"
@@ -60,7 +74,7 @@ show_logs_redacted() {
 assert_status() {
     local url=$1 expected=$2 desc=$3
     local code
-    code=$(curl -s -o /dev/null -w '%{http_code}' "$url")
+    code=$(curl -s --max-time "$HTTP_TIMEOUT" -o /dev/null -w '%{http_code}' "$url")
     [[ "$code" == "$expected" ]] || fail "$desc expected HTTP $expected but got $code"
     log "OK: $desc -> HTTP $code"
 }
@@ -68,7 +82,7 @@ assert_status() {
 assert_header() {
     local url=$1 desc=$2
     local headers
-    headers=$(curl -sD - -o /dev/null "$url" | tr -d '\r')
+    headers=$(curl -sD - --max-time "$HTTP_TIMEOUT" -o /dev/null "$url" | tr -d '\r')
     print -r -- "$headers" | grep -qi '^X-Robots-Tag: noindex, nofollow$' \
         || fail "$desc missing 'X-Robots-Tag: noindex, nofollow' header"
     log "OK: $desc carries the demo noindex header"
@@ -132,7 +146,7 @@ assert_status "http://${HOST}:${PORT}/api/v1/health" 200 '/api/v1/health readine
 assert_status "http://${HOST}:${PORT}/register" 404 '/register (disabled in demo mode)'
 assert_status "http://${HOST}:${PORT}/forgot-password" 404 '/forgot-password (disabled in demo mode)'
 
-health_body=$(curl -s "http://${HOST}:${PORT}/api/v1/health")
+health_body=$(curl -s --max-time "$HTTP_TIMEOUT" "http://${HOST}:${PORT}/api/v1/health")
 reported_sha=$(print -r -- "$health_body" | jq -r '.git_sha // empty')
 [[ "$reported_sha" == "$GIT_SHA" ]] \
     || fail "expected health git_sha '${GIT_SHA}' but got '${reported_sha}'"
