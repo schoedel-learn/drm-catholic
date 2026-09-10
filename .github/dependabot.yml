@@ -18,24 +18,6 @@ updates:
       prefix: "chore"
       include: "scope"
 
-  # Monitor npm dependencies (root)
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "America/New_York"
-    open-pull-requests-limit: 10
-    reviewers:
-      - "schoedel-learn"
-    labels:
-      - "dependencies"
-      - "security"
-    commit-message:
-      prefix: "chore"
-      include: "scope"
-
   # Monitor npm dependencies (Laravel)
   - package-ecosystem: "npm"
     directory: "/laravel"
