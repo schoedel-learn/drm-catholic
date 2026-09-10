@@ -1,5 +1,7 @@
 <?php
 
+use App\Logging\AddDeploymentContext;
+use App\Logging\CloudRunJsonFormatter;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
@@ -18,7 +20,9 @@ return [
     |
     */
 
-    'default' => env('LOG_CHANNEL', 'stack'),
+    'default' => env('DEMO_MODE', false) === true
+        ? 'demo_stderr'
+        : env('LOG_CHANNEL', 'stack'),
 
     /*
     |--------------------------------------------------------------------------
@@ -103,6 +107,24 @@ return [
             ],
             'formatter' => env('LOG_STDERR_FORMATTER'),
             'processors' => [PsrLogMessageProcessor::class],
+        ],
+
+        'demo_stderr' => [
+            'driver' => 'monolog',
+            'level' => env('LOG_LEVEL', 'info'),
+            'handler' => StreamHandler::class,
+            'handler_with' => [
+                'stream' => 'php://stderr',
+            ],
+            'formatter' => CloudRunJsonFormatter::class,
+            'processors' => [
+                [
+                    'processor' => AddDeploymentContext::class,
+                    'with' => [
+                        'gitSha' => env('DEPLOYMENT_GIT_SHA'),
+                    ],
+                ],
+            ],
         ],
 
         'syslog' => [
