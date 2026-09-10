@@ -1,0 +1,14 @@
+.git
+.env*
+!.env.example
+tests
+database/*.sqlite
+database/*.sqlite-*
+database/*.sqlite3
+database/*.db
+node_modules
+vendor
+storage/logs
+*.log
+gha-creds-*.json
+**/gha-creds-*.json
