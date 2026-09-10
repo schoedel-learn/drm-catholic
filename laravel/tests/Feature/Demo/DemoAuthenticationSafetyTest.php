@@ -93,8 +93,11 @@ class DemoAuthenticationSafetyTest extends TestCase
             'confirm' => ['POST', 'user/confirmed-two-factor-authentication', 'two-factor.confirm'],
             'disable' => ['DELETE', 'user/two-factor-authentication', 'two-factor.disable'],
             'QR code' => ['GET', 'user/two-factor-qr-code', 'two-factor.qr-code'],
+            'QR code HEAD request' => ['HEAD', 'user/two-factor-qr-code', 'two-factor.qr-code'],
             'secret key' => ['GET', 'user/two-factor-secret-key', 'two-factor.secret-key'],
+            'secret key HEAD request' => ['HEAD', 'user/two-factor-secret-key', 'two-factor.secret-key'],
             'recovery codes' => ['GET', 'user/two-factor-recovery-codes', 'two-factor.recovery-codes'],
+            'recovery codes HEAD request' => ['HEAD', 'user/two-factor-recovery-codes', 'two-factor.recovery-codes'],
             'regenerate recovery codes' => ['POST', 'user/two-factor-recovery-codes', 'two-factor.regenerate-recovery-codes'],
         ];
     }
@@ -230,7 +233,9 @@ class DemoAuthenticationSafetyTest extends TestCase
         $route = app('router')->getRoutes()->getByName($name);
 
         $this->assertNotNull($route);
-        $this->assertContains($method, $route->methods());
+        $expectedRouteMethod = $method === 'HEAD' ? 'GET' : $method;
+
+        $this->assertContains($expectedRouteMethod, $route->methods());
         $this->assertSame($uri, $route->uri());
     }
 }
