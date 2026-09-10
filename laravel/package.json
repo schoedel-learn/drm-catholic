@@ -11,7 +11,8 @@
         "dev": "vite",
         "format": "prettier --write \"resources/**/*.{css,js,vue}\" eslint.config.js vite.config.js package.json",
         "format:check": "prettier --check \"resources/**/*.{css,js,vue}\" eslint.config.js vite.config.js package.json",
-        "lint": "eslint ."
+        "lint": "eslint .",
+        "demo:smoke": "./scripts/smoke-demo.zsh"
     },
     "devDependencies": {
         "@eslint/js": "^10.0.1",
