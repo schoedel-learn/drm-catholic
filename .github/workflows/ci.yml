@@ -87,5 +87,8 @@ jobs:
       - name: Run migrations
         run: php artisan migrate --force
 
+      - name: Install bubblewrap
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends bubblewrap
+
       - name: Run tests
         run: php artisan test
