@@ -21,7 +21,7 @@ A clear and concise description of what you expected to happen.
 A clear and concise description of what actually happened.
 
 **Environment**
-- PHP version: [e.g. 8.2]
+- PHP version: [e.g. 8.4]
 - Node version: [e.g. 20.x]
 - OS: [e.g. Ubuntu 22.04, macOS 14]
 - Browser (if applicable): [e.g. Chrome 120]
