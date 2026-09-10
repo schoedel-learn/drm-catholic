@@ -17,7 +17,7 @@ import ApplicationLogo from '@/Components/ApplicationLogo.vue';
             </p>
         </div>
 
-        <div class="bg-opacity-25 grid grid-cols-1 gap-6 bg-gray-200 p-6 md:grid-cols-2 lg:gap-8 lg:p-8">
+        <div class="grid grid-cols-1 gap-6 bg-gray-200/25 p-6 md:grid-cols-2 lg:gap-8 lg:p-8">
             <div>
                 <div class="flex items-center">
                     <svg
