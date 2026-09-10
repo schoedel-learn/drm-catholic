@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
@@ -16,7 +17,7 @@ return new class extends Migration {
             $table->string('name');
 
             $table->uuid('leader_id')->nullable(); // Pastor, Director, Principal
-            // Note: We don't constrain leader_id yet to avoid circular dependency issues during seed/creation, 
+            // Note: We don't constrain leader_id yet to avoid circular dependency issues during seed/creation,
             // or we can add constraint in a separate migration.
 
             $table->jsonb('address')->nullable();

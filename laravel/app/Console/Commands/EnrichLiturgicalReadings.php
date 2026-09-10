@@ -25,6 +25,7 @@ class EnrichLiturgicalReadings extends Command
 
         if ($events->isEmpty()) {
             $this->info('No events to process.');
+
             return self::SUCCESS;
         }
 
@@ -39,8 +40,9 @@ class EnrichLiturgicalReadings extends Command
             $bar->advance();
 
             // Skip if already enriched (unless --force)
-            if (!$this->option('force') && $this->isAlreadyEnriched($event)) {
+            if (! $this->option('force') && $this->isAlreadyEnriched($event)) {
                 $skipped++;
+
                 continue;
             }
 
@@ -48,10 +50,11 @@ class EnrichLiturgicalReadings extends Command
 
             try {
                 $html = $this->fetchPage($url);
-                if (!$html) {
+                if (! $html) {
                     $this->newLine();
                     $this->warn("  Empty response for {$event->date->format('Y-m-d')} ({$url})");
                     $failed++;
+
                     continue;
                 }
 
@@ -61,17 +64,19 @@ class EnrichLiturgicalReadings extends Command
                     $this->newLine();
                     $this->warn("  Could not parse readings for {$event->date->format('Y-m-d')}");
                     $failed++;
+
                     continue;
                 }
 
                 if ($this->option('dry-run')) {
                     $this->newLine();
-                    $this->line("  [DRY RUN] {$event->date->format('Y-m-d')}: " . count($structured) . " readings found");
+                    $this->line("  [DRY RUN] {$event->date->format('Y-m-d')}: ".count($structured).' readings found');
                     foreach ($structured as $r) {
                         $refrain = isset($r['refrain']) ? " — R. {$r['refrain']}" : '';
                         $this->line("    {$r['type']}: {$r['citation']}{$refrain}");
                     }
                     $enriched++;
+
                     continue;
                 }
 
@@ -119,12 +124,12 @@ class EnrichLiturgicalReadings extends Command
 
     private function isAlreadyEnriched(LiturgicalCalendarEvent $event): bool
     {
-        return !empty($event->readings['structured']);
+        return ! empty($event->readings['structured']);
     }
 
     private function buildUsccbUrl(Carbon $date): string
     {
-        return 'https://bible.usccb.org/bible/readings/' . $date->format('mdy') . '.cfm';
+        return 'https://bible.usccb.org/bible/readings/'.$date->format('mdy').'.cfm';
     }
 
     private function fetchPage(string $url): ?string
@@ -162,7 +167,7 @@ class EnrichLiturgicalReadings extends Command
         $structured = [];
 
         libxml_use_internal_errors(true);
-        $dom = new \DOMDocument();
+        $dom = new \DOMDocument;
         $dom->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
         libxml_clear_errors();
 
@@ -174,11 +179,15 @@ class EnrichLiturgicalReadings extends Command
         foreach ($blocks as $block) {
             // Find the h3 with class "name" inside content-header
             $h3List = $xpath->query('.//div[contains(@class, "content-header")]//h3[contains(@class, "name")]', $block);
-            if ($h3List->length === 0) continue;
+            if ($h3List->length === 0) {
+                continue;
+            }
 
             $headerText = trim($h3List->item(0)->textContent);
             $type = $this->classifyReadingType($headerText);
-            if (!$type) continue;
+            if (! $type) {
+                continue;
+            }
 
             // Extract citation link from div.address
             $addressLinks = $xpath->query('.//div[contains(@class, "address")]//a', $block);
@@ -187,14 +196,16 @@ class EnrichLiturgicalReadings extends Command
 
             foreach ($addressLinks as $link) {
                 $href = trim($link->getAttribute('href'));
-                if (Str::contains($href, 'bible.usccb.org/bible/') && !Str::contains($href, '/readings/')) {
+                if (Str::contains($href, 'bible.usccb.org/bible/') && ! Str::contains($href, '/readings/')) {
                     $citation = trim($link->textContent);
                     $bibleUrl = $href;
                     break;
                 }
             }
 
-            if (!$citation) continue;
+            if (! $citation) {
+                continue;
+            }
 
             $entry = [
                 'type' => $type,
@@ -223,12 +234,24 @@ class EnrichLiturgicalReadings extends Command
     {
         $header = strtolower(trim($header));
 
-        if (Str::contains($header, 'responsorial psalm')) return 'psalm';
-        if (Str::contains($header, 'gospel'))             return 'gospel';
-        if (Str::contains($header, 'alleluia'))           return 'alleluia';
-        if (Str::contains($header, 'reading 2'))          return 'reading_2';
-        if (Str::contains($header, 'reading 1'))          return 'reading_1';
-        if ($header === 'reading')                         return 'reading_1';
+        if (Str::contains($header, 'responsorial psalm')) {
+            return 'psalm';
+        }
+        if (Str::contains($header, 'gospel')) {
+            return 'gospel';
+        }
+        if (Str::contains($header, 'alleluia')) {
+            return 'alleluia';
+        }
+        if (Str::contains($header, 'reading 2')) {
+            return 'reading_2';
+        }
+        if (Str::contains($header, 'reading 1')) {
+            return 'reading_1';
+        }
+        if ($header === 'reading') {
+            return 'reading_1';
+        }
 
         return null;
     }
@@ -246,6 +269,7 @@ class EnrichLiturgicalReadings extends Command
             $refrain = trim($strongNodes->item(0)->textContent);
             // Remove trailing period if present
             $refrain = rtrim($refrain, '.');
+
             return $refrain;
         }
 

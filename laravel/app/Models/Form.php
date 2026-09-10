@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class Form extends Model
@@ -71,15 +72,15 @@ class Form extends Model
 
     public function isAccessible(): bool
     {
-        return $this->is_active && !$this->isExpired();
+        return $this->is_active && ! $this->isExpired();
     }
 
     /**
      * Get all visible fields based on current form data
      */
-    public function getVisibleFields(array $formData = []): \Illuminate\Support\Collection
+    public function getVisibleFields(array $formData = []): Collection
     {
-        return $this->formFields->filter(fn(FormField $field) => $field->shouldShow($formData));
+        return $this->formFields->filter(fn (FormField $field) => $field->shouldShow($formData));
     }
 
     /**

@@ -149,6 +149,7 @@ class ContactController extends Controller
     private function getUserPermissions(Request $request): array
     {
         $team = $request->user()->currentTeam;
+
         return [
             'canCreate' => $request->user()->hasTeamPermission($team, 'create'),
             'canUpdate' => $request->user()->hasTeamPermission($team, 'update'),

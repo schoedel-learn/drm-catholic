@@ -73,7 +73,7 @@ class FormField extends Model
         $operator = $this->conditional['operator'] ?? 'equals';
         $expectedValue = $this->conditional['value'] ?? null;
 
-        if (!$dependsOn) {
+        if (! $dependsOn) {
             return true;
         }
 
@@ -84,7 +84,7 @@ class FormField extends Model
             'not_equals' => $actualValue !== $expectedValue,
             'contains' => str_contains((string) $actualValue, (string) $expectedValue),
             'is_empty' => empty($actualValue),
-            'is_not_empty' => !empty($actualValue),
+            'is_not_empty' => ! empty($actualValue),
             'greater_than' => (float) $actualValue > (float) $expectedValue,
             'less_than' => (float) $actualValue < (float) $expectedValue,
             default => true,
@@ -96,11 +96,12 @@ class FormField extends Model
      */
     public function getCrmMappingParts(): ?array
     {
-        if (!$this->crm_mapping) {
+        if (! $this->crm_mapping) {
             return null;
         }
 
         $parts = explode('.', $this->crm_mapping, 2);
+
         return [
             'type' => $parts[0] ?? null, // 'contact', 'organization', 'custom'
             'field' => $parts[1] ?? null,
@@ -128,26 +129,33 @@ class FormField extends Model
                 break;
             case 'number':
                 $rules[] = 'numeric';
-                if (isset($v['min']))
+                if (isset($v['min'])) {
                     $rules[] = "min:{$v['min']}";
-                if (isset($v['max']))
+                }
+                if (isset($v['max'])) {
                     $rules[] = "max:{$v['max']}";
+                }
                 break;
             case 'text':
             case 'textarea':
-                if (isset($v['minLength']))
+                if (isset($v['minLength'])) {
                     $rules[] = "min:{$v['minLength']}";
-                if (isset($v['maxLength']))
+                }
+                if (isset($v['maxLength'])) {
                     $rules[] = "max:{$v['maxLength']}";
-                if (isset($v['pattern']))
+                }
+                if (isset($v['pattern'])) {
                     $rules[] = "regex:{$v['pattern']}";
+                }
                 break;
             case 'file':
                 $rules[] = 'file';
-                if (isset($v['maxSize']))
+                if (isset($v['maxSize'])) {
                     $rules[] = "max:{$v['maxSize']}";
-                if (isset($v['mimes']))
+                }
+                if (isset($v['mimes'])) {
                     $rules[] = "mimes:{$v['mimes']}";
+                }
                 break;
             case 'select':
             case 'radio':

@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CalendarEvent;
+use App\Models\Clergy;
+use App\Models\Contact;
+use App\Models\EntityType;
+use App\Models\FormSubmission;
 use App\Models\LiturgicalCalendarEvent;
+use App\Models\Organization;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class VelzonController extends Controller
 {
@@ -21,15 +26,15 @@ class VelzonController extends Controller
         $lothRanges = $this->getLothRanges();
 
         // Upcoming calendar events for the widget
-        $upcomingEvents = \App\Models\CalendarEvent::upcoming(5)->get();
+        $upcomingEvents = CalendarEvent::upcoming(5)->get();
 
         // Diocesan KPI metrics — safe counts with fallback to 0
         $metrics = [
-            'contacts' => $this->safeCount(\App\Models\Contact::class),
-            'parishes' => $this->safeOrganizationCountByType(\App\Models\EntityType::SLUG_PARISH),
-            'clergy' => $this->safeCount(\App\Models\Clergy::class, ['status' => 'active']),
-            'pendingForms' => $this->safeCount(\App\Models\FormSubmission::class, ['status' => 'pending']),
-            'eventsThisWeek' => \App\Models\CalendarEvent::where('start_at', '>=', now())
+            'contacts' => $this->safeCount(Contact::class),
+            'parishes' => $this->safeOrganizationCountByType(EntityType::SLUG_PARISH),
+            'clergy' => $this->safeCount(Clergy::class, ['status' => 'active']),
+            'pendingForms' => $this->safeCount(FormSubmission::class, ['status' => 'pending']),
+            'eventsThisWeek' => CalendarEvent::where('start_at', '>=', now())
                 ->where('start_at', '<=', now()->endOfWeek())
                 ->count(),
         ];
@@ -63,8 +68,8 @@ class VelzonController extends Controller
         // Convert path to view name (e.g., contacts/index -> contacts.index)
         $viewName = str_replace('/', '.', $path);
 
-        if (view()->exists('velzon.' . $viewName)) {
-            return view('velzon.' . $viewName);
+        if (view()->exists('velzon.'.$viewName)) {
+            return view('velzon.'.$viewName);
         }
 
         return abort(404);
@@ -82,6 +87,7 @@ class VelzonController extends Controller
             $path = database_path("seeders/data/loth_volumes_{$y}.json");
             if (file_exists($path)) {
                 $data = json_decode(file_get_contents($path), true);
+
                 return $data['ranges'] ?? [];
             }
         }
@@ -99,6 +105,7 @@ class VelzonController extends Controller
             foreach ($conditions as $column => $value) {
                 $query->where($column, $value);
             }
+
             return $query->count();
         } catch (\Throwable $e) {
             return 0;
@@ -108,8 +115,8 @@ class VelzonController extends Controller
     private function safeOrganizationCountByType(string $entityTypeSlug): int
     {
         try {
-            return \App\Models\Organization::query()
-                ->whereHas('entityType', fn($query) => $query->where('slug', $entityTypeSlug))
+            return Organization::query()
+                ->whereHas('entityType', fn ($query) => $query->where('slug', $entityTypeSlug))
                 ->count();
         } catch (\Throwable $e) {
             return 0;

@@ -41,17 +41,24 @@ class Clergy extends Model
      * Status options
      */
     public const STATUS_ACTIVE = 'active';
+
     public const STATUS_RETIRED = 'retired';
+
     public const STATUS_LEAVE = 'leave';
+
     public const STATUS_SUSPENDED = 'suspended';
+
     public const STATUS_DECEASED = 'deceased';
 
     /**
      * Ordination types
      */
     public const ORDINATION_PRIEST = 'priest';
+
     public const ORDINATION_DEACON_PERMANENT = 'deacon_permanent';
+
     public const ORDINATION_DEACON_TRANSITIONAL = 'deacon_transitional';
+
     public const ORDINATION_BISHOP = 'bishop';
 
     public function contact(): BelongsTo
@@ -103,7 +110,7 @@ class Clergy extends Model
      */
     public function getFullNameAttribute(): string
     {
-        return $this->contact?->first_name . ' ' . $this->contact?->last_name;
+        return $this->contact?->first_name.' '.$this->contact?->last_name;
     }
 
     /**
@@ -125,6 +132,7 @@ class Clergy extends Model
     public function getFormalNameAttribute(): string
     {
         $title = $this->title;
+
         return $title ? "{$title} {$this->full_name}" : $this->full_name;
     }
 
@@ -141,9 +149,10 @@ class Clergy extends Model
      */
     public function getYearsOrdainedAttribute(): ?int
     {
-        if (!$this->ordination_date) {
+        if (! $this->ordination_date) {
             return null;
         }
+
         return $this->ordination_date->diffInYears(now());
     }
 }

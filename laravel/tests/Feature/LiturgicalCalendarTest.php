@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\LiturgicalCalendarEvent;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -127,6 +128,6 @@ class LiturgicalCalendarTest extends TestCase
      */
     private function createUser()
     {
-        return \App\Models\User::factory()->create();
+        return User::factory()->create();
     }
 }

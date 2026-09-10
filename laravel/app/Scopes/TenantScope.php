@@ -2,11 +2,12 @@
 
 namespace App\Scopes;
 
+use App\Models\Contact;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 class TenantScope implements Scope
 {
@@ -20,14 +21,14 @@ class TenantScope implements Scope
             $column = $this->tenantColumn($model);
 
             if ($jurisdictionId && $column) {
-                $builder->where($model->getTable() . '.' . $column, $jurisdictionId);
+                $builder->where($model->getTable().'.'.$column, $jurisdictionId);
             }
         }
     }
 
     private function tenantColumn(Model $model): ?string
     {
-        if ($model instanceof \App\Models\Contact) {
+        if ($model instanceof Contact) {
             return 'owner_jurisdiction_id';
         }
 

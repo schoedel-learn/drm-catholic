@@ -22,9 +22,9 @@ class CalendarEvent extends Model
     ];
 
     protected $casts = [
-        'start_at'  => 'datetime',
-        'end_at'    => 'datetime',
-        'all_day'   => 'boolean',
+        'start_at' => 'datetime',
+        'end_at' => 'datetime',
+        'all_day' => 'boolean',
     ];
 
     /**
@@ -32,10 +32,10 @@ class CalendarEvent extends Model
      */
     public const CATEGORY_COLORS = [
         'sacramental' => '#6f42c1', // purple
-        'formation'   => '#0d6efd', // blue
-        'parish'      => '#198754', // green
-        'diocesan'    => '#4F46E5', // indigo (brand primary)
-        'staff'       => '#fd7e14', // orange
+        'formation' => '#0d6efd', // blue
+        'parish' => '#198754', // green
+        'diocesan' => '#4F46E5', // indigo (brand primary)
+        'staff' => '#fd7e14', // orange
     ];
 
     public const CATEGORIES = ['sacramental', 'formation', 'parish', 'diocesan', 'staff'];
@@ -44,7 +44,7 @@ class CalendarEvent extends Model
 
     public function creator(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\User::class, 'created_by');
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     // ── Scopes ──
@@ -54,10 +54,10 @@ class CalendarEvent extends Model
         return $query->where(function ($q) use ($start, $end) {
             // Events that overlap the range
             $q->where('start_at', '<=', $end)
-              ->where(function ($q2) use ($start) {
-                  $q2->where('end_at', '>=', $start)
-                     ->orWhereNull('end_at');
-              });
+                ->where(function ($q2) use ($start) {
+                    $q2->where('end_at', '>=', $start)
+                        ->orWhereNull('end_at');
+                });
         })->orderBy('start_at');
     }
 
@@ -69,8 +69,8 @@ class CalendarEvent extends Model
     public function scopeUpcoming($query, int $limit = 5)
     {
         return $query->where('start_at', '>=', now())
-                     ->orderBy('start_at')
-                     ->limit($limit);
+            ->orderBy('start_at')
+            ->limit($limit);
     }
 
     // ── Serialization ──
@@ -83,20 +83,20 @@ class CalendarEvent extends Model
         $color = $this->color ?? (self::CATEGORY_COLORS[$this->category] ?? '#405189');
 
         $event = [
-            'id'              => $this->id,
-            'title'           => $this->title,
-            'start'           => $this->all_day
+            'id' => $this->id,
+            'title' => $this->title,
+            'start' => $this->all_day
                 ? $this->start_at->toDateString()
                 : $this->start_at->toIso8601String(),
-            'allDay'          => $this->all_day,
+            'allDay' => $this->all_day,
             'backgroundColor' => $color,
-            'borderColor'     => $color,
-            'extendedProps'   => [
-                'type'        => 'event',
-                'category'    => $this->category,
+            'borderColor' => $color,
+            'extendedProps' => [
+                'type' => 'event',
+                'category' => $this->category,
                 'description' => $this->description,
-                'location'    => $this->location,
-                'created_by'  => $this->created_by,
+                'location' => $this->location,
+                'created_by' => $this->created_by,
             ],
         ];
 

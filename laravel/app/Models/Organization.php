@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Observers\TenantObserver;
+use App\Scopes\TenantScope;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -38,8 +40,8 @@ class Organization extends Model
 
     protected static function booted(): void
     {
-        static::addGlobalScope(new \App\Scopes\TenantScope);
-        static::observe(\App\Observers\TenantObserver::class);
+        static::addGlobalScope(new TenantScope);
+        static::observe(TenantObserver::class);
     }
 
     public function jurisdiction(): BelongsTo
@@ -94,7 +96,7 @@ class Organization extends Model
      */
     public function scopeOfType($query, $entityTypeSlug)
     {
-        return $query->whereHas('entityType', fn($q) => $q->where('slug', $entityTypeSlug));
+        return $query->whereHas('entityType', fn ($q) => $q->where('slug', $entityTypeSlug));
     }
 
     /**

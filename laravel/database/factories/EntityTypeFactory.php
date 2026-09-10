@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\EntityType>
+ * @extends Factory<EntityType>
  */
 class EntityTypeFactory extends Factory
 {
@@ -35,7 +35,7 @@ class EntityTypeFactory extends Factory
 
     public function contact(): static
     {
-        return $this->state(fn() => [
+        return $this->state(fn () => [
             'base_entity' => EntityType::BASE_CONTACT,
             'icon' => 'user',
             'color' => 'blue',
@@ -44,7 +44,7 @@ class EntityTypeFactory extends Factory
 
     public function organization(): static
     {
-        return $this->state(fn() => [
+        return $this->state(fn () => [
             'base_entity' => EntityType::BASE_ORGANIZATION,
             'icon' => 'building',
             'color' => 'green',
@@ -53,7 +53,7 @@ class EntityTypeFactory extends Factory
 
     public function parish(): static
     {
-        return $this->organization()->state(fn() => [
+        return $this->organization()->state(fn () => [
             'name' => 'Parish',
             'slug' => EntityType::SLUG_PARISH,
             'icon' => 'building-2',

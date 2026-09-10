@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Models\Contact;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
@@ -17,12 +18,12 @@ class TenantObserver
             $jurisdictionId = Auth::user()->currentTeam->jurisdiction_id;
 
             if ($jurisdictionId) {
-                if ($model instanceof \App\Models\Contact) {
-                    if (!$model->owner_jurisdiction_id) {
+                if ($model instanceof Contact) {
+                    if (! $model->owner_jurisdiction_id) {
                         $model->owner_jurisdiction_id = $jurisdictionId;
                     }
                 } elseif (Schema::hasColumn($model->getTable(), 'jurisdiction_id')) {
-                    if (!$model->jurisdiction_id) {
+                    if (! $model->jurisdiction_id) {
                         $model->jurisdiction_id = $jurisdictionId;
                     }
                 }

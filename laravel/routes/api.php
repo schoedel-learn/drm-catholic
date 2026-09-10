@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\Api\V1\GooglePlacesController;
 use App\Http\Controllers\Api\V1\DioceseController;
+use App\Http\Controllers\Api\V1\GooglePlacesController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {

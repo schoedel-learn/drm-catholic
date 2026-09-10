@@ -18,8 +18,7 @@ class GooglePlacesClient
         ?float $lat = null,
         ?float $lng = null,
         ?int $radiusMeters = null,
-    ): array
-    {
+    ): array {
         $params = [
             'query' => $query,
             'key' => $apiKey,
@@ -102,8 +101,7 @@ class GooglePlacesClient
         ?float $lat = null,
         ?float $lng = null,
         ?int $radiusMeters = null,
-    ): array
-    {
+    ): array {
         $apiKey = (string) config('services.google_places.api_key');
 
         if ($apiKey === '') {

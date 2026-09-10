@@ -29,21 +29,21 @@ class LiturgicalCalendarController extends Controller
     {
         // If overlay is explicitly disabled, return empty
         $overlay = filter_var($request->query('overlay', 'true'), FILTER_VALIDATE_BOOLEAN);
-        if (!$overlay) {
+        if (! $overlay) {
             return response()->json([]);
         }
 
         $start = $request->query('start');
         $end = $request->query('end');
 
-        if (!$start || !$end) {
+        if (! $start || ! $end) {
             return response()->json(['error' => 'start and end parameters required'], 400);
         }
 
         $events = LiturgicalCalendarEvent::forDateRange($start, $end)->get();
 
         return response()->json(
-            $events->map(fn($e) => $e->toFullCalendarEvent())->values()
+            $events->map(fn ($e) => $e->toFullCalendarEvent())->values()
         );
     }
 
@@ -56,7 +56,7 @@ class LiturgicalCalendarController extends Controller
     {
         $event = LiturgicalCalendarEvent::getToday();
 
-        if (!$event) {
+        if (! $event) {
             return response()->json([
                 'date' => today()->toDateString(),
                 'title' => 'No liturgical data available',

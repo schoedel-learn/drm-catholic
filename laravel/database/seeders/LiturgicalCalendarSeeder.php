@@ -24,17 +24,19 @@ class LiturgicalCalendarSeeder extends Seeder
         $total = 0;
 
         foreach ($files as $file) {
-            $path = $dataDir . DIRECTORY_SEPARATOR . $file;
+            $path = $dataDir.DIRECTORY_SEPARATOR.$file;
 
-            if (!file_exists($path)) {
+            if (! file_exists($path)) {
                 $this->command->warn("Skipping {$file}: file not found at {$path}");
+
                 continue;
             }
 
             $events = json_decode(file_get_contents($path), true);
 
-            if (!is_array($events)) {
+            if (! is_array($events)) {
                 $this->command->error("Invalid JSON in {$file}");
+
                 continue;
             }
 

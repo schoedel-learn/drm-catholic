@@ -15,9 +15,9 @@ class CalendarEventController extends Controller
     public function index(Request $request): JsonResponse
     {
         $start = $request->query('start');
-        $end   = $request->query('end');
+        $end = $request->query('end');
 
-        if (!$start || !$end) {
+        if (! $start || ! $end) {
             return response()->json(['error' => 'start and end parameters required'], 400);
         }
 
@@ -28,7 +28,7 @@ class CalendarEventController extends Controller
             $query->byCategory($request->query('category'));
         }
 
-        $events = $query->get()->map(fn($e) => $e->toFullCalendarEvent());
+        $events = $query->get()->map(fn ($e) => $e->toFullCalendarEvent());
 
         return response()->json($events->values());
     }
@@ -40,14 +40,14 @@ class CalendarEventController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'title'       => 'required|string|max:255',
+            'title' => 'required|string|max:255',
             'description' => 'nullable|string|max:2000',
-            'start_at'    => 'required|date',
-            'end_at'      => 'nullable|date|after_or_equal:start_at',
-            'all_day'     => 'boolean',
-            'location'    => 'nullable|string|max:255',
-            'category'    => 'required|in:' . implode(',', CalendarEvent::CATEGORIES),
-            'color'       => 'nullable|string|max:7',
+            'start_at' => 'required|date',
+            'end_at' => 'nullable|date|after_or_equal:start_at',
+            'all_day' => 'boolean',
+            'location' => 'nullable|string|max:255',
+            'category' => 'required|in:'.implode(',', CalendarEvent::CATEGORIES),
+            'color' => 'nullable|string|max:7',
         ]);
 
         $validated['created_by'] = $request->user()->id;
@@ -64,14 +64,14 @@ class CalendarEventController extends Controller
     public function update(Request $request, CalendarEvent $event): JsonResponse
     {
         $validated = $request->validate([
-            'title'       => 'sometimes|required|string|max:255',
+            'title' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string|max:2000',
-            'start_at'    => 'sometimes|required|date',
-            'end_at'      => 'nullable|date|after_or_equal:start_at',
-            'all_day'     => 'boolean',
-            'location'    => 'nullable|string|max:255',
-            'category'    => 'sometimes|required|in:' . implode(',', CalendarEvent::CATEGORIES),
-            'color'       => 'nullable|string|max:7',
+            'start_at' => 'sometimes|required|date',
+            'end_at' => 'nullable|date|after_or_equal:start_at',
+            'all_day' => 'boolean',
+            'location' => 'nullable|string|max:255',
+            'category' => 'sometimes|required|in:'.implode(',', CalendarEvent::CATEGORIES),
+            'color' => 'nullable|string|max:7',
         ]);
 
         $event->update($validated);

@@ -4,6 +4,7 @@ namespace App\Mcp\Tools;
 
 use App\Services\GooglePlaces\GooglePlacesClient;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\JsonSchema\Types\Type;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
@@ -37,7 +38,7 @@ class SearchGooglePlacesTool extends Tool
             'limit.max' => 'The limit must be 20 or less.',
         ]);
 
-        /** @var \App\Services\GooglePlaces\GooglePlacesClient $places */
+        /** @var GooglePlacesClient $places */
         $places = app(GooglePlacesClient::class);
 
         $payload = $places->searchText(
@@ -56,7 +57,7 @@ class SearchGooglePlacesTool extends Tool
     }
 
     /**
-     * @return array<string, \Illuminate\Contracts\JsonSchema\JsonSchema>
+     * @return array<string, JsonSchema>
      */
     public function schema(JsonSchema $schema): array
     {
@@ -82,7 +83,7 @@ class SearchGooglePlacesTool extends Tool
     }
 
     /**
-     * @return array<string, \Illuminate\JsonSchema\Types\Type>
+     * @return array<string, Type>
      */
     public function outputSchema(JsonSchema $schema): array
     {

@@ -44,7 +44,7 @@ class PublicFormSubmissionTest extends TestCase
         ]);
 
         // Check Contact Created
-        // Note: We must check without global scope or act as a user in that jurisdiction, 
+        // Note: We must check without global scope or act as a user in that jurisdiction,
         // but here we can just use Database assertions which usually hit the DB directly.
         $this->assertDatabaseHas('contacts', [
             'jurisdiction_id' => $diocese->id,

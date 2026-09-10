@@ -41,7 +41,7 @@ class Jurisdiction extends Model
     protected static function booted(): void
     {
         static::creating(function (self $model): void {
-            if (!$model->getKey()) {
+            if (! $model->getKey()) {
                 $model->setAttribute($model->getKeyName(), (string) Str::uuid());
             }
         });
