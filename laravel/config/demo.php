@@ -1,8 +1,8 @@
 <?php
 
 return [
-    'enabled' => (bool) env('DEMO_MODE', false),
-    'git_sha' => env('GIT_SHA'),
+    'enabled' => env('DEMO_MODE', false) === true,
+    'git_sha' => env('DEPLOYMENT_GIT_SHA'),
     'user_email' => 'demo@example.invalid',
     'user_password' => env('DEMO_USER_PASSWORD'),
 
