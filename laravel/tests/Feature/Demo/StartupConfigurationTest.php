@@ -293,7 +293,8 @@ class StartupConfigurationTest extends TestCase
         $scriptPath = dirname(__DIR__, 3).'/scripts/start-demo.sh';
         $this->assertFileExists($scriptPath);
 
-        $failOnPhp = @file_get_contents($sandboxRoot.'/log/fail-on-php') ?: '';
+        $failOnPhpFile = $sandboxRoot.'/log/fail-on-php';
+        $failOnPhp = is_file($failOnPhpFile) ? (file_get_contents($failOnPhpFile) ?: '') : '';
 
         $command = ['bwrap', '--unshare-all', '--die-with-parent', '--tmpfs', '/'];
 
