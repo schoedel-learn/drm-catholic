@@ -21,11 +21,12 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->append(AddDemoNoIndexHeader::class);
+
         $middleware->web(append: [
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
             ProtectDemoAccount::class,
-            AddDemoNoIndexHeader::class,
         ]);
 
         $middleware->alias([
@@ -33,5 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->respond(
+            fn ($response) => AddDemoNoIndexHeader::apply($response, request()),
+        );
     })->create();

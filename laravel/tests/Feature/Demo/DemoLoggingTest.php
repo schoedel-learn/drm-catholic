@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Demo;
 
+use Illuminate\Database\QueryException;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
@@ -24,7 +25,12 @@ class DemoLoggingTest extends TestCase
 require 'vendor/autoload.php';
 $app = require 'bootstrap/app.php';
 $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
-Illuminate\Support\Facades\Log::warning('Demo structured log.', ['safe' => 'value']);
+Illuminate\Support\Facades\Log::warning('Demo structured log.', [
+    'safe' => 'value',
+    'password' => 'password-sentinel',
+    'nested' => ['api_token' => 'token-sentinel'],
+    'exception' => new RuntimeException('exception-sentinel'),
+]);
 echo json_encode([
     'channel' => config('logging.default'),
     'stream' => config('logging.channels.demo_stderr.handler_with.stream'),
@@ -46,10 +52,19 @@ PHP;
         $this->assertSame('WARNING', $record['severity']);
         $this->assertSame('Demo structured log.', $record['message']);
         $this->assertSame('test-deployment-sha', $record['git_sha']);
-        $this->assertSame(['safe' => 'value'], $record['context']);
+        $this->assertSame('value', $record['context']['safe']);
+        $this->assertSame('[REDACTED]', $record['context']['password']);
+        $this->assertSame('[REDACTED]', $record['context']['nested']['api_token']);
+        $this->assertSame(
+            ['exception_type' => \RuntimeException::class],
+            $record['context']['exception'],
+        );
         $this->assertArrayHasKey('timestamp', $record);
         $this->assertArrayNotHasKey('environment', $record);
         $this->assertArrayNotHasKey('user_password', $record);
+        $this->assertStringNotContainsString('password-sentinel', $records[0]);
+        $this->assertStringNotContainsString('token-sentinel', $records[0]);
+        $this->assertStringNotContainsString('exception-sentinel', $records[0]);
     }
 
     public function test_local_mode_retains_the_configured_log_channel(): void
@@ -69,5 +84,60 @@ PHP;
         $process->mustRun();
 
         $this->assertSame('stack', $process->getOutput());
+    }
+
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
+    public function test_failed_health_probe_writes_only_safe_details_to_stderr(): void
+    {
+        $root = dirname(__DIR__, 3);
+        $environment = [
+            'APP_ENV' => 'testing',
+            'DEMO_MODE' => 'true',
+            'DEPLOYMENT_GIT_SHA' => 'test-deployment-sha',
+            'DB_CONNECTION' => 'sqlite',
+            'DB_DATABASE' => '/missing/health-sensitive-sentinel/database.sqlite',
+            'LOG_LEVEL' => 'debug',
+        ];
+        $code = <<<'PHP'
+require 'vendor/autoload.php';
+$app = require 'bootstrap/app.php';
+$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+$response = $app->make(App\Http\Controllers\Api\V1\HealthController::class)();
+echo $response->getContent();
+PHP;
+
+        $process = new Process(['php', '-r', $code], $root, $environment);
+        $process->mustRun();
+
+        $this->assertJsonStringEqualsJsonString(
+            json_encode([
+                'status' => 'unavailable',
+                'database' => 'error',
+                'git_sha' => 'test-deployment-sha',
+            ], JSON_THROW_ON_ERROR),
+            $process->getOutput(),
+        );
+
+        $record = json_decode(
+            trim($process->getErrorOutput()),
+            true,
+            flags: JSON_THROW_ON_ERROR,
+        );
+
+        $this->assertSame('ERROR', $record['severity']);
+        $this->assertSame('Health database probe failed.', $record['message']);
+        $this->assertSame('test-deployment-sha', $record['git_sha']);
+        $this->assertSame(
+            [
+                'exception_type' => QueryException::class,
+                'git_sha' => 'test-deployment-sha',
+            ],
+            $record['context'],
+        );
+        $this->assertStringNotContainsString(
+            'health-sensitive-sentinel',
+            $process->getErrorOutput(),
+        );
     }
 }

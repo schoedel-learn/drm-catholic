@@ -10,9 +10,12 @@ class AddDemoNoIndexHeader
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $response = $next($request);
+        return self::apply($next($request), $request);
+    }
 
-        if (config('demo.enabled')) {
+    public static function apply(Response $response, Request $request): Response
+    {
+        if (config('demo.enabled') && ! $request->is('api/*')) {
             $response->headers->set('X-Robots-Tag', 'noindex, nofollow');
         }
 
