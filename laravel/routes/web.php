@@ -18,26 +18,26 @@ Route::get('/', function () {
 Route::get('/forms/{token}', [\App\Http\Controllers\PublicFormController::class, 'show'])->name('public-form.show');
 Route::post('/forms/{token}', [\App\Http\Controllers\PublicFormController::class, 'submit'])->name('public-form.submit');
 
-// Authenticated Velzon routes
+// Authenticated application routes
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
 ])->group(function () {
-    // Dashboard - Velzon Blade
-    Route::get('/dashboard', [\App\Http\Controllers\VelzonController::class, 'dashboard'])->name('dashboard');
+    Route::get('/dashboard', function () {
+        return Inertia::render('Dashboard');
+    })->name('dashboard');
 
-    // Analytics - Velzon Blade
+    // Legacy Velzon routes kept for compatibility while core preview uses Inertia pages.
     Route::get('/analytics', [\App\Http\Controllers\VelzonController::class, 'analytics'])->name('analytics');
 
-    // Admin routes (Velzon Blade)
+    // Legacy admin URLs redirect to the live Inertia screens.
     Route::prefix('admin')->name('admin.')->group(function () {
-        Route::get('/contacts', [\App\Http\Controllers\VelzonController::class, 'show'])->name('contacts');
-        Route::get('/organizations', [\App\Http\Controllers\VelzonController::class, 'show'])->name('organizations');
+        Route::redirect('/contacts', '/contacts')->name('contacts');
+        Route::redirect('/organizations', '/organizations')->name('organizations');
         Route::get('/review-queue', [\App\Http\Controllers\VelzonController::class, 'show'])->name('review-queue');
         Route::get('/notifications', [\App\Http\Controllers\VelzonController::class, 'show'])->name('notifications');
     });
 
-    // API routes for data (used by Velzon pages)
     Route::resource('contacts', \App\Http\Controllers\ContactController::class);
     Route::resource('organizations', \App\Http\Controllers\OrganizationController::class);
     Route::resource('custom-fields', \App\Http\Controllers\CustomFieldController::class)->only(['index', 'store', 'destroy']);
@@ -61,4 +61,3 @@ Route::middleware([
     Route::apiResource('api/calendar/events', \App\Http\Controllers\CalendarEventController::class)
         ->parameters(['events' => 'event']);
 });
-
