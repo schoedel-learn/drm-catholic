@@ -20,7 +20,7 @@ class HealthTest extends TestCase
 
         $this->getJson('/api/v1/health')
             ->assertOk()
-            ->assertJson([
+            ->assertExactJson([
                 'status' => 'ok',
                 'database' => 'ok',
                 'git_sha' => 'test-deployment-sha',
@@ -39,7 +39,7 @@ class HealthTest extends TestCase
         DB::shouldReceive('selectOne')
             ->once()
             ->with('select 1')
-            ->andThrow(new RuntimeException('password=super-secret'));
+            ->andThrow(new RuntimeException('health-sensitive-sentinel'));
 
         Log::shouldReceive('error')
             ->once()
@@ -51,18 +51,26 @@ class HealthTest extends TestCase
                     return $context === [
                         'exception_type' => RuntimeException::class,
                         'git_sha' => 'test-deployment-sha',
-                    ] && ! str_contains($encoded, 'super-secret');
+                    ] && ! str_contains($encoded, 'health-sensitive-sentinel');
                 }),
             );
 
         $response = $this->getJson('/api/v1/health')
             ->assertServiceUnavailable()
-            ->assertJson([
+            ->assertExactJson([
                 'status' => 'unavailable',
                 'database' => 'error',
                 'git_sha' => 'test-deployment-sha',
             ]);
 
-        $this->assertStringNotContainsString('super-secret', $response->getContent());
+        $this->assertStringNotContainsString(
+            'health-sensitive-sentinel',
+            $response->getContent(),
+        );
+    }
+
+    public function test_liveness_endpoint_remains_available(): void
+    {
+        $this->get('/up')->assertOk();
     }
 }
