@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\AddDemoNoIndexHeader;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\ProtectDemoAccount;
 use Illuminate\Foundation\Application;
@@ -24,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
             ProtectDemoAccount::class,
+            AddDemoNoIndexHeader::class,
         ]);
 
         $middleware->alias([
