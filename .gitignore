@@ -4,8 +4,6 @@ vendor/
 laravel/vendor/
 
 # Build output
-dist/
-build/
 laravel/public/build/
 laravel/public/hot
 laravel/public/vendor/nova/
@@ -37,12 +35,6 @@ yarn-error.log*
 laravel/*_output.txt
 laravel/*_error.txt
 laravel/page_output.html
-
-# Test coverage
-coverage/
-
-# TypeScript cache
-*.tsbuildinfo
 
 # Temporary files
 tmp/

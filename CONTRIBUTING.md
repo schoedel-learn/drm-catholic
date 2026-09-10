@@ -34,22 +34,16 @@ Use the **Feature Request** template when opening a new issue. Describe the use 
 
 4. **Add or update tests** for any new or changed behavior.
 
-5. **Run the test suites** and confirm everything passes:
+5. **Run the test suite** and confirm everything passes:
    ```bash
    # Laravel (from laravel/)
    php artisan test
-
-   # TypeScript (from repo root)
-   npm test
    ```
 
-6. **Run the linters**:
+6. **Run the linter**:
    ```bash
-   # PHP
-   cd laravel && ./vendor/bin/pint
-
-   # TypeScript
-   npm run lint
+   # PHP (from laravel/)
+   ./vendor/bin/pint
    ```
 
 7. **Commit** using a descriptive message and **open a pull request** against `main`.
@@ -64,12 +58,6 @@ Use the **Feature Request** template when opening a new issue. Describe the use 
 - Run [Laravel Pint](https://laravel.com/docs/pint) before committing: `./vendor/bin/pint`
 - Write PHPUnit tests for new features and bug fixes.
 - Keep controllers thin; put business logic in service classes.
-
-### TypeScript
-
-- Follow the ESLint configuration already present in `.eslintrc.js`.
-- Run `npm run lint` before committing.
-- Write Jest tests for new functionality.
 
 ## Environment Variables and Secrets
 
