@@ -8,7 +8,11 @@ use Throwable;
 
 class CloudRunJsonFormatter extends JsonFormatter
 {
+    private const MAX_SANITIZE_DEPTH = 9;
+
     private const REDACTED = '[REDACTED]';
+
+    private const TRUNCATED = '[TRUNCATED]';
 
     public function format(LogRecord $record): string
     {
@@ -24,10 +28,22 @@ class CloudRunJsonFormatter extends JsonFormatter
         return $this->toJson($payload, true)."\n";
     }
 
-    private function sanitize(mixed $value): mixed
+    private function sanitize(mixed $value, int $depth = 0): mixed
     {
+        if ($depth >= self::MAX_SANITIZE_DEPTH) {
+            return self::TRUNCATED;
+        }
+
         if ($value instanceof Throwable) {
             return ['exception_type' => $value::class];
+        }
+
+        if (is_object($value)) {
+            $properties = get_object_vars($value);
+
+            return $properties === []
+                ? ['object_type' => $value::class]
+                : $this->sanitize($properties, $depth + 1);
         }
 
         if (! is_array($value)) {
@@ -39,7 +55,7 @@ class CloudRunJsonFormatter extends JsonFormatter
         foreach ($value as $key => $item) {
             $sanitized[$key] = is_string($key) && $this->isSensitiveKey($key)
                 ? self::REDACTED
-                : $this->sanitize($item);
+                : $this->sanitize($item, $depth + 1);
         }
 
         return $sanitized;

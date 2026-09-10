@@ -29,6 +29,10 @@ Illuminate\Support\Facades\Log::warning('Demo structured log.', [
     'safe' => 'value',
     'password' => 'password-sentinel',
     'nested' => ['api_token' => 'token-sentinel'],
+    'object_payload' => (object) [
+        'clientSecret' => 'object-secret-sentinel',
+        'safe' => 'object-safe-value',
+    ],
     'exception' => new RuntimeException('exception-sentinel'),
 ]);
 echo json_encode([
@@ -56,6 +60,13 @@ PHP;
         $this->assertSame('[REDACTED]', $record['context']['password']);
         $this->assertSame('[REDACTED]', $record['context']['nested']['api_token']);
         $this->assertSame(
+            [
+                'clientSecret' => '[REDACTED]',
+                'safe' => 'object-safe-value',
+            ],
+            $record['context']['object_payload'],
+        );
+        $this->assertSame(
             ['exception_type' => \RuntimeException::class],
             $record['context']['exception'],
         );
@@ -64,6 +75,7 @@ PHP;
         $this->assertArrayNotHasKey('user_password', $record);
         $this->assertStringNotContainsString('password-sentinel', $records[0]);
         $this->assertStringNotContainsString('token-sentinel', $records[0]);
+        $this->assertStringNotContainsString('object-secret-sentinel', $records[0]);
         $this->assertStringNotContainsString('exception-sentinel', $records[0]);
     }
 
