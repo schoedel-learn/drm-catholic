@@ -78,18 +78,18 @@ DRM Catholic is a comprehensive relationship management system designed specific
 
 ## Architecture
 
-DRM Catholic ships as a single Laravel application (`laravel/`). The TypeScript
-package in `src/` is an early in-memory prototype kept for reference only: it has
-no database and no authentication. Confirmed against the repository's GitHub
-API: deployments and webhooks are empty, and the environments API lists exactly
-one entry, a `copilot` GitHub coding-agent sandbox with zero deployments
-recorded against it. None of these host a runtime that serves the prototype's
-Express app.
+DRM Catholic ships as a single Laravel application (`laravel/`), which is the
+sole runtime and source of truth for the domain model.
 
-The root `package.json` scripts (`build`, `test`, `lint`) and the `build` /
-`code-quality` jobs in `.github/workflows/ci.yml` still build and test the
-prototype today, but that is CI/tooling scaffolding, not a deployed or runtime
-consumer — it is slated for removal together with the prototype in Task 5.
+The repository previously carried an early TypeScript in-memory prototype (in
+`src/`, with root `package.json`, `tsconfig.json`, and `jest.config.js` tooling).
+It had no database and no authentication, and it was never deployed or consumed.
+This was confirmed against the repository's GitHub API: deployments and webhooks
+are empty, and the environments API lists exactly one entry — a `copilot` GitHub
+coding-agent sandbox with zero deployments recorded against it. Because nothing
+hosted or called the prototype's Express app, it was removed in favor of
+consolidating entirely on Laravel; the root Node/TypeScript tooling was retired
+along with it.
 
 The Laravel domain model supersedes the prototype's separate per-type entity
 maps. Rather than maintaining a distinct in-memory collection for each concept
@@ -116,9 +116,7 @@ the domain model.
 
 ## Getting Started
 
-The primary implementation is the **Laravel application** in the `laravel/` directory. A secondary TypeScript package lives in `src/`.
-
-### Laravel Application (Primary)
+DRM Catholic is a single **Laravel application** that lives in the `laravel/` directory.
 
 #### Prerequisites
 
@@ -152,22 +150,6 @@ Password: password
 | Variable | Description |
 |----------|-------------|
 | `GOOGLE_PLACES_API_KEY` | Google Places API key (optional for local preview, required for parish location search) |
-
-### TypeScript Package (Secondary)
-
-#### Prerequisites
-
-- Node.js >= 18.0.0
-- npm >= 9.0.0
-
-#### Installation
-
-```bash
-cd drm-catholic   # repo root
-npm install
-npm run build
-npm run dev
-```
 
 ## API Endpoints
 
@@ -442,23 +424,11 @@ php artisan migrate:fresh --seed  # Reset and seed the database
 composer run-script lint # Run PHP linter (if configured)
 ```
 
-#### TypeScript (`src/` / repo root)
-
-```bash
-npm run dev              # Start development server with hot reload
-npm run build            # Build for production
-npm start                # Start production server
-npm run lint             # Run ESLint
-npm test                 # Run Jest tests
-npm run test:watch       # Run tests in watch mode
-npm run test:coverage    # Run tests with coverage report
-```
-
 ### Project Structure
 
 ```
 drm-catholic/
-├── laravel/           # Primary Laravel application
+├── laravel/           # Laravel application (sole runtime)
 │   ├── app/           # PHP application code
 │   ├── config/        # Laravel configuration
 │   ├── database/      # Migrations and seeders
@@ -466,19 +436,11 @@ drm-catholic/
 │   ├── routes/        # Route definitions (web, api, ai/MCP)
 │   ├── tests/         # PHPUnit test suite
 │   └── ...
-├── src/               # TypeScript package (secondary)
-│   ├── api/           # API route handlers
-│   ├── models/        # Data models and interfaces
-│   ├── services/      # Business logic
-│   ├── __tests__/     # Jest test files
-│   └── index.ts
 ├── .github/
 │   ├── workflows/     # GitHub Actions CI/CD
 │   └── ISSUE_TEMPLATE/
 ├── docs/              # Documentation
-├── package.json       # Root TypeScript package config
-├── tsconfig.json
-└── jest.config.js
+└── README.md
 ```
 
 ## Contributing
