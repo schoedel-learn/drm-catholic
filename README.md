@@ -80,9 +80,16 @@ DRM Catholic is a comprehensive relationship management system designed specific
 
 DRM Catholic ships as a single Laravel application (`laravel/`). The TypeScript
 package in `src/` is an early in-memory prototype kept for reference only: it has
-no database, no authentication, and no deployed consumer (confirmed against the
-repository's GitHub deployments, webhooks, and environments, all of which are
-empty of any runtime that serves it).
+no database and no authentication. Confirmed against the repository's GitHub
+API: deployments and webhooks are empty, and the environments API lists exactly
+one entry, a `copilot` GitHub coding-agent sandbox with zero deployments
+recorded against it. None of these host a runtime that serves the prototype's
+Express app.
+
+The root `package.json` scripts (`build`, `test`, `lint`) and the `build` /
+`code-quality` jobs in `.github/workflows/ci.yml` still build and test the
+prototype today, but that is CI/tooling scaffolding, not a deployed or runtime
+consumer — it is slated for removal together with the prototype in Task 5.
 
 The Laravel domain model supersedes the prototype's separate per-type entity
 maps. Rather than maintaining a distinct in-memory collection for each concept
@@ -97,8 +104,10 @@ Laravel consolidates on a small set of first-class, database-backed models:
 - **Organization** and **Contact** — the two core records, specialized at runtime
   by their `EntityType` and extended through `CustomField`/`custom_data` instead
   of by adding new tables.
-- **ClergyAssignment** — time-bounded roles that replace the prototype's separate
-  `ContactPosition` map.
+- **ClergyAssignment** — time-bounded, entity-linked roles that consolidate most
+  of what the prototype modeled via its separate `ContactPosition` map; it is not
+  a strict 1:1 replacement, since some `ContactPosition` fields and use cases map
+  onto other Laravel constructs rather than `ClergyAssignment` directly.
 
 Because the prototype's HTTP routes were never deployed or consumed, the Laravel
 API is not a drop-in replacement for them and intentionally does not preserve
