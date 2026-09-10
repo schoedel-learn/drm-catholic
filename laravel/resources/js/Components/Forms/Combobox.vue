@@ -57,7 +57,7 @@ const getOptionLabel = (option) => {
 };
 
 const selectedOption = computed(() => {
-    return props.options.find(opt => getOptionValue(opt) === props.modelValue);
+    return props.options.find((opt) => getOptionValue(opt) === props.modelValue);
 });
 
 const displayValue = computed(() => {
@@ -69,11 +69,9 @@ const displayValue = computed(() => {
 
 const filteredOptions = computed(() => {
     if (!searchQuery.value) return props.options;
-    
+
     const query = searchQuery.value.toLowerCase();
-    return props.options.filter(opt => 
-        getOptionLabel(opt).toLowerCase().includes(query)
-    );
+    return props.options.filter((opt) => getOptionLabel(opt).toLowerCase().includes(query));
 });
 
 const selectOption = (option) => {
@@ -84,7 +82,7 @@ const selectOption = (option) => {
 
 const handleKeydown = (e) => {
     if (!isOpen.value) return;
-    
+
     switch (e.key) {
         case 'ArrowDown':
             e.preventDefault();
@@ -138,57 +136,57 @@ watch(searchQuery, () => {
 <template>
     <div class="combobox-container relative" @keydown="handleKeydown">
         <!-- Label -->
-        <label v-if="label" class="block text-sm font-medium text-slate-300 mb-2">
+        <label v-if="label" class="mb-2 block text-sm font-medium text-slate-300">
             {{ label }}
         </label>
-        
+
         <!-- Trigger -->
         <button
             type="button"
             @click="toggleOpen"
             :disabled="disabled"
             :class="[
-                'w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-white/5 border text-left transition-all duration-200',
-                error 
-                    ? 'border-rose-500/50 focus:border-rose-500' 
+                'flex w-full items-center justify-between gap-3 rounded-xl border bg-white/5 px-4 py-3 text-left transition-all duration-200',
+                error
+                    ? 'border-rose-500/50 focus:border-rose-500'
                     : isOpen
-                        ? 'border-indigo-500 ring-2 ring-indigo-500/20'
-                        : 'border-white/10 hover:border-white/20',
-                disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
+                      ? 'border-indigo-500 ring-2 ring-indigo-500/20'
+                      : 'border-white/10 hover:border-white/20',
+                disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
             ]"
         >
             <span :class="displayValue ? 'text-white' : 'text-slate-500'">
                 {{ displayValue || placeholder }}
             </span>
-            <svg 
-                :class="['w-5 h-5 text-slate-400 transition-transform', isOpen ? 'rotate-180' : '']"
-                fill="none" 
-                stroke="currentColor" 
+            <svg
+                :class="['h-5 w-5 text-slate-400 transition-transform', isOpen ? 'rotate-180' : '']"
+                fill="none"
+                stroke="currentColor"
                 viewBox="0 0 24 24"
             >
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
         </button>
-        
+
         <!-- Error -->
         <p v-if="error" class="mt-2 text-sm text-rose-400">{{ error }}</p>
-        
+
         <!-- Dropdown -->
         <div
             v-if="isOpen"
-            class="absolute z-50 w-full mt-2 bg-slate-800 rounded-xl border border-white/10 shadow-2xl shadow-black/50 overflow-hidden"
+            class="absolute z-50 mt-2 w-full overflow-hidden rounded-xl border border-white/10 bg-slate-800 shadow-2xl shadow-black/50"
         >
             <!-- Search Input -->
-            <div v-if="searchable" class="p-2 border-b border-white/10">
+            <div v-if="searchable" class="border-b border-white/10 p-2">
                 <input
                     ref="searchInput"
                     v-model="searchQuery"
                     type="text"
                     :placeholder="placeholder"
-                    class="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                    class="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none"
                 />
             </div>
-            
+
             <!-- Options -->
             <ul class="max-h-60 overflow-auto py-1">
                 <li
@@ -196,29 +194,29 @@ watch(searchQuery, () => {
                     :key="getOptionValue(option)"
                     @click="selectOption(option)"
                     :class="[
-                        'px-4 py-2.5 cursor-pointer transition-colors',
+                        'cursor-pointer px-4 py-2.5 transition-colors',
                         index === highlightedIndex ? 'bg-indigo-500/20' : 'hover:bg-white/5',
                         getOptionValue(option) === modelValue ? 'text-indigo-400' : 'text-white',
                     ]"
                 >
                     <div class="flex items-center justify-between">
                         <span class="text-sm">{{ getOptionLabel(option) }}</span>
-                        <svg 
+                        <svg
                             v-if="getOptionValue(option) === modelValue"
-                            class="w-4 h-4 text-indigo-400" 
-                            fill="none" 
-                            stroke="currentColor" 
+                            class="h-4 w-4 text-indigo-400"
+                            fill="none"
+                            stroke="currentColor"
                             viewBox="0 0 24 24"
                         >
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
                     </div>
-                    <p v-if="option.description" class="text-xs text-slate-500 mt-0.5">
+                    <p v-if="option.description" class="mt-0.5 text-xs text-slate-500">
                         {{ option.description }}
                     </p>
                 </li>
-                
-                <li v-if="filteredOptions.length === 0" class="px-4 py-3 text-sm text-slate-500 text-center">
+
+                <li v-if="filteredOptions.length === 0" class="px-4 py-3 text-center text-sm text-slate-500">
                     No options found
                 </li>
             </ul>

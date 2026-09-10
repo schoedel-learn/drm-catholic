@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch, computed } from 'vue';
+import { computed } from 'vue';
 
 const props = defineProps({
     data: {
@@ -30,13 +30,13 @@ const props = defineProps({
 });
 
 const defaultColors = [
-    'rgb(99, 102, 241)',   // Indigo
-    'rgb(168, 85, 247)',   // Purple
-    'rgb(16, 185, 129)',   // Emerald
-    'rgb(245, 158, 11)',   // Amber
-    'rgb(244, 63, 94)',    // Rose
-    'rgb(59, 130, 246)',   // Blue
-    'rgb(236, 72, 153)',   // Pink
+    'rgb(99, 102, 241)', // Indigo
+    'rgb(168, 85, 247)', // Purple
+    'rgb(16, 185, 129)', // Emerald
+    'rgb(245, 158, 11)', // Amber
+    'rgb(244, 63, 94)', // Rose
+    'rgb(59, 130, 246)', // Blue
+    'rgb(236, 72, 153)', // Pink
 ];
 
 const total = computed(() => props.data.reduce((sum, item) => sum + item.value, 0));
@@ -74,7 +74,7 @@ const circumference = computed(() => 2 * Math.PI * radius.value);
                     stroke="rgba(255,255,255,0.1)"
                     :stroke-width="strokeWidth"
                 />
-                
+
                 <!-- Segments -->
                 <circle
                     v-for="(segment, index) in segments"
@@ -90,26 +90,19 @@ const circumference = computed(() => 2 * Math.PI * radius.value);
                     class="transition-all duration-500"
                 />
             </svg>
-            
+
             <!-- Center content -->
             <div v-if="centerLabel || centerValue" class="absolute inset-0 flex flex-col items-center justify-center">
                 <span v-if="centerValue" class="text-2xl font-bold text-white">{{ centerValue }}</span>
                 <span v-if="centerLabel" class="text-sm text-slate-400">{{ centerLabel }}</span>
             </div>
         </div>
-        
+
         <!-- Legend -->
         <div v-if="showLabels" class="space-y-3">
-            <div 
-                v-for="(segment, index) in segments" 
-                :key="index"
-                class="flex items-center gap-3"
-            >
-                <div 
-                    class="w-3 h-3 rounded-full shrink-0"
-                    :style="{ backgroundColor: segment.color }"
-                ></div>
-                <div class="flex-1 min-w-0">
+            <div v-for="(segment, index) in segments" :key="index" class="flex items-center gap-3">
+                <div class="h-3 w-3 shrink-0 rounded-full" :style="{ backgroundColor: segment.color }"></div>
+                <div class="min-w-0 flex-1">
                     <div class="text-sm font-medium text-white">{{ segment.label }}</div>
                     <div class="text-xs text-slate-500">{{ segment.percentage.toFixed(1) }}%</div>
                 </div>

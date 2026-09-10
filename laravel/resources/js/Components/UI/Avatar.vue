@@ -50,7 +50,7 @@ const initials = computed(() => {
     if (!props.name) return '?';
     return props.name
         .split(' ')
-        .map(word => word[0])
+        .map((word) => word[0])
         .join('')
         .toUpperCase()
         .slice(0, 2);
@@ -58,13 +58,14 @@ const initials = computed(() => {
 </script>
 
 <template>
-    <div :class="['rounded-full overflow-hidden flex items-center justify-center font-semibold', sizeClasses, !src ? colorClasses : '']">
-        <img
-            v-if="src"
-            :src="src"
-            :alt="name"
-            class="w-full h-full object-cover"
-        />
+    <div
+        :class="[
+            'flex items-center justify-center overflow-hidden rounded-full font-semibold',
+            sizeClasses,
+            !src ? colorClasses : '',
+        ]"
+    >
+        <img v-if="src" :src="src" :alt="name" class="h-full w-full object-cover" />
         <span v-else>{{ initials }}</span>
     </div>
 </template>
