@@ -2,6 +2,8 @@
 
 use Laravel\Fortify\Features;
 
+$demoMode = env('DEMO_MODE', false) === true;
+
 return [
 
     /*
@@ -144,8 +146,10 @@ return [
     */
 
     'features' => [
-        Features::registration(),
-        Features::resetPasswords(),
+        ...($demoMode ? [] : [
+            Features::registration(),
+            Features::resetPasswords(),
+        ]),
         // Features::emailVerification(),
         Features::updateProfileInformation(),
         Features::updatePasswords(),

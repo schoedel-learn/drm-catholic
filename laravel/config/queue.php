@@ -13,7 +13,9 @@ return [
     |
     */
 
-    'default' => env('QUEUE_CONNECTION', 'database'),
+    'default' => env('DEMO_MODE', false) === true
+        ? 'sync'
+        : env('QUEUE_CONNECTION', 'database'),
 
     /*
     |--------------------------------------------------------------------------
