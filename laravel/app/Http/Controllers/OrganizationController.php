@@ -24,7 +24,7 @@ class OrganizationController extends Controller
         $organizations = Organization::query()
             ->with('entityType')
             ->when($request->search, function ($query, $search) {
-                $query->where('name', 'ilike', '%' . $search . '%');
+                $query->where('name', 'ilike', '%'.$search.'%');
             })
             ->when($request->entity_type_id, function ($query, $entityTypeId) {
                 $query->where('entity_type_id', $entityTypeId);
@@ -80,7 +80,7 @@ class OrganizationController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'entity_type_id' => [
                 'required',
-                Rule::exists('entity_types', 'id')->where(fn($query) => $query
+                Rule::exists('entity_types', 'id')->where(fn ($query) => $query
                     ->where('jurisdiction_id', $tenantId)
                     ->where('base_entity', EntityType::BASE_ORGANIZATION)
                     ->where('is_active', true)),
@@ -101,11 +101,13 @@ class OrganizationController extends Controller
 
         foreach ($customFields as $field) {
             $fieldRules = $field->required ? ['required'] : ['nullable'];
-            if ($field->type === 'number')
+            if ($field->type === 'number') {
                 $fieldRules[] = 'numeric';
-            if ($field->type === 'date')
+            }
+            if ($field->type === 'date') {
                 $fieldRules[] = 'date';
-            $rules['custom_data.' . $field->key] = $fieldRules;
+            }
+            $rules['custom_data.'.$field->key] = $fieldRules;
         }
 
         $validated = $request->validate($rules);
@@ -174,7 +176,7 @@ class OrganizationController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'entity_type_id' => [
                 'required',
-                Rule::exists('entity_types', 'id')->where(fn($query) => $query
+                Rule::exists('entity_types', 'id')->where(fn ($query) => $query
                     ->where('jurisdiction_id', $tenantId)
                     ->where('base_entity', EntityType::BASE_ORGANIZATION)
                     ->where('is_active', true)),
@@ -195,11 +197,13 @@ class OrganizationController extends Controller
 
         foreach ($customFields as $field) {
             $fieldRules = $field->required ? ['required'] : ['nullable'];
-            if ($field->type === 'number')
+            if ($field->type === 'number') {
                 $fieldRules[] = 'numeric';
-            if ($field->type === 'date')
+            }
+            if ($field->type === 'date') {
                 $fieldRules[] = 'date';
-            $rules['custom_data.' . $field->key] = $fieldRules;
+            }
+            $rules['custom_data.'.$field->key] = $fieldRules;
         }
 
         $validated = $request->validate($rules);
@@ -217,6 +221,7 @@ class OrganizationController extends Controller
         $this->authorize('delete', $organization);
 
         $organization->delete();
+
         return redirect()->route('organizations.index')->with('success', 'Organization deleted successfully.');
     }
 
@@ -226,6 +231,7 @@ class OrganizationController extends Controller
     private function getUserPermissions(Request $request): array
     {
         $team = $request->user()->currentTeam;
+
         return [
             'canCreate' => $request->user()->hasTeamPermission($team, 'create'),
             'canUpdate' => $request->user()->hasTeamPermission($team, 'update'),

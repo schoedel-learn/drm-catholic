@@ -157,8 +157,10 @@ class LiturgicalCalendarEvent extends Model
         $weekNumber = $this->extractWeekNumber($title);
         if ($weekNumber) {
             $ordinal = $this->ordinal($weekNumber);
+
             return "{$ordinal} Sunday of {$seasonLabel}";
         }
+
         // If no number found, return title as-is (formatted)
         return ucwords(strtolower($title));
     }
@@ -229,9 +231,10 @@ class LiturgicalCalendarEvent extends Model
     {
         $suffix = ['th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th'];
         if ($n % 100 >= 11 && $n % 100 <= 19) {
-            return $n . 'th';
+            return $n.'th';
         }
-        return $n . ($suffix[$n % 10] ?? 'th');
+
+        return $n.($suffix[$n % 10] ?? 'th');
     }
 
     /**

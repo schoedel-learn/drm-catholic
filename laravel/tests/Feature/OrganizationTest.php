@@ -16,9 +16,13 @@ class OrganizationTest extends TestCase
     use RefreshDatabase;
 
     protected $user;
+
     protected $jurisdiction;
+
     protected $parishType;
+
     protected $schoolType;
+
     protected $officeType;
 
     protected function setUp(): void
@@ -57,7 +61,7 @@ class OrganizationTest extends TestCase
             ->get(route('organizations.index'))
             ->assertStatus(200)
             ->assertInertia(
-                fn(Assert $page) => $page
+                fn (Assert $page) => $page
                     ->component('Organizations/Index')
                     ->has('organizations.data', 3)
             );
@@ -68,19 +72,19 @@ class OrganizationTest extends TestCase
         Organization::factory()->create([
             'jurisdiction_id' => $this->jurisdiction->id,
             'entity_type_id' => $this->parishType->id,
-            'name' => 'St. Mary'
+            'name' => 'St. Mary',
         ]);
         Organization::factory()->create([
             'jurisdiction_id' => $this->jurisdiction->id,
             'entity_type_id' => $this->schoolType->id,
-            'name' => 'St. Mary School'
+            'name' => 'St. Mary School',
         ]);
 
         $this->actingAs($this->user)
             ->get(route('organizations.index', ['entity_type_id' => $this->parishType->id]))
             ->assertStatus(200)
             ->assertInertia(
-                fn(Assert $page) => $page
+                fn (Assert $page) => $page
                     ->component('Organizations/Index')
                     ->has('organizations.data', 1)
                     ->where('organizations.data.0.entity_type.slug', EntityType::SLUG_PARISH)
@@ -106,8 +110,8 @@ class OrganizationTest extends TestCase
                 'entity_type_id' => $this->parishType->id,
                 'email' => 'new@parish.com',
                 'custom_data' => [
-                    'established_year' => 1950
-                ]
+                    'established_year' => 1950,
+                ],
             ])
             ->assertRedirect(route('organizations.index'));
 
@@ -125,14 +129,14 @@ class OrganizationTest extends TestCase
         $org = Organization::factory()->create([
             'jurisdiction_id' => $this->jurisdiction->id,
             'entity_type_id' => $this->parishType->id,
-            'name' => 'Old Name'
+            'name' => 'Old Name',
         ]);
 
         $this->actingAs($this->user)
             ->put(route('organizations.update', $org), [
                 'name' => 'Updated Name',
                 'entity_type_id' => $this->officeType->id,
-                'address' => ['city' => 'New City']
+                'address' => ['city' => 'New City'],
             ])
             ->assertRedirect();
 
@@ -168,7 +172,7 @@ class OrganizationTest extends TestCase
         $this->actingAs($this->user)
             ->get(route('organizations.index'))
             ->assertInertia(
-                fn(Assert $page) => $page
+                fn (Assert $page) => $page
                     ->has('organizations.data', 0)
             );
 

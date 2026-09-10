@@ -6,7 +6,7 @@ use App\Models\Jurisdiction;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Jurisdiction>
+ * @extends Factory<Jurisdiction>
  */
 class JurisdictionFactory extends Factory
 {

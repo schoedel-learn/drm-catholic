@@ -96,7 +96,7 @@ class FormController extends Controller
             abort(403);
         }
 
-        $form->update(['is_active' => !$form->is_active]);
+        $form->update(['is_active' => ! $form->is_active]);
 
         return back()->with('success', $form->is_active ? 'Form activated!' : 'Form deactivated!');
     }

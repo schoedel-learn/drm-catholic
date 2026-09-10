@@ -4,6 +4,7 @@ namespace App\Mcp\Tools;
 
 use App\Services\GooglePlaces\GooglePlacesClient;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\JsonSchema\Types\Type;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
@@ -31,7 +32,7 @@ class GetGooglePlaceTool extends Tool
             'place_id.required' => 'You must provide a place_id.',
         ]);
 
-        /** @var \App\Services\GooglePlaces\GooglePlacesClient $places */
+        /** @var GooglePlacesClient $places */
         $places = app(GooglePlacesClient::class);
 
         $payload = $places->getDetails($validated['place_id']);
@@ -44,7 +45,7 @@ class GetGooglePlaceTool extends Tool
     }
 
     /**
-     * @return array<string, \Illuminate\Contracts\JsonSchema\JsonSchema>
+     * @return array<string, JsonSchema>
      */
     public function schema(JsonSchema $schema): array
     {
@@ -56,7 +57,7 @@ class GetGooglePlaceTool extends Tool
     }
 
     /**
-     * @return array<string, \Illuminate\JsonSchema\Types\Type>
+     * @return array<string, Type>
      */
     public function outputSchema(JsonSchema $schema): array
     {

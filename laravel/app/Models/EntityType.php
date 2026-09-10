@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Observers\TenantObserver;
+use App\Scopes\TenantScope;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -37,21 +39,26 @@ class EntityType extends Model
      * Base entity types
      */
     public const BASE_CONTACT = 'contact';
+
     public const BASE_ORGANIZATION = 'organization';
+
     public const BASE_STANDALONE = 'standalone';
 
     /**
      * System entity type slugs
      */
     public const SLUG_CLERGY = 'clergy';
+
     public const SLUG_PARISH = 'parish';
+
     public const SLUG_SCHOOL = 'school';
+
     public const SLUG_OFFICE = 'office';
 
     protected static function booted(): void
     {
-        static::addGlobalScope(new \App\Scopes\TenantScope);
-        static::observe(\App\Observers\TenantObserver::class);
+        static::addGlobalScope(new TenantScope);
+        static::observe(TenantObserver::class);
 
         static::creating(function (EntityType $entityType) {
             if (empty($entityType->slug)) {
@@ -96,8 +103,9 @@ class EntityType extends Model
      */
     public function getIconAttribute($value): string
     {
-        if ($value)
+        if ($value) {
             return $value;
+        }
 
         return match ($this->base_entity) {
             self::BASE_CONTACT => 'user',
@@ -111,8 +119,9 @@ class EntityType extends Model
      */
     public function getColorAttribute($value): string
     {
-        if ($value)
+        if ($value) {
             return $value;
+        }
 
         return match ($this->base_entity) {
             self::BASE_CONTACT => 'blue',
@@ -162,7 +171,7 @@ class EntityType extends Model
         ];
 
         foreach ($defaults as $default) {
-            self::withoutGlobalScope(\App\Scopes\TenantScope::class)->updateOrCreate(
+            self::withoutGlobalScope(TenantScope::class)->updateOrCreate(
                 ['jurisdiction_id' => $jurisdiction->id, 'slug' => $default['slug']],
                 array_merge($default, ['jurisdiction_id' => $jurisdiction->id])
             );

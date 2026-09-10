@@ -41,7 +41,7 @@ class FormTemplate extends Model
         // Find a form that was created from this template to clone fields
         $sourceForm = $this->forms()->has('fields')->first();
 
-        if (!$sourceForm) {
+        if (! $sourceForm) {
             return;
         }
 

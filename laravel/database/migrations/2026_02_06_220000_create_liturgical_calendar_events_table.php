@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::create('liturgical_calendar_events', function (Blueprint $table) {
@@ -18,7 +19,7 @@ return new class extends Migration {
                 'feast',
                 'memorial',
                 'optional_memorial',
-                'weekday'
+                'weekday',
             ])->index();
 
             // Liturgical color (name + hex)
@@ -27,7 +28,7 @@ return new class extends Migration {
                 'white',
                 'red',
                 'green',
-                'rose'
+                'rose',
             ])->nullable();
             $table->string('color_hex', 10)->nullable();
 
@@ -38,7 +39,7 @@ return new class extends Migration {
                 'lent',
                 'triduum',
                 'easter',
-                'ordinary_time'
+                'ordinary_time',
             ])->index();
 
             // Liturgical year (e.g., 2026, 2027)

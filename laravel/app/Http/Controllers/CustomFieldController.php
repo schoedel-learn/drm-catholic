@@ -39,7 +39,7 @@ class CustomFieldController extends Controller
         $originalKey = $key;
         $counter = 1;
         while (CustomField::where('key', $key)->where('entity_type', $validated['entity_type'])->exists()) {
-            $key = $originalKey . '_' . $counter++;
+            $key = $originalKey.'_'.$counter++;
         }
 
         CustomField::create([

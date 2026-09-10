@@ -37,18 +37,26 @@ class ClergyAssignment extends Model
      * Assignment statuses
      */
     public const STATUS_ACTIVE = 'active';
+
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_COMPLETED = 'completed';
+
     public const STATUS_REVOKED = 'revoked';
 
     /**
      * Common clerical roles
      */
     public const ROLE_PASTOR = 'Pastor';
+
     public const ROLE_PAROCHIAL_VICAR = 'Parochial Vicar';
+
     public const ROLE_ADMINISTRATOR = 'Administrator';
+
     public const ROLE_DEACON = 'Deacon';
+
     public const ROLE_CHAPLAIN = 'Chaplain';
+
     public const ROLE_RECTOR = 'Rector';
 
     public function clergy(): BelongsTo
@@ -91,6 +99,7 @@ class ClergyAssignment extends Model
         if ($years > 0) {
             return $months > 0 ? "{$years}y {$months}m" : "{$years}y";
         }
+
         return "{$months}m";
     }
 

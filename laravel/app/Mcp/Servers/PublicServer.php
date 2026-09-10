@@ -2,10 +2,12 @@
 
 namespace App\Mcp\Servers;
 
-use App\Mcp\Tools\PingTool;
 use App\Mcp\Tools\GetGooglePlaceTool;
+use App\Mcp\Tools\PingTool;
 use App\Mcp\Tools\SearchGooglePlacesTool;
 use Laravel\Mcp\Server;
+use Laravel\Mcp\Server\Prompt;
+use Laravel\Mcp\Server\Tool;
 
 class PublicServer extends Server
 {
@@ -34,7 +36,7 @@ class PublicServer extends Server
     /**
      * The tools registered with this MCP server.
      *
-     * @var array<int, class-string<\Laravel\Mcp\Server\Tool>>
+     * @var array<int, class-string<Tool>>
      */
     protected array $tools = [
         PingTool::class,
@@ -45,7 +47,7 @@ class PublicServer extends Server
     /**
      * The resources registered with this MCP server.
      *
-     * @var array<int, class-string<\Laravel\Mcp\Server\Resource>>
+     * @var array<int, class-string<Server\Resource>>
      */
     protected array $resources = [
         //
@@ -54,7 +56,7 @@ class PublicServer extends Server
     /**
      * The prompts registered with this MCP server.
      *
-     * @var array<int, class-string<\Laravel\Mcp\Server\Prompt>>
+     * @var array<int, class-string<Prompt>>
      */
     protected array $prompts = [
         //

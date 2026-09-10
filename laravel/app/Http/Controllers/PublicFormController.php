@@ -7,6 +7,7 @@ use App\Models\CustomField;
 use App\Models\Form;
 use App\Models\FormSubmission;
 use App\Models\Organization;
+use App\Services\FormSubmissionProcessor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Inertia\Inertia;
@@ -17,7 +18,7 @@ class PublicFormController extends Controller
     {
         $form = Form::where('token', $token)->firstOrFail();
 
-        if (!$form->isAccessible()) {
+        if (! $form->isAccessible()) {
             return Inertia::render('PublicForm/Expired', [
                 'message' => $form->isExpired() ? 'This form has expired.' : 'This form is no longer accepting responses.',
             ]);
@@ -45,12 +46,12 @@ class PublicFormController extends Controller
     {
         $form = Form::where('token', $token)->firstOrFail();
 
-        if (!$form->isAccessible()) {
+        if (! $form->isAccessible()) {
             return back()->withErrors(['form' => 'This form is no longer accepting responses.']);
         }
 
         // Rate limiting: 10 submissions per hour per IP
-        $key = 'form-submit:' . $request->ip();
+        $key = 'form-submit:'.$request->ip();
         if (RateLimiter::tooManyAttempts($key, 10)) {
             return back()->withErrors(['form' => 'Too many submissions. Please try again later.']);
         }
@@ -94,7 +95,7 @@ class PublicFormController extends Controller
         ]);
 
         // Process submission to update/create Contact or Organization
-        app(\App\Services\FormSubmissionProcessor::class)->process($submission);
+        app(FormSubmissionProcessor::class)->process($submission);
 
         return Inertia::render('PublicForm/ThankYou', [
             'formName' => $form->name,

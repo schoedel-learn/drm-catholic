@@ -7,7 +7,6 @@ use App\Models\FormSubmission;
 use App\Models\Organization;
 use App\Scopes\TenantScope;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -50,13 +49,13 @@ class FormSubmissionProcessor
             ->where('email', $email)
             ->first();
 
-        if (!$contact) {
+        if (! $contact) {
             // Split name if possible
             $parts = explode(' ', $name, 2);
             $firstName = $parts[0];
             $lastName = $parts[1] ?? '';
 
-            $contact = new Contact();
+            $contact = new Contact;
             $contact->id = (string) Str::uuid();
             $contact->jurisdiction_id = $form->jurisdiction_id;
             $contact->owner_jurisdiction_id = $form->jurisdiction_id;
@@ -67,12 +66,15 @@ class FormSubmissionProcessor
         }
 
         // 2. Update Basic Fields if present in form data
-        if (isset($data['first_name']))
+        if (isset($data['first_name'])) {
             $contact->first_name = $data['first_name'];
-        if (isset($data['last_name']))
+        }
+        if (isset($data['last_name'])) {
             $contact->last_name = $data['last_name'];
-        if (isset($data['phone']))
+        }
+        if (isset($data['phone'])) {
             $contact->phone = $data['phone'];
+        }
 
         // 3. Merge Custom Fields
         $customData = $contact->custom_data ?? [];
@@ -105,8 +107,8 @@ class FormSubmissionProcessor
             ->where('email', $email)
             ->first();
 
-        if (!$org) {
-            $org = new Organization();
+        if (! $org) {
+            $org = new Organization;
             $org->id = (string) Str::uuid();
             $org->jurisdiction_id = $form->jurisdiction_id;
             $org->name = $submission->submitter_name; // Defaulting org name to submitter name if new? Or should be distinct?
@@ -116,14 +118,18 @@ class FormSubmissionProcessor
         }
 
         // Update Basic Fields
-        if (isset($data['name']))
+        if (isset($data['name'])) {
             $org->name = $data['name'];
-        if (isset($data['phone']))
+        }
+        if (isset($data['phone'])) {
             $org->phone = $data['phone'];
-        if (isset($data['website']))
+        }
+        if (isset($data['website'])) {
             $org->website = $data['website'];
-        if (isset($data['address']))
+        }
+        if (isset($data['address'])) {
             $org->address = $data['address'];
+        }
 
         // Merge Custom Fields
         $customData = $org->custom_data ?? [];
