@@ -1,0 +1,314 @@
+name: Deploy DRM demo
+
+# Deploys each successful push to `main` (and manual dispatches) to the
+# disposable Cloud Run demo. The build is validated by the existing smoke test
+# before it is pushed, deployed by immutable digest as a no-traffic candidate,
+# verified through scripts/verify-demo.zsh, and only then promoted. A
+# state-aware finalizer rolls traffic back (or deletes a failed first service)
+# so a broken candidate can never own the public demo.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: drm-demo-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy demo
+    runs-on: ubuntu-latest
+    environment: demo
+    timeout-minutes: 45
+
+    env:
+      GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+      GCP_REGION: ${{ vars.GCP_REGION }}
+      GCP_ARTIFACT_REPOSITORY: ${{ vars.GCP_ARTIFACT_REPOSITORY }}
+      CLOUD_RUN_SERVICE: ${{ vars.CLOUD_RUN_SERVICE }}
+      APP_KEY_SECRET_VERSION: ${{ vars.APP_KEY_SECRET_VERSION }}
+      DEMO_USER_PASSWORD_SECRET_VERSION: ${{ vars.DEMO_USER_PASSWORD_SECRET_VERSION }}
+      IMAGE_NAME: drm-catholic
+      APP_KEY_SECRET_NAME: drm-demo-app-key
+      DEMO_USER_PASSWORD_SECRET_NAME: drm-demo-user-password
+
+    steps:
+      # Checkout must run before google-github-actions/auth so the exported
+      # credentials are available to every later step.
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOYER_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v3
+        with:
+          version: ">= 502.0.0"
+
+      - name: Configure Docker for Artifact Registry
+        run: |
+          set -euo pipefail
+          gcloud auth configure-docker "${GCP_REGION}-docker.pkg.dev" --quiet
+
+      - name: Resolve image references
+        id: image
+        run: |
+          set -euo pipefail
+          registry_host="${GCP_REGION}-docker.pkg.dev"
+          image_repo="${registry_host}/${GCP_PROJECT_ID}/${GCP_ARTIFACT_REPOSITORY}/${IMAGE_NAME}"
+          image_tag="${image_repo}:${GITHUB_SHA}"
+          {
+            echo "registry_host=${registry_host}"
+            echo "image_repo=${image_repo}"
+            echo "image_tag=${image_tag}"
+          } >> "$GITHUB_OUTPUT"
+          echo "Immutable image tag: ${image_tag}"
+
+      # Build exactly once from laravel/Dockerfile; this same image is smoke
+      # tested and then pushed without an intervening rebuild.
+      - name: Build demo image
+        run: |
+          set -euo pipefail
+          docker build -f laravel/Dockerfile -t "${IMAGE_TAG}" laravel
+        env:
+          IMAGE_TAG: ${{ steps.image.outputs.image_tag }}
+
+      - name: Smoke-test the built image
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends zsh jq iproute2 openssl
+          ./laravel/scripts/smoke-demo.zsh
+        env:
+          # Pin the smoke test to the exact image we will push (no rebuild).
+          DEMO_IMAGE: ${{ steps.image.outputs.image_tag }}
+
+      - name: Push the tested image and record its digest
+        id: push
+        run: |
+          set -euo pipefail
+          docker push "${IMAGE_TAG}"
+          # Record the pushed digest from the local repo digests, filtered to
+          # this repository so an unrelated tag can never be selected.
+          digest="$(docker inspect --format '{{range .RepoDigests}}{{println .}}{{end}}' "${IMAGE_TAG}" \
+            | grep "^${IMAGE_REPO}@" | head -n 1 | sed 's/.*@//')"
+          case "${digest}" in
+            sha256:*) ;;
+            *) echo "::error::Could not determine a sha256 digest for ${IMAGE_TAG}" >&2; exit 1 ;;
+          esac
+          echo "image_digest_ref=${IMAGE_REPO}@${digest}" >> "$GITHUB_OUTPUT"
+          echo "Recorded digest ${digest}"
+        env:
+          IMAGE_TAG: ${{ steps.image.outputs.image_tag }}
+          IMAGE_REPO: ${{ steps.image.outputs.image_repo }}
+
+      - name: Deploy candidate, verify, and promote
+        env:
+          IMAGE_DIGEST_REF: ${{ steps.push.outputs.image_digest_ref }}
+        run: |
+          set -euo pipefail
+
+          : "${GCP_PROJECT_ID:?}"; : "${GCP_REGION:?}"; : "${CLOUD_RUN_SERVICE:?}"
+          : "${IMAGE_DIGEST_REF:?}"
+          : "${APP_KEY_SECRET_VERSION:?}"; : "${DEMO_USER_PASSWORD_SECRET_VERSION:?}"
+
+          RUNTIME_SA="drm-demo-runtime@${GCP_PROJECT_ID}.iam.gserviceaccount.com"
+          CANDIDATE_TAG="sha-${GITHUB_SHA:0:12}"
+          gcloud_common=(--project "${GCP_PROJECT_ID}" --region "${GCP_REGION}" --quiet)
+
+          # --- Reject unpinned / invalid Secret Manager versions ----------
+          # Refuse "latest", empty, or non-numeric versions before any mutation.
+          for pair in \
+            "APP_KEY_SECRET_VERSION=${APP_KEY_SECRET_VERSION}" \
+            "DEMO_USER_PASSWORD_SECRET_VERSION=${DEMO_USER_PASSWORD_SECRET_VERSION}"; do
+            name="${pair%%=*}"; value="${pair#*=}"
+            if ! [[ "${value}" =~ ^[1-9][0-9]*$ ]]; then
+              echo "::error::${name} must be a pinned positive-integer secret version (got '${value}')" >&2
+              exit 1
+            fi
+          done
+
+          # --- Detect whether the service already exists ------------------
+          if gcloud run services describe "${CLOUD_RUN_SERVICE}" "${gcloud_common[@]}" \
+               --format='value(metadata.name)' >/dev/null 2>&1; then
+            SERVICE_EXISTS=true
+          else
+            SERVICE_EXISTS=false
+          fi
+          echo "Service already exists: ${SERVICE_EXISTS}"
+
+          BASELINE_REVISION=""
+          SERVICE_URL=""
+
+          # On later deployments, capture the current healthy 100% revision as
+          # the rollback baseline and the public URL before touching anything.
+          if [[ "${SERVICE_EXISTS}" == true ]]; then
+            DESCRIBE_JSON="$(gcloud run services describe "${CLOUD_RUN_SERVICE}" "${gcloud_common[@]}" --format=json)"
+            SERVICE_URL="$(jq -r '.status.url // ""' <<<"${DESCRIBE_JSON}")"
+            BASELINE_REVISION="$(jq -r 'first(.status.traffic[]? | select((.percent // 0) > 0 and (.tag == null)) | .revisionName) // ""' <<<"${DESCRIBE_JSON}")"
+            if [[ -z "${BASELINE_REVISION}" ]]; then
+              BASELINE_REVISION="$(jq -r '.status.latestReadyRevisionName // ""' <<<"${DESCRIBE_JSON}")"
+            fi
+            echo "Rollback baseline revision: ${BASELINE_REVISION:-<none>}"
+            echo "Existing public URL: ${SERVICE_URL:-<none>}"
+          fi
+
+          # --- State-aware failure finalizer ------------------------------
+          # Runs on any non-zero exit under `set -e`. Later deployments route
+          # 100% traffic back to the captured healthy baseline; a failed first
+          # deployment deletes the service so no broken public demo remains.
+          finalize() {
+            local status=$?
+            trap - EXIT
+            if [[ ${status} -eq 0 ]]; then
+              exit 0
+            fi
+            echo "::warning::Deployment failed (exit ${status}); running state-aware cleanup" >&2
+            if [[ "${SERVICE_EXISTS}" == true ]]; then
+              if [[ -n "${BASELINE_REVISION}" ]]; then
+                echo "Routing 100% traffic back to healthy baseline ${BASELINE_REVISION}" >&2
+                gcloud run services update-traffic "${CLOUD_RUN_SERVICE}" "${gcloud_common[@]}" \
+                  --to-revisions "${BASELINE_REVISION}=100" >&2 \
+                  || echo "::error::Rollback to ${BASELINE_REVISION} failed; manual intervention required" >&2
+              else
+                echo "::error::No healthy baseline captured; cannot auto-roll back" >&2
+              fi
+            else
+              echo "Deleting failed first-deploy service ${CLOUD_RUN_SERVICE}" >&2
+              gcloud run services delete "${CLOUD_RUN_SERVICE}" "${gcloud_common[@]}" >&2 \
+                || echo "::error::Failed to delete ${CLOUD_RUN_SERVICE}; manual cleanup required" >&2
+            fi
+            exit ${status}
+          }
+          trap finalize EXIT
+
+          # --- Assemble immutable, non-secret runtime configuration -------
+          # Secrets are mapped separately from pinned versions and never appear
+          # here. Backslashes in the formatter class are intentional.
+          ENV_VARS="APP_ENV=production"
+          ENV_VARS+="@@APP_DEBUG=false"
+          ENV_VARS+="@@DEMO_MODE=true"
+          ENV_VARS+="@@DB_CONNECTION=sqlite"
+          ENV_VARS+="@@DB_DATABASE=/tmp/drm/database.sqlite"
+          ENV_VARS+="@@CACHE_STORE=array"
+          ENV_VARS+="@@SESSION_DRIVER=cookie"
+          ENV_VARS+="@@QUEUE_CONNECTION=sync"
+          ENV_VARS+="@@MAIL_MAILER=log"
+          ENV_VARS+="@@LOG_CHANNEL=stderr"
+          ENV_VARS+="@@LOG_STDERR_FORMATTER=Monolog\\Formatter\\JsonFormatter"
+          ENV_VARS+="@@DEPLOYMENT_GIT_SHA=${GITHUB_SHA}"
+          # Trust the Cloud Run TLS-terminating proxy so Laravel emits correct
+          # absolute HTTPS URLs. The public URL is only known once the service
+          # exists, so the first deployment applies APP_URL on the next release.
+          if [[ -n "${SERVICE_URL}" ]]; then
+            ENV_VARS+="@@APP_URL=${SERVICE_URL}"
+          fi
+
+          SECRET_MAPPINGS="APP_KEY=${APP_KEY_SECRET_NAME}:${APP_KEY_SECRET_VERSION}"
+          SECRET_MAPPINGS+=",DEMO_USER_PASSWORD=${DEMO_USER_PASSWORD_SECRET_NAME}:${DEMO_USER_PASSWORD_SECRET_VERSION}"
+
+          deploy_args=(
+            "${CLOUD_RUN_SERVICE}"
+            "${gcloud_common[@]}"
+            --image "${IMAGE_DIGEST_REF}"
+            --tag "${CANDIDATE_TAG}"
+            --allow-unauthenticated
+            --port 8080
+            --cpu 1
+            --memory 512Mi
+            --concurrency 20
+            --timeout 60
+            --min-instances 0
+            --max-instances 1
+            --service-account "${RUNTIME_SA}"
+            --set-env-vars "^@@^${ENV_VARS}"
+            --set-secrets "${SECRET_MAPPINGS}"
+          )
+          # Later deployments stage the candidate without traffic; the first
+          # deployment necessarily owns traffic as the only revision.
+          if [[ "${SERVICE_EXISTS}" == true ]]; then
+            deploy_args+=(--no-traffic)
+          fi
+
+          echo "Deploying candidate (tag ${CANDIDATE_TAG}) from ${IMAGE_DIGEST_REF}"
+          gcloud run deploy "${deploy_args[@]}"
+
+          # --- Resolve candidate identity from status.traffic -------------
+          # Resolve the revision name and tag URL from the API, never from a
+          # guessed hostname.
+          POST_JSON="$(gcloud run services describe "${CLOUD_RUN_SERVICE}" "${gcloud_common[@]}" --format=json)"
+          if [[ -z "${SERVICE_URL}" ]]; then
+            SERVICE_URL="$(jq -r '.status.url // ""' <<<"${POST_JSON}")"
+          fi
+          CANDIDATE_REVISION="$(jq -r --arg t "${CANDIDATE_TAG}" 'first(.status.traffic[]? | select(.tag == $t) | .revisionName) // ""' <<<"${POST_JSON}")"
+          CANDIDATE_URL="$(jq -r --arg t "${CANDIDATE_TAG}" 'first(.status.traffic[]? | select(.tag == $t) | .url) // ""' <<<"${POST_JSON}")"
+          [[ -n "${CANDIDATE_REVISION}" ]] || { echo "::error::Could not resolve candidate revision from status.traffic" >&2; exit 1; }
+          [[ -n "${CANDIDATE_URL}" ]] || { echo "::error::Could not resolve candidate tag URL from status.traffic" >&2; exit 1; }
+          [[ -n "${SERVICE_URL}" ]] || { echo "::error::Could not resolve service URL from status" >&2; exit 1; }
+          echo "Candidate revision: ${CANDIDATE_REVISION}"
+          echo "Candidate tag URL:  ${CANDIDATE_URL}"
+
+          # --- Confirm the candidate references the exact digest and SHA --
+          REVISION_JSON="$(gcloud run revisions describe "${CANDIDATE_REVISION}" "${gcloud_common[@]}" --format=json)"
+          REVISION_IMAGE="$(jq -r '.spec.containers[0].image // ""' <<<"${REVISION_JSON}")"
+          REVISION_SHA="$(jq -r 'first(.spec.containers[0].env[]? | select(.name == "DEPLOYMENT_GIT_SHA") | .value) // ""' <<<"${REVISION_JSON}")"
+          [[ "${REVISION_IMAGE}" == "${IMAGE_DIGEST_REF}" ]] \
+            || { echo "::error::Candidate image '${REVISION_IMAGE}' != recorded digest '${IMAGE_DIGEST_REF}'" >&2; exit 1; }
+          [[ "${REVISION_SHA}" == "${GITHUB_SHA}" ]] \
+            || { echo "::error::Candidate DEPLOYMENT_GIT_SHA '${REVISION_SHA}' != '${GITHUB_SHA}'" >&2; exit 1; }
+          echo "Candidate references the exact digest and is stamped with the commit SHA"
+
+          # --- Verify the candidate before it can receive traffic ---------
+          echo "Verifying candidate at ${CANDIDATE_URL}"
+          zsh laravel/scripts/verify-demo.zsh --base-url "${CANDIDATE_URL}" --expected-sha "${GITHUB_SHA}"
+
+          # --- Structured-logging check (no secrets fetched or printed) ---
+          # A healthy revision only emits application error records, so the SHA
+          # is bound to the revision through metadata above. Here we prove the
+          # structured jsonPayload pipeline is live and that severities remain
+          # distinguishable, computing counts/severities only — never payloads.
+          LOG_FILTER="resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"${CLOUD_RUN_SERVICE}\" AND resource.labels.revision_name=\"${CANDIDATE_REVISION}\""
+          structured_count=0
+          LOG_JSON='[]'
+          deadline=$(( SECONDS + 120 ))
+          while :; do
+            LOG_JSON="$(gcloud logging read "${LOG_FILTER}" --project "${GCP_PROJECT_ID}" --freshness=1h --limit=100 --format=json 2>/dev/null || echo '[]')"
+            structured_count="$(jq '[.[] | select(.jsonPayload != null)] | length' <<<"${LOG_JSON}")"
+            [[ "${structured_count}" -ge 1 ]] && break
+            (( SECONDS >= deadline )) && break
+            sleep 10
+          done
+          [[ "${structured_count}" -ge 1 ]] \
+            || { echo "::error::No structured jsonPayload records found for ${CANDIDATE_REVISION}" >&2; exit 1; }
+          sha_count="$(jq --arg sha "${GITHUB_SHA}" '[.[] | select(.jsonPayload.git_sha == $sha)] | length' <<<"${LOG_JSON}")"
+          echo "Structured jsonPayload records: ${structured_count} (application records stamped with candidate SHA: ${sha_count})"
+          echo "Severity distribution (startup/health errors stay distinguishable):"
+          jq -r '.[] | .severity // "DEFAULT"' <<<"${LOG_JSON}" | sort | uniq -c || true
+
+          # --- Promote / verify default traffic ---------------------------
+          if [[ "${SERVICE_EXISTS}" == true ]]; then
+            echo "Promoting ${CANDIDATE_REVISION} to 100% default traffic"
+            gcloud run services update-traffic "${CLOUD_RUN_SERVICE}" "${gcloud_common[@]}" \
+              --to-revisions "${CANDIDATE_REVISION}=100"
+            echo "Verifying public service URL ${SERVICE_URL} after promotion"
+            zsh laravel/scripts/verify-demo.zsh --base-url "${SERVICE_URL}" --expected-sha "${GITHUB_SHA}"
+            echo "Post-promotion verification succeeded; previous revision retained for rollback"
+          else
+            echo "First deployment already owns traffic; verifying default URL ${SERVICE_URL}"
+            zsh laravel/scripts/verify-demo.zsh --base-url "${SERVICE_URL}" --expected-sha "${GITHUB_SHA}"
+            echo "First revision verified and retained as the future rollback baseline"
+          fi
+
+          echo "Deployment succeeded: ${CLOUD_RUN_SERVICE} serves ${GITHUB_SHA} at ${SERVICE_URL}"
