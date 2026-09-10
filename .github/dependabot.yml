@@ -8,7 +8,18 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "America/New_York"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 2
+    groups:
+      composer-production-minor-patch:
+        dependency-type: "production"
+        update-types:
+          - "minor"
+          - "patch"
+      composer-development-minor-patch:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
     reviewers:
       - "schoedel-learn"
     labels:
@@ -26,7 +37,18 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "America/New_York"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 2
+    groups:
+      npm-production-minor-patch:
+        dependency-type: "production"
+        update-types:
+          - "minor"
+          - "patch"
+      npm-development-minor-patch:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
     reviewers:
       - "schoedel-learn"
     labels:
@@ -44,10 +66,46 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "America/New_York"
+    open-pull-requests-limit: 2
+    groups:
+      # github-actions has no production/development distinction, so all
+      # non-major updates are grouped together via a name pattern instead.
+      github-actions-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
     reviewers:
       - "schoedel-learn"
     labels:
       - "ci"
+      - "dependencies"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
+  # Monitor Docker base image updates (Laravel)
+  - package-ecosystem: "docker"
+    directory: "/laravel"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 2
+    groups:
+      # docker has no production/development distinction, so all
+      # non-major updates are grouped together via a name pattern instead.
+      docker-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    reviewers:
+      - "schoedel-learn"
+    labels:
       - "dependencies"
     commit-message:
       prefix: "chore"
