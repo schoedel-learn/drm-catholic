@@ -2,7 +2,12 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [main]
+    # Scan every branch, not just main: the repository's "Branch Protection"
+    # ruleset requires a code-scanning result for a pull request's *head* commit
+    # before it can merge, but CodeQL's pull_request runs upload results only
+    # against the synthetic merge ref. Scanning branch pushes gives each head
+    # commit a real CodeQL result so the rule can be satisfied honestly.
+    branches: ["**"]
   pull_request:
     branches: [main]
   schedule:
