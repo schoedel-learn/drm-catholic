@@ -57,8 +57,16 @@ jobs:
           extensions: mbstring xml ctype fileinfo pdo pgsql pdo_pgsql
           coverage: none
 
-      - name: Install bubblewrap
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends bubblewrap
+      - name: Install sandbox test tools
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends bubblewrap zsh
+
+      # Ubuntu 24.04 (the runner image) restricts unprivileged user namespaces
+      # by default via AppArmor, which makes the bwrap sandbox in
+      # StartupConfigurationTest fail with a permission error instead of running
+      # the script. Lift the restriction for this job so the sandbox tests
+      # execute for real rather than being skipped or bypassed.
+      - name: Allow unprivileged user namespaces for the bubblewrap sandbox tests
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
 
       - name: Get Composer cache directory
         id: composer-cache
@@ -124,6 +132,19 @@ jobs:
           node-version: "24"
           cache: "npm"
           cache-dependency-path: laravel/package-lock.json
+
+      # resources/js/app.js imports Ziggy's JS from Composer's vendor directory
+      # (../../vendor/tightenco/ziggy), so the frontend build needs the Composer
+      # dependencies present too — same coupling the Dockerfile handles by
+      # copying vendor/tightenco/ziggy into the assets stage.
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
 
       - name: Install dependencies
         run: npm ci
