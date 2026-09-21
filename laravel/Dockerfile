@@ -12,7 +12,7 @@ RUN composer install \
     --prefer-dist \
     --optimize-autoloader
 
-FROM node:24-bookworm-slim AS assets
+FROM node:25-bookworm-slim AS assets
 
 WORKDIR /app
 
